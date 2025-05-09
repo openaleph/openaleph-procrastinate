@@ -8,11 +8,11 @@ Install [`openaleph-procrastinate`](https://github.com/openaleph/openaleph-procr
 
 pip:
 
-    pip install "openaleph-procrastinate @ https://github.com/openaleph/openaleph-procrastinate@main"
+    pip install "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
 
 poetry:
 
-    poetry add "openaleph-procrastinate @ https://github.com/openaleph/openaleph-procrastinate@main"
+    poetry add "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
 
 This will include all the required dependencies.
 

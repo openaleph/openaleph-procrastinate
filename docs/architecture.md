@@ -12,4 +12,4 @@ For task inspection, `openaleph-procrastinate` provides the [Django](https://www
 
 Services subscribing to `openaleph_procrastinate` are completely independent programs that could run on separate (or same) infrastructure or as containers. They only need to be able to connect to the `postgresql` database holding the `procrastinate` task queue data.
 
-Due to the possibility to defer `Jobs` to _unknown_ tasks (outside of the codebase of the current running service), `openaleph-procrastinate`, a _service_ and the _OpenAleph_ programs doesn't need to share much codebase, and by using mostly out-of-the-boy logic from `procrastinate` the implementation stays simple and maintainable.
+Due to the possibility to defer `Jobs` to _unknown_ tasks (outside of the codebase of the current running service), `openaleph-procrastinate`, a _service_ and the _OpenAleph_ programs doesn't need to share much codebase, and by using mostly out-of-the-box logic from `procrastinate` the implementation stays simple and maintainable.
