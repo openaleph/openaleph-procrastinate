@@ -16,6 +16,8 @@ from servicelayer.archive.archive import Archive
 from openaleph_procrastinate.exceptions import ArchiveFileNotFound, EntityNotFound
 from openaleph_procrastinate.settings import settings
 
+OPAL_ORIGIN = "openaleph_procrastinate"
+
 
 @cache
 def get_archive() -> Archive:
@@ -70,7 +72,9 @@ def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     Get the `ftmstore.dataset.BulkLoader` for the given `dataset`. The entities
     are flushed when leaving the context.
     """
-    store = get_dataset(dataset, database_uri=settings.ftm_store_uri)
+    store = get_dataset(
+        dataset, origin=OPAL_ORIGIN, database_uri=settings.ftm_store_uri
+    )
     loader = store.bulk()
     try:
         yield loader
