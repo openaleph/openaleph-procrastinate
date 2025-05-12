@@ -52,7 +52,7 @@ def dummy_task(context: JobContext, job: AnyJob) -> AnyJob:
     """
     log.info("👋", job=job, context=context)
     job.stages = [
-        Stage(queue="default", task="openaleph_procrastinate.tasks.next_task")
+        Stage(queue=job.queue, task="openaleph_procrastinate.tasks.next_task")
     ]
     return job
 
