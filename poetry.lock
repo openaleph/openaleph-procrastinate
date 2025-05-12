@@ -207,18 +207,19 @@ files = [
 
 [[package]]
 name = "anystore"
-version = "0.3.3"
+version = "0.3.4"
 description = "Store and cache things anywhere"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "anystore-0.3.3-py3-none-any.whl", hash = "sha256:c516e2f3eb4e8babca3b5c07a4cc2dce918a6f4d087d84c30f4035c5363c041b"},
-    {file = "anystore-0.3.3.tar.gz", hash = "sha256:589ca01c46d044de438e7c96934d99ed08a87b39f85d5894a6e3cec867ddf367"},
+    {file = "anystore-0.3.4-py3-none-any.whl", hash = "sha256:d2ad16eab0b6a9a5bf2a2d50e519950e4abc2b01c8db8792f359adad6d809818"},
+    {file = "anystore-0.3.4.tar.gz", hash = "sha256:284a8200a030667c4ce08bf4597952a1d828ae6a05575fa9c3f1c66f4229386d"},
 ]
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
+click = "<8.2"
 cloudpickle = ">=3.1.0,<4.0.0"
 fsspec = ">2023.10,<2026"
 orjson = ">=3.9.15"
@@ -231,7 +232,7 @@ structlog = ">=24.4.0,<25.0.0"
 typer = ">=0.15.1,<0.16.0"
 
 [package.extras]
-redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
+redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=4.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
 
 [[package]]
@@ -1122,19 +1123,19 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.8.3"
+version = "0.8.4"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-0.8.3-py3-none-any.whl", hash = "sha256:389cf11f486a0255f6a600f59d7b84bd43d8e97e62a88390c428379afd94a180"},
-    {file = "ftmq-0.8.3.tar.gz", hash = "sha256:f14fe1c00491ab35824dccb32ccb00b045f883b2098694c9070a82a30b6b802e"},
+    {file = "ftmq-0.8.4-py3-none-any.whl", hash = "sha256:11909a3fe3eec2d49f87dac61f73c0e158fcf826c3003dd4f2ca74c60733ce74"},
+    {file = "ftmq-0.8.4.tar.gz", hash = "sha256:9453534551be53588a9fea9b17d104223432a13998589c7af718579fee36d48f"},
 ]
 
 [package.dependencies]
 alephclient = ">=2.6.0,<3.0.0"
-anystore = ">=0.3.3,<0.4.0"
+anystore = ">=0.3.4,<0.4.0"
 click = ">=8.1.8,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 nomenklatura = ">=3.17.3,<4.0.0"
@@ -2007,14 +2008,14 @@ pyyaml = ">=5.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "9.6.12"
+version = "9.6.13"
 description = "Documentation that simply works"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "mkdocs_material-9.6.12-py3-none-any.whl", hash = "sha256:92b4fbdc329e4febc267ca6e2c51e8501fa97b2225c5f4deb4d4e43550f8e61e"},
-    {file = "mkdocs_material-9.6.12.tar.gz", hash = "sha256:add6a6337b29f9ea7912cb1efc661de2c369060b040eb5119855d794ea85b473"},
+    {file = "mkdocs_material-9.6.13-py3-none-any.whl", hash = "sha256:3730730314e065f422cc04eacbc8c6084530de90f4654a1482472283a38e30d3"},
+    {file = "mkdocs_material-9.6.13.tar.gz", hash = "sha256:7bde7ebf33cfd687c1c86c08ed8f6470d9a5ba737bd89e7b3e5d9f94f8c72c16"},
 ]
 
 [package.dependencies]
@@ -2865,14 +2866,14 @@ files = [
 
 [[package]]
 name = "psycopg"
-version = "3.2.7"
+version = "3.2.8"
 description = "PostgreSQL database adapter for Python"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "psycopg-3.2.7-py3-none-any.whl", hash = "sha256:d39747d2d5b9658b69fa462ad21d31f1ba4a5722ad1d0cb952552bc0b4125451"},
-    {file = "psycopg-3.2.7.tar.gz", hash = "sha256:9afa609c7ebf139827a38c0bf61be9c024a3ed743f56443de9d38e1efc260bf3"},
+    {file = "psycopg-3.2.8-py3-none-any.whl", hash = "sha256:0e960f1977d77de7f1ace4b54590f686b52c2f9ab1f61fff4141887fc711d9e7"},
+    {file = "psycopg-3.2.8.tar.gz", hash = "sha256:cc995d836841e400c4f615d8dea351dc39697ad29df84d428f9c38c8040222f8"},
 ]
 
 [package.dependencies]
@@ -2881,8 +2882,8 @@ typing-extensions = {version = ">=4.6", markers = "python_version < \"3.13\""}
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
-binary = ["psycopg-binary (==3.2.7) ; implementation_name != \"pypy\""]
-c = ["psycopg-c (==3.2.7) ; implementation_name != \"pypy\""]
+binary = ["psycopg-binary (==3.2.8) ; implementation_name != \"pypy\""]
+c = ["psycopg-c (==3.2.8) ; implementation_name != \"pypy\""]
 dev = ["ast-comments (>=1.1.2)", "black (>=24.1.0)", "codespell (>=2.2)", "dnspython (>=2.1)", "flake8 (>=4.0)", "isort-psycopg", "isort[colors] (>=6.0)", "mypy (>=1.14)", "pre-commit (>=4.0.1)", "types-setuptools (>=57.4)", "types-shapely (>=2.0)", "wheel (>=0.37)"]
 docs = ["Sphinx (>=5.0)", "furo (==2022.6.21)", "sphinx-autobuild (>=2021.3.14)", "sphinx-autodoc-typehints (>=1.12)"]
 pool = ["psycopg-pool"]
@@ -3850,13 +3851,15 @@ test = ["Cython", "array-api-strict (>=2.0,<2.1.1)", "asv", "gmpy2", "hypothesis
 
 [[package]]
 name = "servicelayer"
-version = "1.23.1"
+version = "1.24.0"
 description = "Basic remote service functions for alephdata components"
 optional = false
 python-versions = "*"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "servicelayer-1.24.0-py2.py3-none-any.whl", hash = "sha256:e73303158d69ef705e679c66d94e45f6cdba083fec8ec9f6b242af7d7addb7e5"},
+    {file = "servicelayer-1.24.0.tar.gz", hash = "sha256:17a80ac5f7f88ff9937f6b5f894819594c525935e2608009f48eb37f803e0d19"},
+]
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
@@ -3873,12 +3876,6 @@ structlog = ">=20.2.0,<25.0.0"
 amazon = ["boto3 (>=1.11.9,<2.0.0)"]
 dev = ["boto3 (>=1.11.9,<2.0.0)", "coverage", "moto (<5)", "pytest (>=3.6)", "pytest-cov", "time-machine (>=2.14.1,<3.0.0)", "twine"]
 google = ["google-cloud-storage (>=1.31.0,<3.0.0)", "grpcio (>=1.32.0,<2.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/dataresearchcenter/servicelayer"
-reference = "main"
-resolved_reference = "10f0a4d74d692fc2c5b76607b84b43554a1c8432"
 
 [[package]]
 name = "shellingham"
@@ -4547,4 +4544,4 @@ django = ["django"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "6a0be89b99a8e474747d5575558c1278fa11ab5ac522e1f48e609a3c465b9049"
+content-hash = "74cf6a288bc2751bf4df9cc5e90358220b8fbfe73ae8108ed0ea7ad5c5e9150a"
