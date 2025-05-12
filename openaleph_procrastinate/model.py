@@ -17,16 +17,27 @@ class EntityFileReference(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+    dataset: str
     content_hash: str
     entity: EntityProxy
 
     def open(self: Self) -> ContextManager[BinaryIO]:
-        """Open the file attached to this job"""
-        return helpers.open_file(self.content_hash)
+        """
+        Open the file attached to this job
+
+        !!! danger
+            This is not tested.
+        """
+        return helpers.open_file(self.dataset, self.content_hash)
 
     def get_localpath(self: Self) -> ContextManager[Path]:
-        """Get a temporary path for the file attached to this job"""
-        return helpers.get_localpath(self.content_hash)
+        """
+        Get a temporary path for the file attached to this job
+
+        !!! danger
+            This is not tested.
+        """
+        return helpers.get_localpath(self.dataset, self.content_hash)
 
 
 class Stage(BaseModel):
@@ -98,7 +109,9 @@ class DatasetJob(Job):
         """Get file references per entity from this job"""
         for entity in self.get_entities():
             for content_hash in entity.get("contentHash"):
-                yield EntityFileReference(entity=entity, content_hash=content_hash)
+                yield EntityFileReference(
+                    dataset=self.dataset, entity=entity, content_hash=content_hash
+                )
 
     # Helpers for creating entity jobs
 

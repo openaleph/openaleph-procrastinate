@@ -3,52 +3,53 @@ Helper functions to access Archive and FollowTheMoney data within Jobs
 """
 
 from contextlib import contextmanager
-from functools import cache
 from pathlib import Path
 from typing import BinaryIO, Generator
 
+from anystore.store.virtual import get_virtual
 from followthemoney.proxy import EntityProxy
 from ftmstore import get_dataset
 from ftmstore.loader import BulkLoader
-from servicelayer.archive import init_archive
-from servicelayer.archive.archive import Archive
 
-from openaleph_procrastinate.exceptions import ArchiveFileNotFound, EntityNotFound
+from openaleph_procrastinate.exceptions import EntityNotFound
+from openaleph_procrastinate.legacy.archive import get_archive, lookup_key
 from openaleph_procrastinate.settings import settings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
 
 
-@cache
-def get_archive() -> Archive:
-    return init_archive()
-
-
 @contextmanager
-def get_localpath(content_hash: str) -> Generator[Path, None, None]:
+def get_localpath(dataset: str, content_hash: str) -> Generator[Path, None, None]:
     """
     Load a file from the archive and store it in a local temporary path for
     further processing. The file is cleaned up after leaving the context.
+
+    !!! danger
+        This is not tested.
     """
     archive = get_archive()
-    path = archive.load_file(content_hash)
-    if path is None:
-        raise ArchiveFileNotFound(f"Key does not exist: `{content_hash}`")
+    key = lookup_key(content_hash)
+    store = get_virtual()
+    path = store.download(key, archive)
     try:
         yield Path(path)
     finally:
-        archive.cleanup_file(content_hash)
+        store.cleanup(path)
 
 
 @contextmanager
-def open_file(content_hash: str) -> Generator[BinaryIO, None, None]:
+def open_file(dataset: str, content_hash: str) -> Generator[BinaryIO, None, None]:
     """
     Load a file from the archive and store it in a local temporary path for
     further processing. Returns an open file handler. The file is closed and
     cleaned up after leaving the context.
+
+    !!! danger
+        This is not tested.
     """
-    with get_localpath(content_hash) as path:
-        handler = path.open("rb")
+    archive = get_archive()
+    key = lookup_key(content_hash)
+    with archive.open(key) as handler:
         try:
             yield handler
         finally:

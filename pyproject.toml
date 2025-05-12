@@ -24,7 +24,6 @@ dependencies = [
     "orjson (>=3.10.18,<4.0.0)",
     "django (>=5.2,<6.0)",
     "dj-database-url (>=2.3.0,<3.0.0)",
-    "servicelayer (>=1.24.0,<2.0.0)",
     "followthemoney-store[postgresql] (>=3.1.0,<4.0.0)",
     "followthemoney (>=3.8.2,<4.0.0)",
     "ftmq (>=0.8.4,<0.9.0)",
