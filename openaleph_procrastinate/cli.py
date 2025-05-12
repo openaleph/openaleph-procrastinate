@@ -2,7 +2,7 @@ from typing import Annotated, Optional
 
 import typer
 from anystore.cli import ErrorHandler
-from anystore.io import smart_stream, smart_stream_json
+from anystore.io import smart_stream_json
 from ftmq.io import smart_stream_proxies
 from rich import print
 
@@ -48,24 +48,6 @@ def defer_entities(
         for proxy in smart_stream_proxies(input_uri):
             job = model.DatasetJob.from_entity(
                 dataset=dataset, queue=queue, task=task, entity=proxy
-            )
-            job.defer(app)
-
-
-@cli.command()
-def defer_files(
-    input_uri: str = OPT_INPUT_URI,
-    dataset: str = OPT_DATASET,
-    queue: str = OPT_QUEUE,
-    task: str = OPT_TASK,
-):
-    """
-    Defer jobs for a stream of content hashes
-    """
-    with ErrorHandler(), app.open():
-        for line in smart_stream(input_uri):
-            job = model.DatasetJob.from_content_hash(
-                dataset=dataset, queue=queue, task=task, content_hash=line
             )
             job.defer(app)
 

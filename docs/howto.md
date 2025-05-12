@@ -51,7 +51,7 @@ app = make_app(__loader__.name)
 @task(app=app)
 def geocode(job: DatasetJob):
     with job.get_writer() as bulk:
-        for proxy in geocode_proxy(settings.geocoders, job.entity)
+        for proxy in geocode_proxy(settings.geocoders, job.get_entities()):
             bulk.put(proxy)
 ```
 

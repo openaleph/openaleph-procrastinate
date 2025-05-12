@@ -41,72 +41,24 @@ A generic Job not bound to a dataset. They can be used for management purposes a
 
 `openaleph_procrastinate.model.DatasetJob`
 
-A concrete Job bound to a dataset via its property `dataset`. This will be the most common used Job model for ingesting files, analyzing and indexing entities.
+A concrete Job bound to a dataset via its property `dataset` (Aleph wording: _"Collection"_). This will be the most common used Job model for ingesting files, analyzing and indexing entities.
+
+Entities in the job payload are always an array in `entities` key even if it is a job only for 1 Entity.
 
 They have some helper methods to access file objects or entities:
 
-### A job for processing a file from the servicelayer
-
-```python
-job = DatasetJob(
-    dataset="my_dataset",
-    queue="ingest",
-    task="ingestors.tasks.ingest",
-    payload={"content_hash": "<sha1>"}
-)
-```
-
-There exists a `@classmethod` to create the same object:
-
-```python
-job = DatasetJob.from_conten_hash(
-    dataset="my_dataset",
-    queue="ingest",
-    task="ingestors.task.ingest",
-    content_hash="<sha1>"
-)
-```
-
-#### Get a file-handler within a task
-
-Get a `BinaryIO` context manager that behaves the same like file-like `.open()`
-
-```python
-@task(app=app)
-def process_file(job: DatasetJob):
-    with job.open_file() as fh:
-        some_function(fh)
-```
-
-Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
-
-#### Get a temporary file path within a task
-
-Some procedures require a path instead of a file handler. The returned path is a `pathlib.Path` object:
-
-```python
-@task(app=app)
-def process_file(job: DatasetJob):
-    with job.get_localpath() as path:
-        subprocess.run(f"some-program -f {path}")
-```
-
-Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
-
 ### A job for processing one or more entities
-
-**TODO** discuss & decide if Jobs should separate payloads for 1 and >1 entities or always have an iterable of entities in the payload (which could have the length of 1).
 
 ```python
 job = DatasetJob(
     dataset="my_dataset",
     queue="index",
     task="aleph.tasks.index_proxy",
-    payload={"id": "1", "schema": "Person", "properties": {"name": ["Jane Doe"]}}
+    payload={"entities": [...], "context": {ctx}}
 )
 ```
 
-There exists a `@classmethod` to create the same object:
+There exists a `@classmethod` to create a job for an Entity:
 
 ```python
 job = DatasetJob.from_entity(
@@ -120,33 +72,17 @@ job = DatasetJob.from_entity(
 Multiple entities (for batch processing):
 
 ```python
-job = DatasetJob(
+job = DatasetJob.from_entities(
     dataset="my_dataset",
     queue="index",
     task="aleph.tasks.index_proxy",
-    payload={"entities": [...]}
+    entities=[...]  # instances of `followthemoney.model.EntityProxy`
 )
 ```
 
-#### Get the entity or entities
+#### Get entities
 
-This property parses the payload into an `EntityProxy` object:
-
-```python
-@task(app=app)
-def process_entity(job: DatasetJob):
-    entity = job.entity
-```
-
-To receive the entity from the `followthemoney-store` (to have the most recent version, it might be patched in between by other tasks):
-
-```python
-@task(app=app)
-def process_entity(job: DatasetJob):
-    entity = job.load_entity()
-```
-
-Get multiple entities from the payload:
+Get the entities from the payload:
 
 ```python
 @task(app=app)
@@ -164,7 +100,13 @@ def process_entities(job: DatasetJob):
         do_something(entity)
 ```
 
+#### Write entities
+
 Write entities or fragments to the store. This writes to the same dataset the original entity(ies) are from.
+
+!!! danger
+
+    This is currently not working for writing entities to **OpenAleph**. Its _FollowTheMoney store_ uses `ftm_collection_<id>` as the table scheme instead of the `dataset` property as an identifier. To put entities into OpenAleph, defer a next stage job with `aleph.procrastinate.put_entities` as the task.
 
 ```python
 @task(app=app)
@@ -176,6 +118,48 @@ def process_entities(job: DatasetJob):
 ```
 
 The bulk writer is flushed when leaving the context.
+
+
+### A job for processing file entities from the servicelayer
+
+The entities must have [`contentHash`](https://followthemoney.tech/explorer/schemata/Document/#property-contentHash) properties.
+
+```python
+job = DatasetJob(
+    dataset="my_dataset",
+    queue="ingest",
+    task="ingestors.tasks.ingest",
+    payload={"entities": [...]}
+)
+```
+
+#### Get file-handlers within a task
+
+Get a `BinaryIO` context manager that behaves the same like file-like `.open()` for each entity and its `contentHash` properties:
+
+```python
+@task(app=app)
+def process_file(job: DatasetJob):
+    for entity, handler in job.get_file_references():
+        with handler.open_file() as fh:
+            some_function(fh, entity=entity)
+```
+
+Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+
+#### Get temporary file paths within a task
+
+Some procedures require a path instead of a file handler. The returned path is a `pathlib.Path` object:
+
+```python
+@task(app=app)
+def process_file(job: DatasetJob):
+    for entity, handler in job.get_file_references():
+        with handler.get_localpath() as path:
+            subprocess.run(f"some-program -f {path}")
+```
+
+Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
 
 
 [See the full reference](./reference/model.md)
