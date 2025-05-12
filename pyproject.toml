@@ -18,12 +18,10 @@ classifiers = [
 ]
 requires-python = ">=3.11,<4"
 dependencies = [
-    "procrastinate[django] (>=3.1.0,<4.0.0)",
+    "procrastinate (>=3.1.0,<4.0.0)",
     "pydantic (>=2.11.4,<3.0.0)",
     "pydantic-settings (>=2.9.1,<3.0.0)",
     "orjson (>=3.10.18,<4.0.0)",
-    "django (>=5.2,<6.0)",
-    "dj-database-url (>=2.3.0,<3.0.0)",
     "followthemoney-store[postgresql] (>=3.1.0,<4.0.0)",
     "followthemoney (>=3.8.2,<4.0.0)",
     "ftmq (>=0.8.4,<0.9.0)",
@@ -33,7 +31,12 @@ dependencies = [
 opal-procrastinate = "openaleph_procrastinate.cli:cli"
 
 [project.optional-dependencies]
-django = ["django (>=5.2,<6.0)"]
+django = [
+    "procrastinate[django] (>=3.1.0,<4.0.0)",
+    "django (>=5.2,<6.0)",
+    "dj-database-url (>=2.3.0,<3.0.0)",
+]
+
 
 [project.urls]
 Homepage = "https://github.com/openaleph/openaleph-procrastinate"
