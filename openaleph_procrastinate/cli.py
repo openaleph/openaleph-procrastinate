@@ -8,7 +8,7 @@ from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
 from openaleph_procrastinate.app import app
-from openaleph_procrastinate.logging import configure_logging
+from openaleph_procrastinate.log_config import configure_logging
 from openaleph_procrastinate.settings import settings
 
 cli = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=settings.debug)
