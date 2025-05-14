@@ -1,5 +1,5 @@
-from openaleph_procrastinate import logging
-from openaleph_procrastinate.logging import get_logger
+from openaleph_procrastinate import log_config
+from openaleph_procrastinate.log_config import get_logger
 from openaleph_procrastinate.settings import settings
 
 log = get_logger(__name__)
@@ -18,7 +18,7 @@ class EntityNotFound(Exception):
 
 
 class ErrorHandler:
-    def __init__(self, logger: logging.BoundLogger | None = None) -> None:
+    def __init__(self, logger: log_config.BoundLogger | None = None) -> None:
         self.log = logger or log
 
     def __enter__(self):

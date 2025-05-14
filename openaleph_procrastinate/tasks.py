@@ -6,7 +6,7 @@ from procrastinate.job_context import JobContext
 
 from openaleph_procrastinate.app import app
 from openaleph_procrastinate.exceptions import ErrorHandler
-from openaleph_procrastinate.logging import get_logger
+from openaleph_procrastinate.log_config import get_logger
 from openaleph_procrastinate.model import AnyJob, DatasetJob, Job, Stage
 
 log = get_logger(__name__)
