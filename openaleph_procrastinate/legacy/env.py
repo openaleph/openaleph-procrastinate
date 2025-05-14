@@ -52,7 +52,7 @@ MAIL_DEBUG = env_to_bool("ALEPH_MAIL_DEBUG", DEBUG)
 ###############################################################################
 # DATABASE #
 
-DEFAULT_OPENALEPH_DB_URI = "postgresql:///openaleph"
+DEFAULT_OPENALEPH_DB_URI = env_get("OPENALEPH_DB_URI") or "postgresql:///openaleph"
 DATABASE_URI = env_get("ALEPH_DATABASE_URI") or DEFAULT_OPENALEPH_DB_URI
 FTM_STORE_URI = env_get("FTM_STORE_URI") or DATABASE_URI
 
