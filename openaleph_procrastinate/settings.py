@@ -20,6 +20,7 @@ class OpenAlephSettings(BaseSettings):
         env_nested_delimiter="_",
         env_file=".env",
         nested_model_default_partial_update=True,
+        extra="ignore",  # other envs in .env file
     )
 
     instance: str = Field(default="openaleph")
