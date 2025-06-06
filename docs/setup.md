@@ -4,21 +4,24 @@ This guide describes the setup of the `openaleph-procrastinate` app and mainly t
 
 ## Installation
 
-Install [`openaleph-procrastinate`](https://github.com/openaleph/openaleph-procrastinate):
+Install [`openaleph-procrastinate`](https://github.com/openaleph/openaleph-procrastinate) with its Django requirements:
 
 pip:
 
-    pip install "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
+    pip install openaleph-procrastinate[django]
 
 poetry:
 
-    poetry add "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
+    poetry add openaleph-procrastinate[django]
 
 This will include all the required dependencies.
 
 ## Configuration
 
-The **OpenAleph** settings are configured via environment vars via [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). The Django settings are in the same `settings.py`.
+!!! info
+    For local development, set the environment variable `DEBUG=1`
+
+The **OpenAleph** settings are configured via environment vars via [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). The Django settings are in a separate `django_settings.py`.
 
 For a full list of `openaleph-procrastinate` settings, refer to the [settings reference](./reference/settings.md).
 
