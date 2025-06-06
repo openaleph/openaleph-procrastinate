@@ -4,8 +4,8 @@ install:
 	poetry install --with dev --all-extras
 
 lint:
-	poetry run flake8 ftmq --count --select=E9,F63,F7,F82 --show-source --statistics
-	poetry run flake8 ftmq --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	poetry run flake8 openaleph_procrastinate --count --select=E9,F63,F7,F82 --show-source --statistics
+	poetry run flake8 openaleph_procrastinate --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 pre-commit:
 	poetry run pre-commit install
@@ -15,7 +15,7 @@ typecheck:
 	poetry run mypy --strict openaleph_procrastinate
 
 test:
-	poetry run pytest -v --capture=sys --cov=ftmq --cov-report lcov
+	poetry run pytest -v --capture=sys --cov=openaleph_procrastinate --cov-report lcov
 
 build:
 	poetry run build

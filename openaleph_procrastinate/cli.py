@@ -3,13 +3,15 @@ from typing import Annotated, Optional
 import typer
 from anystore.cli import ErrorHandler
 from anystore.io import smart_stream_json
+from anystore.logging import configure_logging
 from ftmq.io import smart_stream_proxies
 from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
 from openaleph_procrastinate.app import app
-from openaleph_procrastinate.log_config import configure_logging
-from openaleph_procrastinate.settings import settings
+from openaleph_procrastinate.settings import OpenAlephSettings
+
+settings = OpenAlephSettings()
 
 cli = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=settings.debug)
 

@@ -1,17 +1,3 @@
-"""
-Shared base settings for OpenAleph applications and
-Django settings for openaleph_procrastinate project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/5.2/ref/settings/
-"""
-
-from pathlib import Path
-
-import dj_database_url
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -19,130 +5,35 @@ from openaleph_procrastinate.legacy import env
 
 
 class OpenAlephSettings(BaseSettings):
+    """
+    `openaleph_procrastinate` settings management using
+    [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
+
+    Note:
+        All settings can be set via environment variables in uppercase,
+        prepending `OPENALEPH_` (except for those with another alias) via
+        runtime or in a `.env` file.
+    """
+
     model_config = SettingsConfigDict(
         env_prefix="openaleph_",
         env_nested_delimiter="_",
+        env_file=".env",
         nested_model_default_partial_update=True,
+        extra="ignore",  # other envs in .env file
     )
 
     instance: str = Field(default="openaleph")
+    """Instance identifier"""
+
     debug: bool = Field(default=env.DEBUG, alias="debug")
+    """Debug mode"""
 
     db_uri: str = Field(default=env.DATABASE_URI)
+    """OpenAleph database uri"""
+
     procrastinate_db_uri: str = Field(default=env.DATABASE_URI)
+    """Procrastinate database uri, falls back to OpenAleph database uri"""
+
     ftm_store_uri: str = Field(default=env.FTM_STORE_URI)
-
-
-settings = OpenAlephSettings()
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hwrcfr!((0d0kk+3^(y0j!uky*s+#pem1#n@!_(4prxvhzo3!-"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = settings.debug
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
-
-INSTALLED_APPS = [
-    "procrastinate.contrib.django",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-]
-
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-]
-
-ROOT_URLCONF = "openaleph_procrastinate.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = "openaleph_procrastinate.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    "default": dj_database_url.parse(
-        settings.procrastinate_db_uri,
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+    """FollowTheMoney store uri"""

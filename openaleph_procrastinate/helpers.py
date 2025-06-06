@@ -13,9 +13,10 @@ from ftmstore.loader import BulkLoader
 
 from openaleph_procrastinate.exceptions import EntityNotFound
 from openaleph_procrastinate.legacy.archive import get_archive, lookup_key
-from openaleph_procrastinate.settings import settings
+from openaleph_procrastinate.settings import OpenAlephSettings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
+settings = OpenAlephSettings()
 
 
 @contextmanager
