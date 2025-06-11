@@ -1,6 +1,6 @@
 [project]
 name = "openaleph-procrastinate"
-version = "0.0.3"
+version = "0.0.4"
 description = "Task queue logic for OpenAleph built upon procrastinate"
 authors = [
     { name = "Simon Wörpel", email = "simon.woerpel@pm.me" },
