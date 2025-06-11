@@ -4,57 +4,42 @@ Helper functions to access Archive and FollowTheMoney data within Jobs
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import BinaryIO, Generator
+from typing import ContextManager, Generator
 
-from anystore.store.virtual import get_virtual
+from anystore.store.virtual import VirtualIO, get_virtual_path, open_virtual
 from followthemoney.proxy import EntityProxy
 from ftmstore import get_dataset
 from ftmstore.loader import BulkLoader
 
+from openaleph_procrastinate.archive import get_archive, lookup_key
 from openaleph_procrastinate.exceptions import EntityNotFound
-from openaleph_procrastinate.legacy.archive import get_archive, lookup_key
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
 settings = OpenAlephSettings()
 
 
-@contextmanager
-def get_localpath(dataset: str, content_hash: str) -> Generator[Path, None, None]:
+def get_localpath(dataset: str, content_hash: str) -> ContextManager[Path]:
     """
     Load a file from the archive and store it in a local temporary path for
     further processing. The file is cleaned up after leaving the context.
-
-    !!! danger
-        This is not tested.
+    [Reference][openaleph_procrastinate.model.DatasetJob.get_file_references]
     """
     archive = get_archive()
     key = lookup_key(content_hash)
-    store = get_virtual()
-    path = store.download(key, archive)
-    try:
-        yield Path(path)
-    finally:
-        store.cleanup(path)
+    return get_virtual_path(key, archive)
 
 
-@contextmanager
-def open_file(dataset: str, content_hash: str) -> Generator[BinaryIO, None, None]:
+def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
     """
     Load a file from the archive and store it in a local temporary path for
     further processing. Returns an open file handler. The file is closed and
     cleaned up after leaving the context.
-
-    !!! danger
-        This is not tested.
+    [Reference][openaleph_procrastinate.model.DatasetJob.get_file_references]
     """
     archive = get_archive()
     key = lookup_key(content_hash)
-    with archive.open(key) as handler:
-        try:
-            yield handler
-        finally:
-            handler.close()
+    return open_virtual(key, archive)
 
 
 def load_entity(dataset: str, entity_id: str) -> EntityProxy:
@@ -71,8 +56,8 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
 @contextmanager
 def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     """
-    Get the `ftmstore.dataset.BulkLoader` for the given `dataset`. The entities
-    are flushed when leaving the context.
+    Get the `ftmstore.dataset.BulkLoader` for the given `dataset`. The writer is
+    flushed when leaving the context.
     """
     store = get_dataset(
         dataset, origin=OPAL_ORIGIN, database_uri=settings.ftm_store_uri

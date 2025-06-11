@@ -24,7 +24,8 @@ dependencies = [
     "orjson (>=3.10.18,<4.0.0)",
     "followthemoney-store[postgresql] (>=3.1.0,<4.0.0)",
     "followthemoney (>=3.8.4,<4.0.0)",
-    "ftmq (>=0.8.5,<0.9.0)",
+    "ftmq (>=0.8.6,<0.9.0)",
+    "anystore (>=0.3.6,<0.4.0)",
 ]
 
 [project.scripts]
@@ -63,7 +64,14 @@ mkdocs-material = "^9.6.14"
 mkdocs-autorefs = "^1.4.2"
 rich = "<14"
 mkdocs-typer2 = "^0.1.5"
+servicelayer = "^1.24.1"
+moto = {extras = ["server"], version = "^5.1.4"}
+pyaml = "^25.5.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest_env]
+DEBUG = 1
+FSSPEC_S3_ENDPOINT_URL = "http://localhost:8888"

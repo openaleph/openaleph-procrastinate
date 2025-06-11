@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import Any, BinaryIO, ContextManager, Generator, Iterable, Self, TypeAlias
+from typing import Any, ContextManager, Generator, Iterable, Self, TypeAlias
 
+from anystore.store.virtual import VirtualIO
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
 from ftmstore.loader import BulkLoader
@@ -21,21 +22,15 @@ class EntityFileReference(BaseModel):
     content_hash: str
     entity: EntityProxy
 
-    def open(self: Self) -> ContextManager[BinaryIO]:
+    def open(self: Self) -> ContextManager[VirtualIO]:
         """
         Open the file attached to this job
-
-        !!! danger
-            This is not tested.
         """
         return helpers.open_file(self.dataset, self.content_hash)
 
     def get_localpath(self: Self) -> ContextManager[Path]:
         """
         Get a temporary path for the file attached to this job
-
-        !!! danger
-            This is not tested.
         """
         return helpers.get_localpath(self.dataset, self.content_hash)
 
@@ -106,9 +101,29 @@ class DatasetJob(Job):
     # Helpers for file jobs that access the servicelayer archive
 
     def get_file_references(self) -> Generator[EntityFileReference, None, None]:
-        """Get file references per entity from this job"""
+        """
+        Get file references per entity from this job
+
+        Example:
+            ```python
+            # process temporary file paths
+            for reference in job.get_file_references():
+                with reference.get_local_path() as path:
+                    subprocess.run(["command", "-i", str(path)])
+                # temporary path will be cleaned up when leaving context
+
+            # process temporary file handlers
+            for reference in job.get_file_references():
+                with reference.open() as handler:
+                    do_something(handler.read())
+                # temporary path will be cleaned up when leaving context
+            ```
+
+        Yields:
+            The file references
+        """
         for entity in self.get_entities():
-            for content_hash in entity.get("contentHash"):
+            for content_hash in entity.get("contentHash", quiet=True):
                 yield EntityFileReference(
                     dataset=self.dataset, entity=entity, content_hash=content_hash
                 )

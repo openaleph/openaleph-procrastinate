@@ -140,12 +140,12 @@ Get a `BinaryIO` context manager that behaves the same like file-like `.open()` 
 ```python
 @task(app=app)
 def process_file(job: DatasetJob):
-    for entity, handler in job.get_file_references():
-        with handler.open_file() as fh:
-            some_function(fh, entity=entity)
+    for reference in job.get_file_references():
+        with reference.open() as fh:
+            some_function(fh, entity=reference.entity)
 ```
 
-Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+Under the hood, the file is retrieved from the [servicelayer](https://github.com/openaleph/servicelayer) Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
 
 #### Get temporary file paths within a task
 
@@ -154,12 +154,12 @@ Some procedures require a path instead of a file handler. The returned path is a
 ```python
 @task(app=app)
 def process_file(job: DatasetJob):
-    for entity, handler in job.get_file_references():
+    for reference in job.get_file_references():
         with handler.get_localpath() as path:
             subprocess.run(f"some-program -f {path}")
 ```
 
-Under the hood, the file is retrieved from the servicelayer Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+Under the hood, the file is retrieved from the [servicelayer](https://github.com/openaleph/servicelayer) Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
 
 
 [See the full reference](./reference/model.md)
