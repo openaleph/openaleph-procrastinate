@@ -6,6 +6,11 @@ name: Python
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - pyproject.toml
+      - poetry.lock
+      - openaleph_procrastinate/*
+      - tests/*
   pull_request:
     branches: [ "main" ]
 
