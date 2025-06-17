@@ -73,6 +73,8 @@ procrastinate worker -q ftm-geocode
 
 Another service that has access to the postgresql database can defer tasks to geocode.
 
+Either use a globally [known defer](./reference/defer.md) or follow the manual steps below.
+
 See the [`Job` model](./job.md) and make sure to properly [use the context manager to connect to procrastinate](https://procrastinate.readthedocs.io/en/stable/howto/basics/open_connection.html).
 
 ```python

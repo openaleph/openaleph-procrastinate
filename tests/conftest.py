@@ -4,6 +4,9 @@ import boto3
 import pytest
 from moto import mock_aws
 from moto.server import ThreadedMotoServer
+from procrastinate import testing
+
+from openaleph_procrastinate.app import make_app
 
 FIXTURES_PATH = (Path(__file__).parent / "fixtures").absolute()
 
@@ -23,6 +26,15 @@ def moto_server():
     setup_s3()
     yield f"http://{host}:{port}"
     server.stop()
+
+
+# https://procrastinate.readthedocs.io/en/stable/howto/production/testing.html
+@pytest.fixture
+def app():
+    in_memory = testing.InMemoryConnector()
+    app = make_app("tests.tasks")
+    with app.replace_connector(in_memory) as app:
+        yield app
 
 
 @mock_aws

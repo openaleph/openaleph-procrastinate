@@ -2,11 +2,13 @@ from pathlib import Path
 from typing import Any, ContextManager, Generator, Iterable, Self, TypeAlias
 
 from anystore.store.virtual import VirtualIO
+from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
+from ftmq.util import get_dehydrated_proxy
 from ftmstore.loader import BulkLoader
 from procrastinate.app import App
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from openaleph_procrastinate import helpers
 
@@ -35,32 +37,19 @@ class EntityFileReference(BaseModel):
         return helpers.get_localpath(self.dataset, self.content_hash)
 
 
-class Stage(BaseModel):
-    """Define an arbitrary (next) stage for a job"""
-
-    # model: str
-    queue: str
-    task: str
-
-    def make_job(self: Self, job: "AnyJob") -> "AnyJob":
-        """Create a new job for this stage from a previous one"""
-        job.queue = self.queue
-        job.task = self.task
-        return job
-
-
-class Job(Stage):
+class Job(BaseModel):
     """
     A job with arbitrary payload
     """
 
+    queue: str
+    task: str
     payload: dict[str, Any]
-    stages: list[Stage] = Field(default=[])
 
     @property
     def context(self) -> dict[str, Any]:
         """Get the context from the payload if any"""
-        return self.payload.get("context") or {}
+        return ensure_dict(self.payload.get("context")) or {}
 
     def defer(self: Self, app: App) -> None:
         """Defer this job"""
@@ -81,7 +70,7 @@ class DatasetJob(Job):
     dataset: str
 
     def get_writer(self: Self) -> ContextManager[BulkLoader]:
-        """Get the writer for the dataset of the current entity"""
+        """Get the writer for the dataset of the current job"""
         return helpers.entity_writer(self.dataset)
 
     def get_entities(self) -> Generator[EntityProxy, None, None]:
@@ -132,24 +121,69 @@ class DatasetJob(Job):
 
     @classmethod
     def from_entities(
-        cls, dataset: str, queue: str, task: str, entities: Iterable[EntityProxy]
+        cls,
+        dataset: str,
+        queue: str,
+        task: str,
+        entities: Iterable[EntityProxy],
+        dehydrate: bool | None = False,
+        **context: Any,
     ) -> Self:
-        """Make a job to process entities for a dataset"""
+        """
+        Make a job to process entities for a dataset
+
+        Args:
+            dataset: Name of the dataset
+            queue: Name of the queue
+            task: Python module path of the task
+            entities: Entities
+            dehydrate: Reduce entity payload to only a reference (tasks should
+                re-fetch these entities from the store)
+            context: Job context
+        """
+        if dehydrate:
+            entities = map(get_dehydrated_proxy, entities)
         return cls(
             dataset=dataset,
             queue=queue,
             task=task,
-            payload={"entities": [e.to_full_dict() for e in entities]},
+            payload={
+                "entities": [e.to_full_dict() for e in entities],
+                "context": ensure_dict(context),
+            },
         )
 
     @classmethod
     def from_entity(
-        cls, dataset: str, queue: str, task: str, entity: EntityProxy
+        cls,
+        dataset: str,
+        queue: str,
+        task: str,
+        entity: EntityProxy,
+        dehydrate: bool | None = False,
+        **context: Any,
     ) -> Self:
-        """Make a job to process an entity for a dataset"""
+        """
+        Make a job to process an entity for a dataset
+
+        Args:
+            dataset: Name of the dataset
+            queue: Name of the queue
+            task: Python module path of the task
+            entity: The entity proxy
+            dehydrate: Reduce entity payload to only a reference (tasks should
+                re-fetch these entities from the store)
+            context: Job context
+        """
         return cls.from_entities(
-            dataset=dataset, queue=queue, task=task, entities=[entity]
+            dataset=dataset,
+            queue=queue,
+            task=task,
+            entities=[entity],
+            dehydrate=dehydrate,
+            **context,
         )
 
 
 AnyJob: TypeAlias = Job | DatasetJob
+Defers: TypeAlias = None | Generator[AnyJob, None, None]

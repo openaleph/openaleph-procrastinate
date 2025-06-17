@@ -16,14 +16,11 @@ settings = OpenAlephSettings()
 cli = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=settings.debug)
 
 DEFAULT_QUEUE = "default"
-DEFAULT_TASK = "openaleph_procrastinate.tasks.dummy_task"
 
 OPT_INPUT_URI = typer.Option("-", "-i", help="Input uri, default stdin")
 OPT_DATASET = typer.Option(..., "-d", help="Dataset")
 OPT_QUEUE = typer.Option(DEFAULT_QUEUE, "-q", help="Queue name")
-OPT_TASK = typer.Option(
-    "openaleph_procrastinate.tasks.dummy_task", "-t", help="Task module path"
-)
+OPT_TASK = typer.Option(..., "-t", help="Task module path")
 
 
 @cli.callback(invoke_without_command=True)

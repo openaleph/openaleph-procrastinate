@@ -1,16 +1,20 @@
+from functools import cache
+
 import procrastinate
 
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 
-def make_app(tasks_module: str) -> procrastinate.App:
+@cache
+def make_app(tasks_module: str | None = None) -> procrastinate.App:
     settings = OpenAlephSettings()
+    import_paths = [tasks_module] if tasks_module else None
     return procrastinate.App(
         connector=procrastinate.PsycopgConnector(
             conninfo=settings.db_uri,
         ),
-        import_paths=[tasks_module],
+        import_paths=import_paths,
     )
 
 
-app = make_app("openaleph_procrastinate.tasks")
+app = make_app()

@@ -10,15 +10,18 @@ For now, this requires some conventions – they are not enforced and might need
 
 Live in a `tasks` submodule of the program, so that other services can reference a tasks for deferring with the string identifier `<library_name>.tasks.<task_name>`.
 
-Tasks always take a [`Job`](./job.md) as its only argument and should return the job object (or an updated version of it). The function signature for a task therefore looks as follows:
+Tasks always take a [`Job`](./job.md) as its only argument. To defer a new job to a new _Stage_ after processing the task, yield one or more new jobs. The function signature for a task therefore looks as follows:
 
 ```python
+from openaleph_procrastinate.model import AnyJob, Defers
+
 @task(app=app)
-def my_task(job: AnyJob) -> AnyJob:
+def my_task(job: AnyJob) -> Defers:
     # process things
-    return job
+    yield new_job  # if defer to a next stage
 ```
 
+[Known defers](./reference/defer.md)
 
 ## App
 

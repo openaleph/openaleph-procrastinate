@@ -9,6 +9,7 @@ nav:
   - setup.md
   - The Job model: job.md
   - Reference:
+    - defer: reference/defer.md
     - command line: reference/cli.md
     - model: reference/model.md
     - helpers: reference/helpers.md

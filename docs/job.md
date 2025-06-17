@@ -8,13 +8,16 @@ Jobs have some helper methods attached, including `.defer()` for queuing, these 
 
 **Tasks** always receive the instantiated `Job` object as their argument:
 
+See further below for deferring a `Job` to a next processing stage.
+
 ```python
 from openaleph_procrastinate.model import AnyJob  # a type alias for Job | DatasetJob
 
 @task(app=app)
-def my_task(job: AnyJob) -> AnyJob:
+def my_task(job: AnyJob) -> AnyJob | None:
     # process things
-    return job
+    # if defer to a next stage, return an updated job:
+    return next_job
 ```
 
 ## Job data payload
@@ -160,6 +163,28 @@ def process_file(job: DatasetJob):
 ```
 
 Under the hood, the file is retrieved from the [servicelayer](https://github.com/openaleph/servicelayer) Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+
+
+## Defer to next stage
+
+To defer (queue) a job to a next stage after processing, return an updated `Job` in the task function:
+
+```python
+@task(app=app)
+def my_task(job: DatasetJob) -> DatasetJob:
+    entities = []
+    for entity in job.load_entities():
+        result = do_something(entity)
+        entities.append(entity)
+
+    # return a new job to defer
+    return DatasetJob.from_entities(
+        dataset=job.dataset,
+        queue=job.queue,  # use the same queue or another one
+        task="another_module.tasks.process",  # reference a task
+        entities=entities
+    )
+```
 
 
 [See the full reference](./reference/model.md)
