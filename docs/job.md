@@ -11,13 +11,14 @@ Jobs have some helper methods attached, including `.defer()` for queuing, these 
 See further below for deferring a `Job` to a next processing stage.
 
 ```python
-from openaleph_procrastinate.model import AnyJob  # a type alias for Job | DatasetJob
+from openaleph_procrastinate.model import AnyJob, Defers
 
 @task(app=app)
-def my_task(job: AnyJob) -> AnyJob | None:
+def my_task(job: AnyJob) -> Defers:
     # process things
     # if defer to a next stage, return an updated job:
-    return next_job
+    yield next_job
+    # or return None (implicit)
 ```
 
 ## Job data payload
@@ -167,18 +168,18 @@ Under the hood, the file is retrieved from the [servicelayer](https://github.com
 
 ## Defer to next stage
 
-To defer (queue) a job to a next stage after processing, return an updated `Job` in the task function:
+To defer (queue) a job to a next stage after processing, yield one or more updated `Job` in the task function:
 
 ```python
 @task(app=app)
-def my_task(job: DatasetJob) -> DatasetJob:
+def my_task(job: DatasetJob) -> Defers:
     entities = []
     for entity in job.load_entities():
         result = do_something(entity)
         entities.append(entity)
 
-    # return a new job to defer
-    return DatasetJob.from_entities(
+    # yield a new job to defer
+    yield DatasetJob.from_entities(
         dataset=job.dataset,
         queue=job.queue,  # use the same queue or another one
         task="another_module.tasks.process",  # reference a task
