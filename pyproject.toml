@@ -38,7 +38,6 @@ django = [
     "dj-database-url (>=2.3.0,<3.0.0)",
 ]
 
-
 [project.urls]
 Homepage = "https://github.com/openaleph/openaleph-procrastinate"
 Documentation = "https://github.com/openaleph/openaleph-procrastinate"
@@ -65,7 +64,7 @@ mkdocs-autorefs = "^1.4.2"
 rich = "<14"
 mkdocs-typer2 = "^0.1.5"
 servicelayer = "^1.24.1"
-moto = {extras = ["server"], version = "^5.1.4"}
+moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = "^25.5.0"
 
 [build-system]
