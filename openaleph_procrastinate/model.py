@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import Any, ContextManager, Generator, Iterable, Self, TypeAlias
 
+from anystore.logging import BoundLogger, get_logger
 from anystore.store.virtual import VirtualIO
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
-from ftmq.util import get_dehydrated_proxy
+from ftmq.util import ensure_proxy, get_dehydrated_proxy
 from ftmstore.loader import BulkLoader
 from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
@@ -51,8 +52,13 @@ class Job(BaseModel):
         """Get the context from the payload if any"""
         return ensure_dict(self.payload.get("context")) or {}
 
+    @property
+    def log(self) -> BoundLogger:
+        return get_logger(name="openaleph.job", queue=self.queue, task=self.task)
+
     def defer(self: Self, app: App) -> None:
         """Defer this job"""
+        self.log.debug("Deferring ...", payload=self.payload)
         data = self.model_dump(mode="json")
         app.configure_task(name=self.task, queue=self.queue).defer(**data)
 
@@ -68,6 +74,15 @@ class DatasetJob(Job):
     """
 
     dataset: str
+
+    @property
+    def log(self) -> BoundLogger:
+        return get_logger(
+            name=f"openaleph.job.{self.dataset}",
+            dataset=self.dataset,
+            queue=self.queue,
+            task=self.task,
+        )
 
     def get_writer(self: Self) -> ContextManager[BulkLoader]:
         """Get the writer for the dataset of the current job"""
@@ -141,6 +156,7 @@ class DatasetJob(Job):
                 re-fetch these entities from the store)
             context: Job context
         """
+        entities = (ensure_proxy(e, dataset) for e in entities)
         if dehydrate:
             entities = map(get_dehydrated_proxy, entities)
         return cls(
