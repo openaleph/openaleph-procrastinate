@@ -19,7 +19,7 @@ from followthemoney.proxy import EntityProxy
 
 from openaleph_procrastinate.model import DatasetJob
 
-INGEST_QUEUE = "ingest-file"
+INGEST_QUEUE = "ingest"
 INGEST_TASK = "ingestors.tasks.ingest"
 
 
