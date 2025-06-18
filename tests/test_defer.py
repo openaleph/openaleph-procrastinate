@@ -1,9 +1,14 @@
 from anystore.store import get_store
+from procrastinate.testing import InMemoryConnector
 
+from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.model import Job
 
 
-def test_defer(app, tmp_path):
+def test_defer(tmp_path):
+    app = make_app("tests.tasks")
+    assert isinstance(app.connector, InMemoryConnector)
+
     job = Job(
         queue="test", task="tests.tasks.dummy_task", payload={"tmp_path": str(tmp_path)}
     )
