@@ -5,6 +5,7 @@ COPY setup.py /app/setup.py
 COPY pyproject.toml /app/pyproject.toml
 COPY VERSION /app/VERSION
 COPY README.md /app/README.md
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 WORKDIR /app
 RUN pip install gunicorn
@@ -14,4 +15,5 @@ RUN pip install psycopg-binary
 ENV PROCRASTINATE_APP="openaleph_procrastinate.app.app"
 
 USER 1000
-ENTRYPOINT ["gunicorn", "openaleph_procrastinate.wsgi", "--bind", "0.0.0.0:8000"]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD ["gunicorn", "openaleph_procrastinate.wsgi", "--bind", "0.0.0.0:8000"]

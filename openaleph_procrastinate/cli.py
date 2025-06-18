@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 import typer
 from anystore.cli import ErrorHandler
 from anystore.io import smart_stream_json
-from anystore.logging import configure_logging
+from anystore.logging import configure_logging, get_logger
 from ftmq.io import smart_stream_proxies
 from rich import print
 
@@ -14,6 +14,7 @@ from openaleph_procrastinate.settings import OpenAlephSettings
 settings = OpenAlephSettings()
 
 cli = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=settings.debug)
+log = get_logger(__name__)
 
 DEFAULT_QUEUE = "default"
 
@@ -26,9 +27,16 @@ OPT_TASK = typer.Option(..., "-t", help="Task module path")
 @cli.callback(invoke_without_command=True)
 def cli_opal_procrastinate(
     version: Annotated[Optional[bool], typer.Option(..., help="Show version")] = False,
+    settings: Annotated[
+        Optional[bool], typer.Option(..., help="Show current settings")
+    ] = False,
 ):
     if version:
         print(__version__)
+        raise typer.Exit()
+    if settings:
+        settings_ = OpenAlephSettings()
+        print(settings_)
         raise typer.Exit()
     configure_logging()
 
@@ -43,7 +51,7 @@ def defer_entities(
     """
     Defer jobs for a stream of proxies
     """
-    with ErrorHandler(), app.open():
+    with ErrorHandler(log), app.open():
         for proxy in smart_stream_proxies(input_uri):
             job = model.DatasetJob.from_entity(
                 dataset=dataset, queue=queue, task=task, entity=proxy
@@ -56,7 +64,16 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
     """
     Defer jobs from an input json stream
     """
-    with ErrorHandler(), app.open():
+    with ErrorHandler(log), app.open():
         for data in smart_stream_json(input_uri):
             job = tasks.unpack_job(data)
             job.defer(app)
+
+
+@cli.command()
+def init_db():
+    """Initialize procrastinate database schema"""
+    try:
+        app.schema_manager.apply_schema()
+    except Exception:
+        pass
