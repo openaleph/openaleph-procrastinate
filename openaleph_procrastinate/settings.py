@@ -10,9 +10,9 @@ class OpenAlephSettings(BaseSettings):
     [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
 
     Note:
-        All settings can be set via environment variables in uppercase,
-        prepending `OPENALEPH_` (except for those with another alias) via
-        runtime or in a `.env` file.
+        All settings can be set via environment variables, prepending
+        `OPENALEPH_` (except for those with another alias) via runtime or in a
+        `.env` file.
     """
 
     model_config = SettingsConfigDict(
