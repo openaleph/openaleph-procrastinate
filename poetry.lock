@@ -247,13 +247,15 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "anystore"
-version = "0.3.6"
+version = "0.3.7"
 description = "Store and cache things anywhere"
 optional = false
-python-versions = ">=3.11,<4"
+python-versions = "<4,>=3.11"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "anystore-0.3.7-py3-none-any.whl", hash = "sha256:7ce5fbe55f45bfbedb1b9ddb9cefac2f1f2325d48d952a0988f6a9998d957082"},
+    {file = "anystore-0.3.7.tar.gz", hash = "sha256:32f08fd13072af94c3ed8739b4e2eee53f9b5b54af270b9ddf9c4d37461475ab"},
+]
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
@@ -274,12 +276,6 @@ typer = ">=0.16.0,<0.17.0"
 [package.extras]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=4.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/dataresearchcenter/anystore.git"
-reference = "HEAD"
-resolved_reference = "b0dffce22748f7a1d8935af7b3ab798042e9df20"
 
 [[package]]
 name = "asgiref"
@@ -1498,17 +1494,19 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "0.8.6"
+version = "0.8.7"
 description = "followthemoney query dsl and io helpers"
 optional = false
-python-versions = ">=3.11,<4"
+python-versions = "<4,>=3.11"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "ftmq-0.8.7-py3-none-any.whl", hash = "sha256:bab6dd9e3b94aa3a5a7870602d943660f09bf05d32726c3c0e89b6b3d8147d6e"},
+    {file = "ftmq-0.8.7.tar.gz", hash = "sha256:f562bea411b0168101725279ec335d5c4b27abdd1d14b6b019a36a94defd6ae4"},
+]
 
 [package.dependencies]
 alephclient = ">=2.6.0,<3.0.0"
-anystore = ">=0.3.6,<0.4.0"
+anystore = ">=0.3.7,<0.4.0"
 click = ">=8.2.1,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 nomenklatura = ">=3.17.3,<4.0.0"
@@ -1522,12 +1520,6 @@ level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg2 (>=2.9.10,<3.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/dataresearchcenter/ftmq.git"
-reference = "HEAD"
-resolved_reference = "29881f371d945a56b721108679c23fee6d93acd1"
 
 [[package]]
 name = "ghp-import"
@@ -5752,4 +5744,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "ca5adf843bcf89ab60ce660cafc269e3f9dd5dac50f3f9333d4f05abc8eb6b2e"
+content-hash = "17d2a288232b791678824fa50b826d60dd4ec09bcb5179a923b2c6adcce700fc"
