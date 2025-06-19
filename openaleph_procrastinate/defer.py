@@ -14,9 +14,15 @@ Example:
         # defer to index stage
         yield defer.index(job.dataset, result)
     ```
+
+To disable deferring for a service, use environment variable:
+
+For example, to disable indexing entities after ingestion, start the
+`ingest-file` worker with this config: `OPENALEPH_INDEX_DEFER=0`
 """
 
-from typing import Any, Iterable
+import functools
+from typing import Any, Callable, Iterable
 
 from followthemoney.proxy import EntityProxy
 
@@ -26,6 +32,25 @@ from openaleph_procrastinate.settings import DeferSettings
 settings = DeferSettings()
 
 
+def check_defer(
+    func: Callable[..., DatasetJob] | None = None, enabled: bool | None = True
+) -> Callable[..., Any]:
+    def _decorator(func):
+        @functools.wraps(func)
+        def _inner(*args, **kwargs):
+            job = func(*args, **kwargs)
+            if enabled:
+                return job
+            job.log.info(f"Not deferring to `{job.task}` (deferring disabled)")
+
+        return _inner
+
+    if func is None:
+        return _decorator
+    return _decorator(func)
+
+
+@check_defer(enabled=settings.ingest.defer)
 def ingest(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     Make a new job for `ingest-file`
@@ -37,13 +62,14 @@ def ingest(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     return DatasetJob.from_entity(
         dataset=dataset,
-        queue=settings.ingest_queue,
-        task=settings.ingest_task,
+        queue=settings.ingest.queue,
+        task=settings.ingest.task,
         entity=entity,
         **context,
     )
 
 
+@check_defer(enabled=settings.analyze.defer)
 def analyze(
     dataset: str, entities: Iterable[EntityProxy], **context: Any
 ) -> DatasetJob:
@@ -57,14 +83,15 @@ def analyze(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=settings.analyze_queue,
-        task=settings.analyze_task,
+        queue=settings.analyze.queue,
+        task=settings.analyze.task,
         entities=entities,
         dehydrate=True,
         **context,
     )
 
 
+@check_defer(enabled=settings.index.defer)
 def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> DatasetJob:
     """
     Make a new job to index into OpenAleph
@@ -76,14 +103,15 @@ def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> Data
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=settings.index_queue,
-        task=settings.index_task,
+        queue=settings.index.queue,
+        task=settings.index.task,
         entities=entities,
         dehydrate=True,
         **context,
     )
 
 
+@check_defer(enabled=settings.transcribe.defer)
 def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     Make a new job for `ftm-transcribe`
@@ -95,13 +123,14 @@ def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     return DatasetJob.from_entity(
         dataset=dataset,
-        queue=settings.transcribe_queue,
-        task=settings.transcribe_task,
+        queue=settings.transcribe.queue,
+        task=settings.transcribe.task,
         entity=entity,
         **context,
     )
 
 
+@check_defer(enabled=settings.geocode.defer)
 def geocode(
     dataset: str, entities: Iterable[EntityProxy], **context: Any
 ) -> DatasetJob:
@@ -115,13 +144,14 @@ def geocode(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=settings.geocode_queue,
-        task=settings.geocode_task,
+        queue=settings.geocode.queue,
+        task=settings.geocode.task,
         entities=entities,
         **context,
     )
 
 
+@check_defer(enabled=settings.assets.defer)
 def resolve_assets(
     dataset: str, entities: Iterable[EntityProxy], **context: Any
 ) -> DatasetJob:
@@ -135,8 +165,8 @@ def resolve_assets(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=settings.assets_queue,
-        task=settings.assets_task,
+        queue=settings.assets.queue,
+        task=settings.assets.task,
         entities=entities,
         **context,
     )

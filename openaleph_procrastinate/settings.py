@@ -4,6 +4,19 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from openaleph_procrastinate.legacy import env
 
 
+class ServiceSettings(BaseSettings):
+    """
+    Settings for a specific service, like `ingest-file` or `ftm-analyze`
+    """
+
+    queue: str
+    """queue name"""
+    task: str
+    """task module path"""
+    defer: bool = True
+    """enable deferring"""
+
+
 class DeferSettings(BaseSettings):
     """
     Adjust the worker queues and tasks for different stages.
@@ -23,18 +36,35 @@ class DeferSettings(BaseSettings):
         ```
     """
 
-    ingest_queue: str = "ingest"
-    ingest_task: str = "ingestors.tasks.ingest"
-    analyze_queue: str = "ftm-analyze"
-    analyze_task: str = "ftm_analyze.tasks.analyze"
-    index_queue: str = "openaleph-index"
-    index_task: str = "aleph.procrastinate.tasks.index_bulk"
-    transcribe_queue: str = "ftm-transcribe"
-    transcribe_task: str = "ftm_transcribe.tasks.transcribe"
-    geocode_queue: str = "ftm-geocode"
-    geocode_task: str = "ftm_geocode.tasks.geocode"
-    assets_queue: str = "ftm-assets"
-    assets_task: str = "ftm_assets.tasks.resolve"
+    ingest: ServiceSettings = ServiceSettings(
+        queue="ingest", task="ingestors.tasks.ingest"
+    )
+    """ingest-file"""
+
+    analyze: ServiceSettings = ServiceSettings(
+        queue="ftm-analyze", task="ftm_analyze.tasks.analyze"
+    )
+    """ftm-analyze"""
+
+    index: ServiceSettings = ServiceSettings(
+        queue="openaleph-index", task="aleph.procrastinate.tasks.index"
+    )
+    """openaleph indexer"""
+
+    transcribe: ServiceSettings = ServiceSettings(
+        queue="ftm-transcribe", task="ftm_transcribe.tasks.transcribe"
+    )
+    """ftm-transcribe"""
+
+    geocode: ServiceSettings = ServiceSettings(
+        queue="ftm-geocode", task="ftm_geocode.tasks.geocode"
+    )
+    """ftm-geocode"""
+
+    assets: ServiceSettings = ServiceSettings(
+        queue="ftm-assets", task="ftm_assets.tasks.resolve"
+    )
+    """ftm-assets"""
 
 
 class OpenAlephSettings(DeferSettings):
