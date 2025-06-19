@@ -47,7 +47,7 @@ class DeferSettings(BaseSettings):
     """ftm-analyze"""
 
     index: ServiceSettings = ServiceSettings(
-        queue="openaleph-index", task="aleph.procrastinate.tasks.index"
+        queue="openaleph", task="aleph.procrastinate.tasks.index"
     )
     """openaleph indexer"""
 

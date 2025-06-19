@@ -6,12 +6,12 @@ from anystore.store.virtual import VirtualIO
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
-from ftmq.util import ensure_proxy, get_dehydrated_proxy
 from ftmstore.loader import BulkLoader
 from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
 
 from openaleph_procrastinate import helpers
+from openaleph_procrastinate.util import make_checksum_entity
 
 
 class EntityFileReference(BaseModel):
@@ -53,8 +53,15 @@ class Job(BaseModel):
         return ensure_dict(self.payload.get("context")) or {}
 
     @property
+    def job_id(self) -> str | None:
+        """Get the job_id if it is stored in the context"""
+        return self.context.get("job_id")
+
+    @property
     def log(self) -> BoundLogger:
-        return get_logger(name="openaleph.job", queue=self.queue, task=self.task)
+        return get_logger(
+            name="openaleph.job", queue=self.queue, task=self.task, job_id=self.job_id
+        )
 
     def defer(self: Self, app: App) -> None:
         """Defer this job"""
@@ -82,6 +89,7 @@ class DatasetJob(Job):
             dataset=self.dataset,
             queue=self.queue,
             task=self.task,
+            job_id=self.job_id,
         )
 
     def get_writer(self: Self) -> ContextManager[BulkLoader]:
@@ -132,8 +140,6 @@ class DatasetJob(Job):
                     dataset=self.dataset, entity=entity, content_hash=content_hash
                 )
 
-    # Helpers for creating entity jobs
-
     @classmethod
     def from_entities(
         cls,
@@ -153,51 +159,19 @@ class DatasetJob(Job):
             task: Python module path of the task
             entities: Entities
             dehydrate: Reduce entity payload to only a reference (tasks should
-                re-fetch these entities from the store)
+                re-fetch these entities from the store if they need more data)
             context: Job context
         """
-        entities = (ensure_proxy(e, dataset) for e in entities)
         if dehydrate:
-            entities = map(get_dehydrated_proxy, entities)
+            entities = (make_checksum_entity(e, quiet=True) for e in entities)
         return cls(
             dataset=dataset,
             queue=queue,
             task=task,
             payload={
-                "entities": [e.to_full_dict() for e in entities],
+                "entities": [e.to_dict() for e in entities],
                 "context": ensure_dict(context),
             },
-        )
-
-    @classmethod
-    def from_entity(
-        cls,
-        dataset: str,
-        queue: str,
-        task: str,
-        entity: EntityProxy,
-        dehydrate: bool | None = False,
-        **context: Any,
-    ) -> Self:
-        """
-        Make a job to process an entity for a dataset
-
-        Args:
-            dataset: Name of the dataset
-            queue: Name of the queue
-            task: Python module path of the task
-            entity: The entity proxy
-            dehydrate: Reduce entity payload to only a reference (tasks should
-                re-fetch these entities from the store)
-            context: Job context
-        """
-        return cls.from_entities(
-            dataset=dataset,
-            queue=queue,
-            task=task,
-            entities=[entity],
-            dehydrate=dehydrate,
-            **context,
         )
 
 

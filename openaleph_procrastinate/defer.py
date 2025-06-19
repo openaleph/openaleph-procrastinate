@@ -51,20 +51,20 @@ def check_defer(
 
 
 @check_defer(enabled=settings.ingest.defer)
-def ingest(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
+def ingest(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> DatasetJob:
     """
     Make a new job for `ingest-file`
 
     Args:
         dataset: The ftm dataset or collection
-        entity: The file or directory entity to ingest
+        entities: The file or directory entities to ingest
         context: Additional job context
     """
-    return DatasetJob.from_entity(
+    return DatasetJob.from_entities(
         dataset=dataset,
         queue=settings.ingest.queue,
         task=settings.ingest.task,
-        entity=entity,
+        entities=entities,
         **context,
     )
 
@@ -112,7 +112,9 @@ def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> Data
 
 
 @check_defer(enabled=settings.transcribe.defer)
-def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
+def transcribe(
+    dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> DatasetJob:
     """
     Make a new job for `ftm-transcribe`
 
@@ -121,11 +123,11 @@ def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
         entity: The file entity to ingest
         context: Additional job context
     """
-    return DatasetJob.from_entity(
+    return DatasetJob.from_entities(
         dataset=dataset,
         queue=settings.transcribe.queue,
         task=settings.transcribe.task,
-        entity=entity,
+        entities=entities,
         **context,
     )
 
