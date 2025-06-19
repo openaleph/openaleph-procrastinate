@@ -3,6 +3,6 @@
 set -e
 
 # initialize db
-opal-procrastinate initdb
+opal-procrastinate init-db
 
 exec "$@"
