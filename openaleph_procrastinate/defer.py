@@ -133,3 +133,27 @@ def geocode(
         entities=entities,
         **context,
     )
+
+
+ASSETS_QUEUE = "ftm-assets"
+ASSETS_TASK = "ftm_assets.tasks.resolve"
+
+
+def resolve_image(
+    dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> DatasetJob:
+    """
+    Make a new job for `ftm-assets`
+
+    Args:
+        dataset: The ftm dataset or collection
+        entities: The entities to resolve assets for
+        context: Additional job context
+    """
+    return DatasetJob.from_entities(
+        dataset=dataset,
+        queue=GEOCODE_QUEUE,
+        task=GEOCODE_TASK,
+        entities=entities,
+        **context,
+    )
