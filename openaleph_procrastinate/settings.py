@@ -4,7 +4,40 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from openaleph_procrastinate.legacy import env
 
 
-class OpenAlephSettings(BaseSettings):
+class DeferSettings(BaseSettings):
+    """
+    Adjust the worker queues and tasks for different stages.
+
+    This is useful e.g. for launching a priority queuing setup for a specific dataset:
+
+    Example:
+        ```bash
+        # ingest service
+        export OPENALEPH_INGEST_QUEUE=ingest-prio-dataset
+        export OPENALEPH_ANALYZE_QUEUE=analyze-prio-dataset
+        ingestors ingest -d prio_dataset ./documents
+        procrastinate worker -q ingest-prio-dataset --one-shot  # stop worker after complete
+
+        # analyze service
+        procrastinate worker -q analyze-prio-dataset --one-shot  # stop worker after complete
+        ```
+    """
+
+    ingest_queue: str = "ingest"
+    ingest_task: str = "ingestors.tasks.ingest"
+    analyze_queue: str = "ftm-analyze"
+    analyze_task: str = "ftm_analyze.tasks.analyze"
+    index_queue: str = "openaleph-index"
+    index_task: str = "aleph.procrastinate.tasks.index_bulk"
+    transcribe_queue: str = "ftm-transcribe"
+    transcribe_task: str = "ftm_transcribe.tasks.transcribe"
+    geocode_queue: str = "ftm-geocode"
+    geocode_task: str = "ftm_geocode.tasks.geocode"
+    assets_queue: str = "ftm-assets"
+    assets_task: str = "ftm_assets.tasks.resolve"
+
+
+class OpenAlephSettings(DeferSettings):
     """
     `openaleph_procrastinate` settings management using
     [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)

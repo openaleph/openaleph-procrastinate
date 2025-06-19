@@ -1,6 +1,9 @@
 """
 Known stages to defer jobs to within the OpenAleph stack.
 
+See [Settings][openaleph_procrastinate.settings.DeferSettings]
+for configuring queue names and tasks.
+
 Example:
     ```python
     from openaleph_procrastinate import defer
@@ -18,9 +21,9 @@ from typing import Any, Iterable
 from followthemoney.proxy import EntityProxy
 
 from openaleph_procrastinate.model import DatasetJob
+from openaleph_procrastinate.settings import DeferSettings
 
-INGEST_QUEUE = "ingest"
-INGEST_TASK = "ingestors.tasks.ingest"
+settings = DeferSettings()
 
 
 def ingest(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
@@ -34,15 +37,11 @@ def ingest(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     return DatasetJob.from_entity(
         dataset=dataset,
-        queue=INGEST_QUEUE,
-        task=INGEST_TASK,
+        queue=settings.ingest_queue,
+        task=settings.ingest_task,
         entity=entity,
         **context,
     )
-
-
-ANALYZE_QUEUE = "ftm-analyze"
-ANALYZE_TASK = "ftm_analyze.tasks.analyze"
 
 
 def analyze(
@@ -58,16 +57,12 @@ def analyze(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=ANALYZE_QUEUE,
-        task=ANALYZE_TASK,
+        queue=settings.analyze_queue,
+        task=settings.analyze_task,
         entities=entities,
         dehydrate=True,
         **context,
     )
-
-
-INDEX_QUEUE = "openaleph"
-INDEX_TASK = "aleph.procrastinate.index"
 
 
 def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> DatasetJob:
@@ -81,16 +76,12 @@ def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> Data
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=INDEX_QUEUE,
-        task=INDEX_TASK,
+        queue=settings.index_queue,
+        task=settings.index_task,
         entities=entities,
         dehydrate=True,
         **context,
     )
-
-
-TRANSCRIBE_QUEUE = "ftm-transcribe"
-TRANSCRIBE_TASK = "ftm_transcribe.tasks.transcribe"
 
 
 def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
@@ -104,15 +95,11 @@ def transcribe(dataset: str, entity: EntityProxy, **context: Any) -> DatasetJob:
     """
     return DatasetJob.from_entity(
         dataset=dataset,
-        queue=TRANSCRIBE_QUEUE,
-        task=TRANSCRIBE_TASK,
+        queue=settings.transcribe_queue,
+        task=settings.transcribe_task,
         entity=entity,
         **context,
     )
-
-
-GEOCODE_QUEUE = "ftm-geocode"
-GEOCODE_TASK = "ftm_geocode.tasks.geocode"
 
 
 def geocode(
@@ -128,18 +115,14 @@ def geocode(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=GEOCODE_QUEUE,
-        task=GEOCODE_TASK,
+        queue=settings.geocode_queue,
+        task=settings.geocode_task,
         entities=entities,
         **context,
     )
 
 
-ASSETS_QUEUE = "ftm-assets"
-ASSETS_TASK = "ftm_assets.tasks.resolve"
-
-
-def resolve_image(
+def resolve_assets(
     dataset: str, entities: Iterable[EntityProxy], **context: Any
 ) -> DatasetJob:
     """
@@ -152,8 +135,8 @@ def resolve_image(
     """
     return DatasetJob.from_entities(
         dataset=dataset,
-        queue=GEOCODE_QUEUE,
-        task=GEOCODE_TASK,
+        queue=settings.assets_queue,
+        task=settings.assets_task,
         entities=entities,
         **context,
     )
