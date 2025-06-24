@@ -62,18 +62,7 @@ job = DatasetJob(
 )
 ```
 
-There exists a `@classmethod` to create a job for an Entity:
-
-```python
-job = DatasetJob.from_entity(
-    dataset="my_dataset",
-    queue="index",
-    task="aleph.tasks.index_proxy",
-    entity=entity  # instance of `followthemoney.model.EntityProxy`
-)
-```
-
-Multiple entities (for batch processing):
+There exists a `@classmethod` to create a job for an iterable of _Entities_:
 
 ```python
 job = DatasetJob.from_entities(
@@ -95,7 +84,7 @@ def process_entities(job: DatasetJob):
         do_something(entity)
 ```
 
-To receive the entities from the `followthemoney-store` (to have the most recent version, it might be patched in between by other tasks):
+To receive the entities from the `followthemoney-store` (to have the most recent version, because it might be patched in between by other tasks):
 
 ```python
 @task(app=app)
@@ -118,7 +107,7 @@ def process_entities(job: DatasetJob):
     with job.get_writer() as bulk:
         for entity in job.load_entities():
             fragment = extract_something(entity)
-            bulk.add(fragment)
+            bulk.put(fragment)
 ```
 
 The bulk writer is flushed when leaving the context.
