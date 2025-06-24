@@ -36,38 +36,48 @@ class DeferSettings(BaseSettings):
         ```
     """
 
+    model_config = SettingsConfigDict(
+        env_prefix="openaleph_",
+        env_nested_delimiter="_",
+        env_file=".env",
+        nested_model_default_partial_update=True,
+        extra="ignore",  # other envs in .env file
+    )
+
     ingest: ServiceSettings = ServiceSettings(
         queue="ingest", task="ingestors.tasks.ingest"
     )
     """ingest-file"""
 
     analyze: ServiceSettings = ServiceSettings(
-        queue="ftm-analyze", task="ftm_analyze.tasks.analyze"
+        queue="analyze", task="ftm_analyze.tasks.analyze"
     )
     """ftm-analyze"""
+
+    transcribe: ServiceSettings = ServiceSettings(
+        queue="transcribe", task="ftm_transcribe.tasks.transcribe"
+    )
+    """ftm-transcribe"""
+
+    geocode: ServiceSettings = ServiceSettings(
+        queue="geocode", task="ftm_geocode.tasks.geocode"
+    )
+    """ftm-geocode"""
+
+    assets: ServiceSettings = ServiceSettings(
+        queue="assets", task="ftm_assets.tasks.resolve"
+    )
+    """ftm-assets"""
+
+    # OpenAleph
 
     index: ServiceSettings = ServiceSettings(
         queue="openaleph", task="aleph.procrastinate.tasks.index"
     )
     """openaleph indexer"""
 
-    transcribe: ServiceSettings = ServiceSettings(
-        queue="ftm-transcribe", task="ftm_transcribe.tasks.transcribe"
-    )
-    """ftm-transcribe"""
 
-    geocode: ServiceSettings = ServiceSettings(
-        queue="ftm-geocode", task="ftm_geocode.tasks.geocode"
-    )
-    """ftm-geocode"""
-
-    assets: ServiceSettings = ServiceSettings(
-        queue="ftm-assets", task="ftm_assets.tasks.resolve"
-    )
-    """ftm-assets"""
-
-
-class OpenAlephSettings(DeferSettings):
+class OpenAlephSettings(BaseSettings):
     """
     `openaleph_procrastinate` settings management using
     [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
