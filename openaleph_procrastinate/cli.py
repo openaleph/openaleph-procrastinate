@@ -77,3 +77,6 @@ def init_db():
         db_ok = app.check_connection()
         if not db_ok:
             app.schema_manager.apply_schema()
+        # FIXME trust me, for some reason this needs to be called explicitly
+        # (even though leaving the context calls it)
+        app.close()
