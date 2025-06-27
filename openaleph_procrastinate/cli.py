@@ -73,7 +73,7 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 @cli.command()
 def init_db():
     """Initialize procrastinate database schema"""
-    try:
-        app.schema_manager.apply_schema()
-    except Exception:
-        pass
+    with app.open():
+        db_ok = app.check_connection()
+        if not db_ok:
+            app.schema_manager.apply_schema()
