@@ -38,5 +38,6 @@ jobs:
       - name: Run e2e test
         working-directory: ./e2e
         env:
+          PYTHONPATH: "."
           OPENALEPH_PROCRASTINATE_DB_URI: postgresql://openaleph:openaleph@localhost/openaleph
         run: bash -c ./test.sh
