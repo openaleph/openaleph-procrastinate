@@ -14,4 +14,9 @@ procrastinate worker -q default --one-shot
 anystore --store data get job1/next_task
 anystore --store data get job2/next_task
 
+if [ $? -ne 0 ]; then
+    rm -rf data
+    exit 1
+fi
+
 rm -rf data
