@@ -2,10 +2,12 @@ from functools import cache
 from typing import Self
 
 import procrastinate
-from anystore.logging import configure_logging
+from anystore.logging import configure_logging, get_logger
 from procrastinate import connector, testing
 
 from openaleph_procrastinate.settings import OpenAlephSettings
+
+log = get_logger(__name__)
 
 
 class App(procrastinate.App):
@@ -50,7 +52,15 @@ def get_connector(sync: bool | None = False) -> connector.BaseConnector:
 def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
     configure_logging()
     import_paths = [tasks_module] if tasks_module else None
-    app = App(connector=get_connector(sync=sync), import_paths=import_paths)
+    connector = get_connector(sync=sync)
+    log.info(
+        "👋 I am the App!",
+        connector=connector.__class__.__name__,
+        sync=sync,
+        tasks=tasks_module,
+        module=__name__,
+    )
+    app = App(connector=connector, import_paths=import_paths)
     return app
 
 

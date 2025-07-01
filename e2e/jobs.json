@@ -1,0 +1,2 @@
+{"payload": {"path": "./data/job1"}, "task": "e2e.tasks.dummy_task", "queue": "default"}
+{"payload": {"path": "./data/job2"}, "task": "e2e.tasks.dummy_task", "queue": "default"}
