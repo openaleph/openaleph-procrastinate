@@ -53,8 +53,8 @@ def defer_entities(
     """
     with ErrorHandler(log), app.open():
         for proxy in smart_stream_proxies(input_uri):
-            job = model.DatasetJob.from_entity(
-                dataset=dataset, queue=queue, task=task, entity=proxy
+            job = model.DatasetJob.from_entities(
+                dataset=dataset, queue=queue, task=task, entities=[proxy]
             )
             job.defer(app)
 
@@ -73,10 +73,12 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 @cli.command()
 def init_db():
     """Initialize procrastinate database schema"""
+    log.info(f"Database `{settings.procrastinate_db_uri}`")
     with app.open():
         db_ok = app.check_connection()
         if not db_ok:
             app.schema_manager.apply_schema()
-        # FIXME trust me, for some reason this needs to be called explicitly
-        # (even though leaving the context calls it)
+        # FIXME because we keep the app open by default, it needs to be closed
+        # here explicitly. As noted in the comment in our app module, I knew it
+        # would backfire, and here we go:
         app.close()

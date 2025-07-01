@@ -6,15 +6,15 @@ This example is based on [ftm-geocode](https://docs.investigraph.dev/lib/ftm-geo
 
 ## Prerequisites
 
-Add [`openaleph-procrastinate`](https://github.com/openaleph/openaleph-procrastinate) as a dependency to your project.
+Add the latest [`openaleph-procrastinate`](https://github.com/openaleph/openaleph-procrastinate) as a dependency to your project.
 
 pip:
 
-    pip install "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
+    pip install openaleph-procrastinate
 
 poetry:
 
-    poetry add "openaleph-procrastinate @ git+https://github.com/openaleph/openaleph-procrastinate@main"
+    poetry add openaleph-procrastinate
 
 
 ### Configure database connection
@@ -84,14 +84,14 @@ from openaleph_procrastinate.model import DatasetJob
 app = make_app()
 
 def defer_job(entity):
-    with app.open():
+    with app.open() as app:
         job = DatasetJob.from_entity(
             dataset="my_dataset",
             queue="ftm-geocode",
             task="ftm_geocode.tasks.geocode",
             entity=entity
         )
-        job.defer()
+        job.defer(app=app)
 ```
 
 ## Defer tasks using the cli

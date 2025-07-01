@@ -10,15 +10,25 @@ For now, this requires some conventions – they are not enforced and might need
 
 Live in a `tasks` submodule of the program, so that other services can reference a tasks for deferring with the string identifier `<library_name>.tasks.<task_name>`.
 
-Tasks always take a [`Job`](./job.md) as its only argument. To defer a new job to a new _Stage_ after processing the task, yield one or more new jobs. The function signature for a task therefore looks as follows:
+Tasks always take a [`Job`](./job.md) as its only argument. To defer a new job to a new _Stage_ after processing the task, explicitly defer it at the end of the task (or use one of the [known defers](./reference/defer.md) helpers.
+
+[We use our own task decorator to add custom middleware](https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html) defined at `openaleph_procrastinate.tasks`
+
+The function signature for a task therefore looks as follows:
 
 ```python
-from openaleph_procrastinate.model import AnyJob, Defers
+from openaleph_procrastinate.app import make_app
+from openaleph_procrastinate.model import Job, Defers
+from openaleph_procrastinate.tasks import task
+
+app = make_app(__loader__.name)
 
 @task(app=app)
-def my_task(job: AnyJob) -> Defers:
+def my_task(job: Job) -> None:
     # process things
-    yield new_job  # if defer to a next stage
+    new_job = Job(...)  # create new job
+    # defer it
+    new_job.defer(app=app)
 ```
 
 [Known defers](./reference/defer.md)

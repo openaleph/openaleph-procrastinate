@@ -176,4 +176,3 @@ class DatasetJob(Job):
 
 
 AnyJob: TypeAlias = Job | DatasetJob
-Defers: TypeAlias = None | Generator[AnyJob, None, None]

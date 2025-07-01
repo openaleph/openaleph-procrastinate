@@ -1,11 +1,11 @@
 import functools
-from typing import Any
+from typing import Any, Callable
 
 from anystore.logging import get_logger
 from procrastinate.app import App
 
 from openaleph_procrastinate.exceptions import ErrorHandler
-from openaleph_procrastinate.model import AnyJob, DatasetJob, Defers, Job
+from openaleph_procrastinate.model import AnyJob, DatasetJob, Job
 
 log = get_logger(__name__)
 
@@ -18,24 +18,18 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
         return Job(**data)
 
 
-def task(original_func=None, **kwargs):
+def task(app: App, **kwargs):
     # https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html
-    def wrap(func):
-        app: App = kwargs.pop("app")
-
-        def new_func(*job_args, **job_kwargs):
+    def wrap(func: Callable[..., None]):
+        def _inner(*job_args, **job_kwargs):
             # turn the json data into the job model instance
             job = unpack_job(job_kwargs)
-            defer: Defers = func(*job_args, job)
-            # defer next jobs
-            if defer is not None:
-                for job in defer:
-                    job.defer(app)
+            func(*job_args, job)
 
-        wrapped_func = functools.update_wrapper(new_func, func, updated=())
+        # need to call to not register tasks twice (procrastinate complains)
+        wrapped_func = functools.update_wrapper(_inner, func, updated=())
+        # call the original procrastinate task decorator with additional
+        # configuration passed through
         return app.task(**kwargs)(wrapped_func)
 
-    if not original_func:
-        return wrap
-
-    return wrap(original_func)
+    return wrap

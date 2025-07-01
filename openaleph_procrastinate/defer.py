@@ -4,15 +4,20 @@ Known stages to defer jobs to within the OpenAleph stack.
 See [Settings][openaleph_procrastinate.settings.DeferSettings]
 for configuring queue names and tasks.
 
+Conventions / common pattern: Tasks are responsible to explicitly defer
+following tasks. This defer call is not conditional but happens always, but
+actually deferring happens in this module and is depending on runtime settings
+(see below).
+
 Example:
     ```python
     from openaleph_procrastinate import defer
 
     @task(app=app)
-    def analyze(job: DatasetJob) -> Defers:
+    def analyze(job: DatasetJob) -> None:
         result = analyze_entities(job.load_entities())
         # defer to index stage
-        yield defer.index(job.dataset, result)
+        defer.index(app, job.dataset, result)
     ```
 
 To disable deferring for a service, use environment variable:
@@ -21,10 +26,10 @@ For example, to disable indexing entities after ingestion, start the
 `ingest-file` worker with this config: `OPENALEPH_INDEX_DEFER=0`
 """
 
-import functools
-from typing import Any, Callable, Iterable
+from typing import Any, Iterable
 
 from followthemoney.proxy import EntityProxy
+from procrastinate import App
 
 from openaleph_procrastinate.model import DatasetJob
 from openaleph_procrastinate.settings import DeferSettings
@@ -32,143 +37,148 @@ from openaleph_procrastinate.settings import DeferSettings
 settings = DeferSettings()
 
 
-def check_defer(
-    func: Callable[..., DatasetJob] | None = None, enabled: bool | None = True
-) -> Callable[..., Any]:
-    def _decorator(func):
-        @functools.wraps(func)
-        def _inner(*args, **kwargs):
-            job = func(*args, **kwargs)
-            if enabled:
-                return job
-            job.log.info(f"Not deferring to `{job.task}` (deferring disabled)")
-
-        return _inner
-
-    if func is None:
-        return _decorator
-    return _decorator(func)
-
-
-@check_defer(enabled=settings.ingest.defer)
-def ingest(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> DatasetJob:
+def ingest(
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job for `ingest-file`
+    Defer a new job for `ingest-file`.
+    It will only deferred if `OPENALEPH_INGEST_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The file or directory entities to ingest
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.ingest.queue,
-        task=settings.ingest.task,
-        entities=entities,
-        **context,
-    )
+    if settings.ingest.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.ingest.queue,
+            task=settings.ingest.task,
+            entities=entities,
+            **context,
+        )
+        job.defer(app)
 
 
-@check_defer(enabled=settings.analyze.defer)
 def analyze(
-    dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> DatasetJob:
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job for `ftm-analyze`
+    Defer a new job for `ftm-analyze`
+    It will only deferred if `OPENALEPH_ANALYZE_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The entities to analyze
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.analyze.queue,
-        task=settings.analyze.task,
-        entities=entities,
-        dehydrate=True,
-        **context,
-    )
+    if settings.analyze.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.analyze.queue,
+            task=settings.analyze.task,
+            entities=entities,
+            dehydrate=True,
+            **context,
+        )
+        job.defer(app=app)
 
 
-@check_defer(enabled=settings.index.defer)
-def index(dataset: str, entities: Iterable[EntityProxy], **context: Any) -> DatasetJob:
+def index(
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job to index into OpenAleph
+    Defer a new job to index into OpenAleph
+    It will only deferred if `OPENALEPH_INDEX_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The entities to index
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.index.queue,
-        task=settings.index.task,
-        entities=entities,
-        dehydrate=True,
-        **context,
-    )
+    if settings.index.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.index.queue,
+            task=settings.index.task,
+            entities=entities,
+            dehydrate=True,
+            **context,
+        )
+        job.defer(app=app)
 
 
-@check_defer(enabled=settings.transcribe.defer)
 def transcribe(
-    dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> DatasetJob:
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job for `ftm-transcribe`
+    Defer a new job for `ftm-transcribe`
+    It will only deferred if `OPENALEPH_TRANSCRIBE_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
-        entity: The file entity to ingest
+        entities: The file entities to ingest
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.transcribe.queue,
-        task=settings.transcribe.task,
-        entities=entities,
-        **context,
-    )
+    if settings.transcribe.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.transcribe.queue,
+            task=settings.transcribe.task,
+            entities=entities,
+            dehydrate=True,
+            **context,
+        )
+        job.defer(app=app)
 
 
-@check_defer(enabled=settings.geocode.defer)
 def geocode(
-    dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> DatasetJob:
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job for `ftm-geocode`
+    Defer a new job for `ftm-geocode`
+    It will only deferred if `OPENALEPH_GEOCODE_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The entities to geocode
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.geocode.queue,
-        task=settings.geocode.task,
-        entities=entities,
-        **context,
-    )
+    if settings.geocode.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.geocode.queue,
+            task=settings.geocode.task,
+            entities=entities,
+            **context,
+        )
+        job.defer(app=app)
 
 
-@check_defer(enabled=settings.assets.defer)
 def resolve_assets(
-    dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> DatasetJob:
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
     """
-    Make a new job for `ftm-assets`
+    Defer a new job for `ftm-assets`
+    It will only deferred if `OPENALEPH_ASSETS_DEFER=1` (the default)
 
     Args:
+        app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The entities to resolve assets for
         context: Additional job context
     """
-    return DatasetJob.from_entities(
-        dataset=dataset,
-        queue=settings.assets.queue,
-        task=settings.assets.task,
-        entities=entities,
-        **context,
-    )
+    if settings.assets.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=settings.assets.queue,
+            task=settings.assets.task,
+            entities=entities,
+            **context,
+        )
+        job.defer(app=app)
