@@ -40,9 +40,10 @@ def get_connector(sync: bool | None = False) -> connector.BaseConnector:
     if settings.debug:
         # https://procrastinate.readthedocs.io/en/stable/howto/production/testing.html
         return testing.InMemoryConnector()
+    db_uri = settings.procrastinate_db_uri
     if sync:
-        return procrastinate.SyncPsycopgConnector(conninfo=settings.db_uri)
-    return procrastinate.PsycopgConnector(conninfo=settings.db_uri)
+        return procrastinate.SyncPsycopgConnector(conninfo=db_uri)
+    return procrastinate.PsycopgConnector(conninfo=db_uri)
 
 
 @cache
