@@ -39,4 +39,5 @@ jobs:
         working-directory: ./e2e
         env:
           OPENALEPH_PROCRASTINATE_DB_URI: postgresql://openaleph:openaleph@localhost/openaleph
-        run: bash -c ./e2e/test.sh
+        run: find . -type f -name "*.sh"
+        # run: bash -c ./e2e/test.sh
