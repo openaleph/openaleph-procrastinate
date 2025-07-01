@@ -10,7 +10,7 @@ For now, this requires some conventions – they are not enforced and might need
 
 Live in a `tasks` submodule of the program, so that other services can reference a tasks for deferring with the string identifier `<library_name>.tasks.<task_name>`.
 
-Tasks always take a [`Job`](./job.md) as its only argument. To defer a new job to a new _Stage_ after processing the task, explicitly defer it at the end of the task (or use one of the [known defers](./reference/defer.md) helpers.
+Tasks always take a [`Job`](./job.md) as its only argument. To defer a new job to a new _Stage_ after processing the task, explicitly defer it at the end of the task (or use one of the [known defers](./reference/defer.md) helpers).
 
 [We use our own task decorator to add custom middleware](https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html) defined at `openaleph_procrastinate.tasks`
 

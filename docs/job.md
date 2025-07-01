@@ -97,10 +97,6 @@ def process_entities(job: DatasetJob):
 
 Write entities or fragments to the store. This writes to the same dataset the original entity(ies) are from.
 
-!!! danger
-
-    This is currently not working for writing entities to **OpenAleph**. Its _FollowTheMoney store_ uses `ftm_collection_<id>` as the table scheme instead of the `dataset` property as an identifier. To put entities into OpenAleph, defer a next stage job with `aleph.procrastinate.put_entities` as the task.
-
 ```python
 @task(app=app)
 def process_entities(job: DatasetJob):
@@ -157,23 +153,24 @@ Under the hood, the file is retrieved from the [servicelayer](https://github.com
 
 ## Defer to next stage
 
-To defer (queue) a job to a next stage after processing, yield one or more updated `Job` in the task function:
+To defer (queue) a job to a next stage after processing, explicitly call the defer method either on the updated or newly created `Job` object itself or use one of the [known defers](./reference/defer.md).
 
 ```python
 @task(app=app)
-def my_task(job: DatasetJob) -> Defers:
+def my_task(job: DatasetJob) -> None:
     entities = []
     for entity in job.load_entities():
         result = do_something(entity)
         entities.append(entity)
 
     # yield a new job to defer
-    yield DatasetJob.from_entities(
+    next_job = DatasetJob.from_entities(
         dataset=job.dataset,
         queue=job.queue,  # use the same queue or another one
         task="another_module.tasks.process",  # reference a task
         entities=entities
     )
+    next_job.defer(app=app)
 ```
 
 
