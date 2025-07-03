@@ -76,6 +76,46 @@ class DeferSettings(BaseSettings):
     )
     """openaleph indexer"""
 
+    reindex: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.reindex"
+    )
+    """openaleph reindexer"""
+
+    xref: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.xref"
+    )
+    """openaleph xref"""
+
+    load_mapping: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.load_mapping"
+    )
+    """openaleph load_mapping"""
+
+    flush_mapping: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.flush_mapping"
+    )
+    """openaleph flush_mapping"""
+
+    export_search: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.export_search"
+    )
+    """openaleph export_search"""
+
+    export_xref: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.export_xref"
+    )
+    """openaleph export_xref"""
+
+    update_entity: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.update_entity"
+    )
+    """openaleph update_entity"""
+
+    prune_entity: ServiceSettings = ServiceSettings(
+        queue="openaleph", task="aleph.procrastinate.tasks.update_entity"
+    )
+    """openaleph update_entity"""
+
 
 class OpenAlephSettings(BaseSettings):
     """
