@@ -132,9 +132,7 @@ def reindex(app: App, dataset: str, **context: Any) -> None:
         job.defer(app=app)
 
 
-def xref(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def xref(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to xref into OpenAleph
     It will only deferred if `OPENALEPH_XREF_DEFER=1` (the default)
@@ -154,9 +152,7 @@ def xref(
         job.defer(app=app)
 
 
-def load_mapping(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def load_mapping(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to load_mapping into OpenAleph
     It will only deferred if `OPENALEPH_LOAD_MAPPING_DEFER=1` (the default)
@@ -176,9 +172,7 @@ def load_mapping(
         job.defer(app=app)
 
 
-def flush_mapping(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def flush_mapping(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to flush_mapping into OpenAleph
     It will only deferred if `OPENALEPH_FLUSH_MAPPING_DEFER=1` (the default)
@@ -241,9 +235,7 @@ def export_xref(app: App, **context: Any) -> None:
         job.defer(app=app)
 
 
-def update_entity(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def update_entity(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to update_entity into OpenAleph
     It will only deferred if `OPENALEPH_UPDATE_ENTITY_DEFER=1` (the default)
@@ -263,9 +255,7 @@ def update_entity(
         job.defer(app=app)
 
 
-def prune_entity(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def prune_entity(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to prune_entity into OpenAleph
     It will only deferred if `OPENALEPH_PRUNE_ENTITY_DEFER=1` (the default)
