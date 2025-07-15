@@ -32,7 +32,7 @@ from followthemoney.proxy import EntityProxy
 from procrastinate import App
 from banal import ensure_dict
 
-from openaleph_procrastinate.model import DatasetJob
+from openaleph_procrastinate.model import DatasetJob, Job
 from openaleph_procrastinate.settings import DeferSettings
 
 settings = DeferSettings()
@@ -193,7 +193,7 @@ def flush_mapping(app: App, dataset: str, **context: Any) -> None:
 
 
 def export_search(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+    app: App, **context: Any
 ) -> None:
     """
     Defer a new job to export_search into OpenAleph
@@ -201,17 +201,13 @@ def export_search(
 
     Args:
         app: The procrastinate app instance
-        dataset: The ftm dataset or collection
-        entities: The entities to export
         context: Additional job context
     """
     if settings.export_search.defer:
-        job = DatasetJob.from_entities(
-            dataset=dataset,
+        job = Job(
             queue=settings.export_search.queue,
             task=settings.export_search.task,
-            entities=entities,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
