@@ -112,7 +112,7 @@ class DeferSettings(BaseSettings):
     """openaleph update_entity"""
 
     prune_entity: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.update_entity"
+        queue="openaleph", task="aleph.procrastinate.tasks.prune_entity"
     )
     """openaleph update_entity"""
 

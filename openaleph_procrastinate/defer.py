@@ -30,8 +30,9 @@ from typing import Any, Iterable
 
 from followthemoney.proxy import EntityProxy
 from procrastinate import App
+from banal import ensure_dict
 
-from openaleph_procrastinate.model import DatasetJob
+from openaleph_procrastinate.model import DatasetJob, Job
 from openaleph_procrastinate.settings import DeferSettings
 
 settings = DeferSettings()
@@ -126,14 +127,12 @@ def reindex(app: App, dataset: str, **context: Any) -> None:
             dataset=dataset,
             queue=settings.reindex.queue,
             task=settings.reindex.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
-def xref(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def xref(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to xref into OpenAleph
     It will only deferred if `OPENALEPH_XREF_DEFER=1` (the default)
@@ -148,14 +147,12 @@ def xref(
             dataset=dataset,
             queue=settings.xref.queue,
             task=settings.xref.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
-def load_mapping(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def load_mapping(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to load_mapping into OpenAleph
     It will only deferred if `OPENALEPH_LOAD_MAPPING_DEFER=1` (the default)
@@ -170,14 +167,12 @@ def load_mapping(
             dataset=dataset,
             queue=settings.load_mapping.queue,
             task=settings.load_mapping.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
-def flush_mapping(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def flush_mapping(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to flush_mapping into OpenAleph
     It will only deferred if `OPENALEPH_FLUSH_MAPPING_DEFER=1` (the default)
@@ -192,13 +187,13 @@ def flush_mapping(
             dataset=dataset,
             queue=settings.flush_mapping.queue,
             task=settings.flush_mapping.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
 def export_search(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+    app: App, **context: Any
 ) -> None:
     """
     Defer a new job to export_search into OpenAleph
@@ -206,18 +201,13 @@ def export_search(
 
     Args:
         app: The procrastinate app instance
-        dataset: The ftm dataset or collection
-        entities: The entities to export
         context: Additional job context
     """
     if settings.export_search.defer:
-        job = DatasetJob.from_entities(
-            dataset=dataset,
+        job = Job(
             queue=settings.export_search.queue,
             task=settings.export_search.task,
-            entities=entities,
-            dehydrate=True,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
@@ -236,14 +226,12 @@ def export_xref(app: App, **context: Any) -> None:
             dataset="",
             queue=settings.export_xref.queue,
             task=settings.export_xref.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
-def update_entity(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def update_entity(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to update_entity into OpenAleph
     It will only deferred if `OPENALEPH_UPDATE_ENTITY_DEFER=1` (the default)
@@ -254,18 +242,16 @@ def update_entity(
         context: Additional job context
     """
     if settings.update_entity.defer:
-        job = DatasetJob.from_entities(
+        job = DatasetJob(
             dataset=dataset,
             queue=settings.update_entity.queue,
             task=settings.update_entity.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
 
-def prune_entity(
-    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+def prune_entity(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to prune_entity into OpenAleph
     It will only deferred if `OPENALEPH_PRUNE_ENTITY_DEFER=1` (the default)
@@ -280,7 +266,7 @@ def prune_entity(
             dataset=dataset,
             queue=settings.prune_entity.queue,
             task=settings.prune_entity.task,
-            **context,
+            payload={"context": ensure_dict(context)},
         )
         job.defer(app=app)
 
