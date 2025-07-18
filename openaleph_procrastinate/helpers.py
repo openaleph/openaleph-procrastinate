@@ -8,8 +8,8 @@ from typing import ContextManager, Generator
 
 from anystore.store.virtual import VirtualIO, get_virtual_path, open_virtual
 from followthemoney.proxy import EntityProxy
-from ftmstore import get_dataset
-from ftmstore.loader import BulkLoader
+from ftmq.store.fragments import get_dataset
+from ftmq.store.fragments.loader import BulkLoader
 
 from openaleph_procrastinate.archive import get_archive, lookup_key
 from openaleph_procrastinate.exceptions import EntityNotFound
@@ -56,8 +56,8 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
 @contextmanager
 def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     """
-    Get the `ftmstore.dataset.BulkLoader` for the given `dataset`. The writer is
-    flushed when leaving the context.
+    Get the `ftmq.store.fragments.BulkLoader` for the given `dataset`. The
+    writer is flushed when leaving the context.
     """
     store = get_dataset(
         dataset, origin=OPAL_ORIGIN, database_uri=settings.ftm_store_uri

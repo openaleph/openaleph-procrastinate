@@ -1346,25 +1346,6 @@ dev = ["build", "bump2version", "coverage (>=4.1)", "flake8 (>=2.6.0)", "mypy", 
 docs = ["mkdocs (>=1.4.0)", "mkdocs-gen-files", "mkdocs-macros-plugin", "mkdocs-material (>=9.0.0)", "mkdocstrings[python]"]
 
 [[package]]
-name = "followthemoney-store"
-version = "3.1.0"
-description = "Store raw and structured FollowTheMoney data from different datasets in a data lake"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = []
-develop = false
-
-[package.extras]
-postgresql = ["psycopg2-binary (>=2.7)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/openaleph/followthemoney-store"
-reference = "HEAD"
-resolved_reference = "6331f4bf1fd6983ca5d45973ec72a7038dddf50b"
-
-[[package]]
 name = "frozenlist"
 version = "1.7.0"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -1520,14 +1501,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.0.1"
+version = "4.0.2"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.0.1-py3-none-any.whl", hash = "sha256:afbf8920cacfb29c6ba85a006aea12630b21f74686b40ef55ce219a7d6e36b2b"},
-    {file = "ftmq-4.0.1.tar.gz", hash = "sha256:7557a5ce42ffde211c4299b7ddd894d24e7e379548012dfeb2a5a5cb373b1c1d"},
+    {file = "ftmq-4.0.2-py3-none-any.whl", hash = "sha256:09b940e86eca04dd000b013f34b280fc4717b5c970624014725c15627b27f884"},
+    {file = "ftmq-4.0.2.tar.gz", hash = "sha256:57dba8ecce198ecf188bfac5fae7341e7929639430825902898fd1d10b1855b3"},
 ]
 
 [package.dependencies]
@@ -1535,7 +1516,6 @@ anystore = ">=0.3.8,<0.4.0"
 click = ">=8.2.1,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 followthemoney = ">=4.0.3,<5.0.0"
-furl = ">=2.1.4,<3.0.0"
 nomenklatura = ">=4.0.1,<5.0.0"
 orjson = ">=3.10.18,<4.0.0"
 pycountry = ">=24.6.1,<25.0.0"
@@ -1543,28 +1523,12 @@ pydantic = ">=2.11.3,<3.0.0"
 pyicu = ">=2.15.2,<3.0.0"
 
 [package.extras]
-aleph = ["alephclient (>=2.6.0,<3.0.0)"]
+aleph = ["alephclient (>=2.6.0,<3.0.0)", "furl (>=2.1.4,<3.0.0)"]
 lake = ["deltalake (>=1.0.2,<2.0.0)", "duckdb (>=1.3.1,<2.0.0)", "pandas (>=2.3.0,<3.0.0)", "pyarrow (>=20.0.0,<21.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg2 (>=2.9.10,<3.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
-
-[[package]]
-name = "furl"
-version = "2.1.4"
-description = "URL manipulation made simple."
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "furl-2.1.4-py2.py3-none-any.whl", hash = "sha256:da34d0b34e53ffe2d2e6851a7085a05d96922b5b578620a37377ff1dbeeb11c8"},
-    {file = "furl-2.1.4.tar.gz", hash = "sha256:877657501266c929269739fb5f5980534a41abd6bbabcb367c136d1d3b2a6015"},
-]
-
-[package.dependencies]
-orderedmultidict = ">=1.0.1"
-six = ">=1.8.0"
 
 [[package]]
 name = "ghp-import"
@@ -3147,21 +3111,6 @@ files = [
 
 [package.dependencies]
 et-xmlfile = "*"
-
-[[package]]
-name = "orderedmultidict"
-version = "1.0.1"
-description = "Ordered Multivalue Dictionary"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "orderedmultidict-1.0.1-py2.py3-none-any.whl", hash = "sha256:43c839a17ee3cdd62234c47deca1a8508a3f2ca1d0678a3bf791c87cf84adbf3"},
-    {file = "orderedmultidict-1.0.1.tar.gz", hash = "sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad"},
-]
-
-[package.dependencies]
-six = ">=1.8.0"
 
 [[package]]
 name = "orjson"
@@ -5778,4 +5727,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "62a48deb75fbe6538d1eb29d74830c1a372885b49d3ad22cfeb54b6b2997caa5"
+content-hash = "dc6d9c4c9d3cbc071099c197b11a8b8bf299f120575d047929f09c472a73b73c"

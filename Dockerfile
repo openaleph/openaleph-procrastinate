@@ -1,7 +1,5 @@
 FROM ghcr.io/dataresearchcenter/ftmq:latest
 
-RUN apt install -y git
-
 COPY openaleph_procrastinate /app/openaleph_procrastinate
 COPY setup.py /app/setup.py
 COPY pyproject.toml /app/pyproject.toml

@@ -6,7 +6,7 @@ from anystore.store.virtual import VirtualIO
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
-from ftmstore.loader import BulkLoader
+from ftmq.store.fragments.loader import BulkLoader
 from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
 
