@@ -4,7 +4,7 @@ import typer
 from anystore.cli import ErrorHandler
 from anystore.io import smart_stream_json
 from anystore.logging import configure_logging, get_logger
-from ftmq.io import smart_stream_proxies
+from ftmq.io import smart_read_proxies
 from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
@@ -52,7 +52,7 @@ def defer_entities(
     Defer jobs for a stream of proxies
     """
     with ErrorHandler(log), app.open():
-        for proxy in smart_stream_proxies(input_uri):
+        for proxy in smart_read_proxies(input_uri):
             job = model.DatasetJob.from_entities(
                 dataset=dataset, queue=queue, task=task, entities=[proxy]
             )
