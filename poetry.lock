@@ -1520,14 +1520,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.0.0"
+version = "4.0.1"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.0.0-py3-none-any.whl", hash = "sha256:9064a7f238746b3bd4d7e21c48fc317b750bb67e4f85b95db4602f9005bdd2e8"},
-    {file = "ftmq-4.0.0.tar.gz", hash = "sha256:a38f9f36cc7b86599c3e6be60359a213420094c03ed4bdb956704b873ce8313a"},
+    {file = "ftmq-4.0.1-py3-none-any.whl", hash = "sha256:afbf8920cacfb29c6ba85a006aea12630b21f74686b40ef55ce219a7d6e36b2b"},
+    {file = "ftmq-4.0.1.tar.gz", hash = "sha256:7557a5ce42ffde211c4299b7ddd894d24e7e379548012dfeb2a5a5cb373b1c1d"},
 ]
 
 [package.dependencies]
@@ -5778,4 +5778,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "049851cc7db8e1145d33ba208dcd0c95e6944abc3a2b3f13a3be486243856abc"
+content-hash = "62a48deb75fbe6538d1eb29d74830c1a372885b49d3ad22cfeb54b6b2997caa5"
