@@ -24,7 +24,7 @@ def test_util():
 
     for i in ("", None):
         e.id = i
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             util.make_stub_entity(e)
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             util.make_checksum_entity(e)
