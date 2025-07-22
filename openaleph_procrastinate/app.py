@@ -37,11 +37,17 @@ class App(procrastinate.App):
 
 
 @cache
+def in_memory_connector() -> testing.InMemoryConnector:
+    # cache globally to share in async / sync context
+    return testing.InMemoryConnector()
+
+
+@cache
 def get_connector(sync: bool | None = False) -> connector.BaseConnector:
     settings = OpenAlephSettings()
     if settings.debug:
         # https://procrastinate.readthedocs.io/en/stable/howto/production/testing.html
-        return testing.InMemoryConnector()
+        return in_memory_connector()
     db_uri = settings.procrastinate_db_uri
     if sync:
         return procrastinate.SyncPsycopgConnector(conninfo=db_uri)
