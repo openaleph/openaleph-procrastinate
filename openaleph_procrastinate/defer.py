@@ -28,9 +28,9 @@ For example, to disable indexing entities after ingestion, start the
 
 from typing import Any, Iterable
 
+from banal import ensure_dict
 from followthemoney.proxy import EntityProxy
 from procrastinate import App
-from banal import ensure_dict
 
 from openaleph_procrastinate.model import DatasetJob, Job
 from openaleph_procrastinate.settings import DeferSettings
@@ -192,9 +192,7 @@ def flush_mapping(app: App, dataset: str, **context: Any) -> None:
         job.defer(app=app)
 
 
-def export_search(
-    app: App, **context: Any
-) -> None:
+def export_search(app: App, **context: Any) -> None:
     """
     Defer a new job to export_search into OpenAleph
     It will only deferred if `OPENALEPH_EXPORT_SEARCH_DEFER=1` (the default)
@@ -212,7 +210,7 @@ def export_search(
         job.defer(app=app)
 
 
-def export_xref(app: App, **context: Any) -> None:
+def export_xref(app: App, dataset: str, **context: Any) -> None:
     """
     Defer a new job to export_xref into OpenAleph
     It will only deferred if `OPENALEPH_EXPORT_XREF_DEFER=1` (the default)
@@ -223,7 +221,7 @@ def export_xref(app: App, **context: Any) -> None:
     """
     if settings.export_xref.defer:
         job = DatasetJob(
-            dataset="",
+            dataset=dataset,
             queue=settings.export_xref.queue,
             task=settings.export_xref.task,
             payload={"context": ensure_dict(context)},
