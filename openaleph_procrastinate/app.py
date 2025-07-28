@@ -68,6 +68,3 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
     )
     app = App(connector=connector, import_paths=import_paths)
     return app
-
-
-app = make_app()
