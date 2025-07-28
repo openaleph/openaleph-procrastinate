@@ -8,7 +8,7 @@ from typing import ContextManager, Generator
 
 from anystore.store.virtual import VirtualIO, get_virtual_path, open_virtual
 from followthemoney.proxy import EntityProxy
-from ftmq.store.fragments import get_dataset
+from ftmq.store.fragments import get_fragments
 from ftmq.store.fragments.loader import BulkLoader
 
 from openaleph_procrastinate.archive import get_archive, lookup_key
@@ -46,7 +46,7 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
     """
     Retrieve a single entity from the store.
     """
-    store = get_dataset(dataset, database_uri=settings.ftm_store_uri)
+    store = get_fragments(dataset, database_uri=settings.ftm_store_uri)
     entity = store.get(entity_id)
     if entity is None:
         raise EntityNotFound(f"Entity `{entity_id}` not found in dataset `{dataset}`")
@@ -59,7 +59,7 @@ def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     Get the `ftmq.store.fragments.BulkLoader` for the given `dataset`. The
     writer is flushed when leaving the context.
     """
-    store = get_dataset(
+    store = get_fragments(
         dataset, origin=OPAL_ORIGIN, database_uri=settings.ftm_store_uri
     )
     loader = store.bulk()

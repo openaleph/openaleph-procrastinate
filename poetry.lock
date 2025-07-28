@@ -1504,19 +1504,17 @@ name = "ftmq"
 version = "4.0.2"
 description = "followthemoney query dsl and io helpers"
 optional = false
-python-versions = "<4,>=3.11"
+python-versions = ">=3.11,<4"
 groups = ["main"]
-files = [
-    {file = "ftmq-4.0.2-py3-none-any.whl", hash = "sha256:09b940e86eca04dd000b013f34b280fc4717b5c970624014725c15627b27f884"},
-    {file = "ftmq-4.0.2.tar.gz", hash = "sha256:57dba8ecce198ecf188bfac5fae7341e7929639430825902898fd1d10b1855b3"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 anystore = ">=0.3.8,<0.4.0"
 click = ">=8.2.1,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 followthemoney = ">=4.0.3,<5.0.0"
-nomenklatura = ">=4.0.1,<5.0.0"
+nomenklatura = ">=4.0.4,<5.0.0"
 orjson = ">=3.10.18,<4.0.0"
 pycountry = ">=24.6.1,<25.0.0"
 pydantic = ">=2.11.3,<3.0.0"
@@ -1529,6 +1527,12 @@ level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg2 (>=2.9.10,<3.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/dataresearchcenter/ftmq.git"
+reference = "HEAD"
+resolved_reference = "bdcb13825bf0c99391bf4232caf96dc9d70d4d5f"
 
 [[package]]
 name = "ghp-import"
@@ -5727,4 +5731,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "a47aa0ce8bd9fdeb81697a8db3887e21a234607875346668721122a0ffa11026"
+content-hash = "b5c483be27d6977c7cb7c475dc0ba1951400933086abc83be4f943e0490b6e56"
