@@ -11,7 +11,10 @@ from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
 
 from openaleph_procrastinate import helpers
+from openaleph_procrastinate.settings import OpenAlephSettings
 from openaleph_procrastinate.util import make_checksum_entity
+
+settings = OpenAlephSettings()
 
 
 class EntityFileReference(BaseModel):
@@ -68,6 +71,9 @@ class Job(BaseModel):
         self.log.debug("Deferring ...", payload=self.payload)
         data = self.model_dump(mode="json")
         app.configure_task(name=self.task, queue=self.queue).defer(**data)
+        if settings.debug:
+            # run in-memory worker synchronously
+            app.run_worker(wait=False)
 
 
 class DatasetJob(Job):

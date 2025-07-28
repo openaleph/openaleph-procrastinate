@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from openaleph_procrastinate.legacy import env
@@ -139,8 +139,10 @@ class OpenAlephSettings(BaseSettings):
     instance: str = Field(default="openaleph")
     """Instance identifier"""
 
-    debug: bool = Field(default=env.DEBUG, alias="debug")
-    """Debug mode"""
+    debug: bool = Field(
+        default=env.DEBUG, validation_alias=AliasChoices("debug", "testing")
+    )
+    """Debug (testing) mode"""
 
     db_uri: str = Field(default=env.DATABASE_URI)
     """OpenAleph database uri"""

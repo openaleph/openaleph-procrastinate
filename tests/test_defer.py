@@ -12,14 +12,11 @@ def test_defer(tmp_path):
     job = Job(
         queue="test", task="tests.tasks.dummy_task", payload={"tmp_path": str(tmp_path)}
     )
-    job.defer(app=app)
+    job.defer(app=app)  # this runs the worker already (testing)
 
     # Access all the existing jobs
     jobs = app.connector.jobs
-    assert len(jobs) == 1
-
-    # Run the jobs
-    app.run_worker(wait=False)
+    assert len(jobs) == 2
 
     store = get_store(tmp_path)
     assert store.get("dummy_task") == {"tmp_path": str(tmp_path)}
