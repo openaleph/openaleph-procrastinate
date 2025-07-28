@@ -72,17 +72,17 @@ class DeferSettings(BaseSettings):
     # OpenAleph
 
     index: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.index"
+        queue="openaleph", task="aleph.procrastinate.tasks.index_entities"
     )
     """openaleph indexer"""
 
     reindex: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.reindex"
+        queue="openaleph", task="aleph.procrastinate.tasks.reindex_collection"
     )
     """openaleph reindexer"""
 
     xref: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.xref"
+        queue="openaleph", task="aleph.procrastinate.tasks.xref_collection"
     )
     """openaleph xref"""
 
