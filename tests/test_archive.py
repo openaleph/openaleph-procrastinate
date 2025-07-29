@@ -18,13 +18,13 @@ def test_archive(monkeypatch, tmp_path, fixtures_path):
     sl_archive = init_archive("file", path=path)
     checksum = sl_archive.archive_file(fixtures_path / "hello.txt")
     assert lookup_key(checksum) == f"{make_checksum_key(checksum)}/hello.txt"
-    with get_localpath(None, checksum) as p:
+    with get_localpath("", checksum) as p:
         assert str(p).endswith(f"{path}/{make_checksum_key(checksum)}/hello.txt")
         assert p.exists()
     # should still exist
     assert p.exists()
 
-    with open_file(None, checksum) as h:
+    with open_file("", checksum) as h:
         assert h.checksum == checksum
         assert h.read().decode().strip() == "world"
         assert str(h.path).endswith(f"{path}/{make_checksum_key(checksum)}/hello.txt")
@@ -42,14 +42,14 @@ def test_archive(monkeypatch, tmp_path, fixtures_path):
     checksum = sl_archive.archive_file(fixtures_path / "hello.txt")
     assert lookup_key(checksum) == f"{make_checksum_key(checksum)}/data"
 
-    with get_localpath(None, checksum) as p:
+    with get_localpath("", checksum) as p:
         assert str(p).endswith(f"{make_checksum_key(checksum)}/data")
         assert str(p).startswith("/tmp")
         assert p.exists()
     # should not exist anymore
     assert not p.exists()
 
-    with open_file(None, checksum) as h:
+    with open_file("", checksum) as h:
         assert h.checksum == checksum
         assert h.read().decode().strip() == "world"
         assert str(h.path).startswith("/tmp")
