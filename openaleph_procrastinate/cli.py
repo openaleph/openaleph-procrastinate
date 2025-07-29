@@ -8,7 +8,7 @@ from ftmq.io import smart_read_proxies
 from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
-from openaleph_procrastinate.app import app
+from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 settings = OpenAlephSettings()
@@ -51,6 +51,7 @@ def defer_entities(
     """
     Defer jobs for a stream of proxies
     """
+    app = make_app()
     with ErrorHandler(log), app.open():
         for proxy in smart_read_proxies(input_uri):
             job = model.DatasetJob.from_entities(
@@ -64,6 +65,7 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
     """
     Defer jobs from an input json stream
     """
+    app = make_app()
     with ErrorHandler(log), app.open():
         for data in smart_stream_json(input_uri):
             job = tasks.unpack_job(data)
@@ -74,6 +76,7 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 def init_db():
     """Initialize procrastinate database schema"""
     log.info(f"Database `{settings.procrastinate_db_uri}`")
+    app = make_app()
     with app.open():
         db_ok = app.check_connection()
         if not db_ok:
