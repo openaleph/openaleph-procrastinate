@@ -21,8 +21,8 @@ dependencies = [
     "procrastinate (>=3.2.2)",
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.10.1,<3.0.0)",
-    "followthemoney (>=4.0.3,<5.0.0)",
-    "ftmq @ git+https://github.com/dataresearchcenter/ftmq.git",
+    "followthemoney (>=4.1.1,<5.0.0)",
+    "ftmq (>=4.1.0,<5.0.0)",
     "psycopg2-binary (>=2.9.10,<3.0.0)",
 ]
 
