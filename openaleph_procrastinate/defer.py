@@ -35,7 +35,7 @@ from procrastinate import App
 from openaleph_procrastinate.model import DatasetJob, Job
 from openaleph_procrastinate.settings import DeferSettings
 
-settings = DeferSettings()
+tasks = DeferSettings()
 
 
 def ingest(
@@ -51,15 +51,15 @@ def ingest(
         entities: The file or directory entities to ingest
         context: Additional job context
     """
-    if settings.ingest.defer:
+    if tasks.ingest.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.ingest.queue,
-            task=settings.ingest.task,
+            queue=tasks.ingest.queue,
+            task=tasks.ingest.task,
             entities=entities,
             **context,
         )
-        job.defer(app)
+        job.defer(app, tasks.ingest.get_priority())
 
 
 def analyze(
@@ -75,16 +75,16 @@ def analyze(
         entities: The entities to analyze
         context: Additional job context
     """
-    if settings.analyze.defer:
+    if tasks.analyze.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.analyze.queue,
-            task=settings.analyze.task,
+            queue=tasks.analyze.queue,
+            task=tasks.analyze.task,
             entities=entities,
             dehydrate=True,
             **context,
         )
-        job.defer(app=app)
+        job.defer(app, tasks.analyze.get_priority())
 
 
 def index(
@@ -100,16 +100,16 @@ def index(
         entities: The entities to index
         context: Additional job context
     """
-    if settings.index.defer:
+    if tasks.index.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.index.queue,
-            task=settings.index.task,
+            queue=tasks.index.queue,
+            task=tasks.index.task,
             entities=entities,
             dehydrate=True,
             **context,
         )
-        job.defer(app=app)
+        job.defer(app, tasks.index.get_priority())
 
 
 def reindex(app: App, dataset: str, **context: Any) -> None:
@@ -122,14 +122,14 @@ def reindex(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.reindex.defer:
+    if tasks.reindex.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.reindex.queue,
-            task=settings.reindex.task,
+            queue=tasks.reindex.queue,
+            task=tasks.reindex.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.reindex.get_priority())
 
 
 def xref(app: App, dataset: str, **context: Any) -> None:
@@ -142,14 +142,14 @@ def xref(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.xref.defer:
+    if tasks.xref.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.xref.queue,
-            task=settings.xref.task,
+            queue=tasks.xref.queue,
+            task=tasks.xref.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.xref.get_priority())
 
 
 def load_mapping(app: App, dataset: str, **context: Any) -> None:
@@ -162,14 +162,14 @@ def load_mapping(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.load_mapping.defer:
+    if tasks.load_mapping.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.load_mapping.queue,
-            task=settings.load_mapping.task,
+            queue=tasks.load_mapping.queue,
+            task=tasks.load_mapping.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.load_mapping.get_priority())
 
 
 def flush_mapping(app: App, dataset: str, **context: Any) -> None:
@@ -182,14 +182,14 @@ def flush_mapping(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.flush_mapping.defer:
+    if tasks.flush_mapping.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.flush_mapping.queue,
-            task=settings.flush_mapping.task,
+            queue=tasks.flush_mapping.queue,
+            task=tasks.flush_mapping.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.flush_mapping.get_priority())
 
 
 def export_search(app: App, **context: Any) -> None:
@@ -201,13 +201,13 @@ def export_search(app: App, **context: Any) -> None:
         app: The procrastinate app instance
         context: Additional job context
     """
-    if settings.export_search.defer:
+    if tasks.export_search.defer:
         job = Job(
-            queue=settings.export_search.queue,
-            task=settings.export_search.task,
+            queue=tasks.export_search.queue,
+            task=tasks.export_search.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.export_search.get_priority())
 
 
 def export_xref(app: App, dataset: str, **context: Any) -> None:
@@ -219,14 +219,14 @@ def export_xref(app: App, dataset: str, **context: Any) -> None:
         app: The procrastinate app instance
         context: Additional job context
     """
-    if settings.export_xref.defer:
+    if tasks.export_xref.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.export_xref.queue,
-            task=settings.export_xref.task,
+            queue=tasks.export_xref.queue,
+            task=tasks.export_xref.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.export_xref.get_priority())
 
 
 def update_entity(app: App, dataset: str, **context: Any) -> None:
@@ -239,14 +239,14 @@ def update_entity(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.update_entity.defer:
+    if tasks.update_entity.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.update_entity.queue,
-            task=settings.update_entity.task,
+            queue=tasks.update_entity.queue,
+            task=tasks.update_entity.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.update_entity.get_priority())
 
 
 def prune_entity(app: App, dataset: str, **context: Any) -> None:
@@ -259,14 +259,14 @@ def prune_entity(app: App, dataset: str, **context: Any) -> None:
         dataset: The ftm dataset or collection
         context: Additional job context
     """
-    if settings.prune_entity.defer:
+    if tasks.prune_entity.defer:
         job = DatasetJob(
             dataset=dataset,
-            queue=settings.prune_entity.queue,
-            task=settings.prune_entity.task,
+            queue=tasks.prune_entity.queue,
+            task=tasks.prune_entity.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app=app)
+        job.defer(app, tasks.prune_entity.get_priority())
 
 
 def transcribe(
@@ -282,16 +282,16 @@ def transcribe(
         entities: The file entities to ingest
         context: Additional job context
     """
-    if settings.transcribe.defer:
+    if tasks.transcribe.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.transcribe.queue,
-            task=settings.transcribe.task,
+            queue=tasks.transcribe.queue,
+            task=tasks.transcribe.task,
             entities=entities,
             dehydrate=True,
             **context,
         )
-        job.defer(app=app)
+        job.defer(app, tasks.transcribe.get_priority())
 
 
 def geocode(
@@ -307,15 +307,15 @@ def geocode(
         entities: The entities to geocode
         context: Additional job context
     """
-    if settings.geocode.defer:
+    if tasks.geocode.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.geocode.queue,
-            task=settings.geocode.task,
+            queue=tasks.geocode.queue,
+            task=tasks.geocode.task,
             entities=entities,
             **context,
         )
-        job.defer(app=app)
+        job.defer(app, tasks.geocode.get_priority())
 
 
 def resolve_assets(
@@ -331,12 +331,12 @@ def resolve_assets(
         entities: The entities to resolve assets for
         context: Additional job context
     """
-    if settings.assets.defer:
+    if tasks.assets.defer:
         job = DatasetJob.from_entities(
             dataset=dataset,
-            queue=settings.assets.queue,
-            task=settings.assets.task,
+            queue=tasks.assets.queue,
+            task=tasks.assets.task,
             entities=entities,
             **context,
         )
-        job.defer(app=app)
+        job.defer(app, tasks.assets.get_priority())

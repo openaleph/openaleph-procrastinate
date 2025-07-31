@@ -8,6 +8,7 @@ nav:
   - conventions.md
   - setup.md
   - The Job model: job.md
+  - Job priorities: priority.md
   - Reference:
     - defer: reference/defer.md
     - command line: reference/cli.md

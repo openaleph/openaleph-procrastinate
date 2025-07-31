@@ -1,7 +1,12 @@
+import random
+
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from openaleph_procrastinate.legacy import env
+
+MAX_PRIORITY = 100
+MIN_PRIORITY = 0
 
 
 class ServiceSettings(BaseSettings):
@@ -15,6 +20,25 @@ class ServiceSettings(BaseSettings):
     """task module path"""
     defer: bool = True
     """enable deferring"""
+    max_retries: int = 5
+    """Max retries, set to "-1" to enable infinity"""
+    min_priority: int = MIN_PRIORITY
+    """Minimum priority"""
+    max_priority: int = MAX_PRIORITY
+    """Maximum priority"""
+
+    @property
+    def retries(self) -> int | bool:
+        if self.max_retries == -1:
+            return True
+        return max(0, self.max_retries)
+
+    def get_priority(self, priority: int | None = None) -> int:
+        """Calculate a random priority between `min_priority` and
+        `max_priority`"""
+        min_priority = max(priority or MIN_PRIORITY, self.min_priority)
+        max_priority = max(min_priority, self.max_priority)
+        return random.randint(min_priority, max_priority)
 
 
 class DeferSettings(BaseSettings):
@@ -72,47 +96,63 @@ class DeferSettings(BaseSettings):
     # OpenAleph
 
     index: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.index_entities"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.index_entities",
+        min_priority=60,
     )
     """openaleph indexer"""
 
     reindex: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.reindex_collection"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.reindex_collection",
+        min_priority=50,
     )
     """openaleph reindexer"""
 
     xref: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.xref_collection"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.xref_collection",
+        min_priority=50,
     )
     """openaleph xref"""
 
     load_mapping: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.load_mapping"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.load_mapping",
+        min_priority=70,
     )
     """openaleph load_mapping"""
 
     flush_mapping: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.flush_mapping"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.flush_mapping",
+        min_priority=40,
     )
     """openaleph flush_mapping"""
 
     export_search: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.export_search"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.export_search",
+        max_priority=50,
     )
     """openaleph export_search"""
 
     export_xref: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.export_xref"
+        queue="openaleph", task="aleph.procrastinate.tasks.export_xref", max_priority=50
     )
     """openaleph export_xref"""
 
     update_entity: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.update_entity"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.update_entity",
+        min_priority=80,
     )
     """openaleph update_entity"""
 
     prune_entity: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.prune_entity"
+        queue="openaleph",
+        task="aleph.procrastinate.tasks.prune_entity",
+        min_priority=80,
     )
     """openaleph update_entity"""
 

@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 from typing import Any, ContextManager, Generator, Iterable, Self, TypeAlias
 
@@ -11,10 +12,18 @@ from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
 
 from openaleph_procrastinate import helpers
-from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.settings import (
+    MAX_PRIORITY,
+    MIN_PRIORITY,
+    OpenAlephSettings,
+)
 from openaleph_procrastinate.util import make_checksum_entity
 
 settings = OpenAlephSettings()
+
+
+def get_priority() -> int:
+    return random.randint(MIN_PRIORITY, MAX_PRIORITY)
 
 
 class EntityFileReference(BaseModel):
@@ -66,11 +75,13 @@ class Job(BaseModel):
             name="openaleph.job", queue=self.queue, task=self.task, job_id=self.job_id
         )
 
-    def defer(self: Self, app: App) -> None:
+    def defer(self: Self, app: App, priority: int | None = None) -> None:
         """Defer this job"""
         self.log.debug("Deferring ...", payload=self.payload)
         data = self.model_dump(mode="json")
-        app.configure_task(name=self.task, queue=self.queue).defer(**data)
+        app.configure_task(
+            name=self.task, queue=self.queue, priority=priority or get_priority()
+        ).defer(**data)
         if settings.debug:
             # run in-memory worker synchronously
             app.run_worker(wait=False)
