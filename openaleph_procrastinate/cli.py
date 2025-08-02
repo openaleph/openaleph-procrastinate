@@ -75,6 +75,8 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 @cli.command()
 def init_db():
     """Initialize procrastinate database schema"""
+    if settings.debug:
+        raise RuntimeError("Can't set up database in debug mode!")
     log.info(f"Database `{settings.procrastinate_db_uri}`")
     app = make_app()
     with app.open():
