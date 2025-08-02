@@ -5772,4 +5772,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "a85674adee96f622000b9e3e9b376be2e46792505e98f0314cbebd1158d822b3"
+content-hash = "6fca0b62b316dfcb74bdf396a44128cb1329c617d6b159c3e4af9239f22ae9b2"
