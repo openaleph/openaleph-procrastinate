@@ -8,10 +8,10 @@ from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
 from ftmq.store.fragments.loader import BulkLoader
-from procrastinate.app import App
 from pydantic import BaseModel, ConfigDict
 
 from openaleph_procrastinate import helpers
+from openaleph_procrastinate.app import App, run_sync_worker
 from openaleph_procrastinate.settings import (
     MAX_PRIORITY,
     MIN_PRIORITY,
@@ -84,7 +84,7 @@ class Job(BaseModel):
         ).defer(**data)
         if settings.procrastinate_sync:
             # run worker synchronously (for testing)
-            app.run_worker(wait=False)
+            run_sync_worker(app)
 
 
 class DatasetJob(Job):

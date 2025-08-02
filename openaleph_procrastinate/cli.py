@@ -8,6 +8,7 @@ from ftmq.io import smart_read_proxies
 from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
+from openaleph_procrastinate.app import init_db as _init_db
 from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.settings import OpenAlephSettings
 
@@ -75,15 +76,4 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 @cli.command()
 def init_db():
     """Initialize procrastinate database schema"""
-    if settings.debug:
-        raise RuntimeError("Can't set up database in debug mode!")
-    log.info(f"Database `{settings.procrastinate_db_uri}`")
-    app = make_app()
-    with app.open():
-        db_ok = app.check_connection()
-        if not db_ok:
-            app.schema_manager.apply_schema()
-        # FIXME because we keep the app open by default, it needs to be closed
-        # here explicitly. As noted in the comment in our app module, I knew it
-        # would backfire, and here we go:
-        app.close()
+    _init_db()

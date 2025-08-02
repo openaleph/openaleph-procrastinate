@@ -1,39 +1,33 @@
 from functools import cache
-from typing import Self
 
 import procrastinate
 from anystore.logging import configure_logging, get_logger
-from procrastinate import connector, testing
+from procrastinate import connector, testing, utils
+from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
 
 
+@cache
+def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool:
+    settings = OpenAlephSettings()
+    if sync:
+        return ConnectionPool(settings.procrastinate_db_uri)
+    return AsyncConnectionPool(settings.procrastinate_db_uri)
+
+
 class App(procrastinate.App):
-    """
-    Not sure if this is a good idea.
+    def open(
+        self, pool_or_engine: connector.Pool | connector.Engine | None = None
+    ) -> procrastinate.App:
+        """Use a shared connection pool by default if not provided"""
+        return super().open(pool_or_engine or get_pool(sync=True))
 
-    [Originally, the app needs to be opened and closed
-    explicitly](https://procrastinate.readthedocs.io/en/stable/howto/basics/open_connection.html)
-
-    As we are deferring tasks synchronously within an async procrastinate worker
-    context, this run into connection issues when opening and closing the app
-    too frequently. So we keep it open. This will definitely backfire at one
-    point and needs more postgresql connection tweaking within this app.
-    """
-
-    _is_open = False
-
-    def open(self, *args, **kwargs) -> Self | procrastinate.App:
-        if not self._is_open:
-            self._is_open = True
-            return super().open(*args, **kwargs)
-        return self
-
-    def __exit__(self, *args, **kwargs) -> None:
-        # don't close
-        pass
+    def open_async(self, pool: connector.Pool | None = None) -> utils.AwaitableContext:
+        """Use a shared connection pool by default if not provided"""
+        return super().open_async(pool or get_pool())
 
 
 @cache
@@ -68,3 +62,21 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
     )
     app = App(connector=connector, import_paths=import_paths)
     return app
+
+
+def init_db() -> None:
+    settings = OpenAlephSettings()
+    if settings.debug:
+        raise RuntimeError("Can't set up database in debug mode!")
+    log.info(f"Database `{settings.procrastinate_db_uri}`")
+    app = make_app(sync=True)
+    with app.open():
+        db_ok = app.check_connection()
+        if not db_ok:
+            app.schema_manager.apply_schema()
+
+
+def run_sync_worker(app: App) -> None:
+    # used for testing. Make sure to use async connector
+    app = make_app(list(app.import_paths)[0])
+    app.run_worker(wait=False)
