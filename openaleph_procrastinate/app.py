@@ -11,8 +11,10 @@ log = get_logger(__name__)
 
 
 @cache
-def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool:
+def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool | None:
     settings = OpenAlephSettings()
+    if settings.procrastinate_db_uri.startswith("memory://"):
+        return
     if sync:
         return ConnectionPool(settings.procrastinate_db_uri)
     return AsyncConnectionPool(settings.procrastinate_db_uri)
