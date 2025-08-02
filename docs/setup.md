@@ -27,7 +27,7 @@ For a full list of `openaleph-procrastinate` settings, refer to the [settings re
 
 ### Database
 
-Set up the environment variable `OPENALEPH_PROCRASTINATE_DB_URI` which falls back to `OPENALEPH_DB_URI` (default: `postgresql:///openaleph`).
+Set up the environment variable `PROCRASTINATE_DB_URI` which falls back to `OPENALEPH_DB_URI` (default: `postgresql:///openaleph`).
 
 ### Initial database setup
 

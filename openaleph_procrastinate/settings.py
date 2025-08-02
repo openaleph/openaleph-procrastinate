@@ -178,10 +178,11 @@ class OpenAlephSettings(BaseSettings):
     instance: str = Field(default="openaleph")
     """Instance identifier"""
 
-    debug: bool = Field(
-        default=False, validation_alias=AliasChoices("debug", "testing")
-    )
-    """Debug (testing) mode"""
+    debug: bool = Field(default=False, alias="debug")
+    """Debug mode"""
+
+    procrastinate_sync: bool = Field(default=False, alias="procrastinate_sync")
+    """Run sync workers (during testing)"""
 
     db_uri: str = Field(
         default=DEFAULT_DB_URI,
@@ -192,7 +193,7 @@ class OpenAlephSettings(BaseSettings):
     procrastinate_db_uri: str = Field(
         default=DEFAULT_DB_URI,
         validation_alias=AliasChoices(
-            "openaleph_procrastinate_db_uri", "openaleph_db_uri", "aleph_database_uri"
+            "procrastinate_db_uri", "openaleph_db_uri", "aleph_database_uri"
         ),
     )
     """Procrastinate database uri, falls back to OpenAleph database uri"""

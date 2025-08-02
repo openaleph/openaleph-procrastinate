@@ -82,8 +82,8 @@ class Job(BaseModel):
         app.configure_task(
             name=self.task, queue=self.queue, priority=priority or get_priority()
         ).defer(**data)
-        if settings.debug:
-            # run in-memory worker synchronously
+        if settings.procrastinate_sync:
+            # run worker synchronously (for testing)
             app.run_worker(wait=False)
 
 

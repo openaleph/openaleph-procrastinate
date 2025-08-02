@@ -45,10 +45,10 @@ def in_memory_connector() -> testing.InMemoryConnector:
 @cache
 def get_connector(sync: bool | None = False) -> connector.BaseConnector:
     settings = OpenAlephSettings()
-    if settings.debug:
+    db_uri = settings.procrastinate_db_uri
+    if db_uri.startswith("memory:"):
         # https://procrastinate.readthedocs.io/en/stable/howto/production/testing.html
         return in_memory_connector()
-    db_uri = settings.procrastinate_db_uri
     if sync:
         return procrastinate.SyncPsycopgConnector(conninfo=db_uri)
     return procrastinate.PsycopgConnector(conninfo=db_uri)

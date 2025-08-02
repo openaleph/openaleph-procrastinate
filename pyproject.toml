@@ -71,4 +71,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest_env]
 DEBUG = 1
+PROCRASTINATE_SYNC = 1
+PROCRASTINATE_DB_URI = "memory:"
 FSSPEC_S3_ENDPOINT_URL = "http://localhost:8888"
