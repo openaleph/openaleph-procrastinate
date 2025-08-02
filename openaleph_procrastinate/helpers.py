@@ -46,7 +46,7 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
     """
     Retrieve a single entity from the store.
     """
-    store = get_fragments(dataset, database_uri=settings.ftm_store_uri)
+    store = get_fragments(dataset, database_uri=settings.fragments_uri)
     entity = store.get(entity_id)
     if entity is None:
         raise EntityNotFound(f"Entity `{entity_id}` not found in dataset `{dataset}`")
@@ -60,7 +60,7 @@ def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     writer is flushed when leaving the context.
     """
     store = get_fragments(
-        dataset, origin=OPAL_ORIGIN, database_uri=settings.ftm_store_uri
+        dataset, origin=OPAL_ORIGIN, database_uri=settings.fragments_uri
     )
     loader = store.bulk()
     try:

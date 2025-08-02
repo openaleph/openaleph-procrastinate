@@ -3,10 +3,9 @@ import random
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from openaleph_procrastinate.legacy import env
-
 MAX_PRIORITY = 100
 MIN_PRIORITY = 0
+DEFAULT_DB_URI = "postgresql:///openaleph"
 
 
 class ServiceSettings(BaseSettings):
@@ -180,15 +179,26 @@ class OpenAlephSettings(BaseSettings):
     """Instance identifier"""
 
     debug: bool = Field(
-        default=env.DEBUG, validation_alias=AliasChoices("debug", "testing")
+        default=False, validation_alias=AliasChoices("debug", "testing")
     )
     """Debug (testing) mode"""
 
-    db_uri: str = Field(default=env.DATABASE_URI)
+    db_uri: str = Field(
+        default=DEFAULT_DB_URI,
+        validation_alias=AliasChoices("openaleph_db_uri", "aleph_database_uri"),
+    )
     """OpenAleph database uri"""
 
-    procrastinate_db_uri: str = Field(default=env.DATABASE_URI)
+    procrastinate_db_uri: str = Field(
+        default=DEFAULT_DB_URI,
+        validation_alias=AliasChoices(
+            "openaleph_procrastinate_db_uri", "openaleph_db_uri", "aleph_database_uri"
+        ),
+    )
     """Procrastinate database uri, falls back to OpenAleph database uri"""
 
-    ftm_store_uri: str = Field(default=env.FTM_STORE_URI)
-    """FollowTheMoney store uri"""
+    fragments_uri: str = Field(
+        default=DEFAULT_DB_URI,
+        validation_alias=AliasChoices("ftm_fragments_uri", "ftm_store_uri"),
+    )
+    """FollowTheMoney Fragments store uri"""
