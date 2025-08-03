@@ -13,7 +13,7 @@ log = get_logger(__name__)
 @cache
 def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool | None:
     settings = OpenAlephSettings()
-    if settings.procrastinate_db_uri.startswith("memory://"):
+    if settings.in_memory_db:
         return
     if sync:
         return ConnectionPool(settings.procrastinate_db_uri)
@@ -41,10 +41,10 @@ def in_memory_connector() -> testing.InMemoryConnector:
 @cache
 def get_connector(sync: bool | None = False) -> connector.BaseConnector:
     settings = OpenAlephSettings()
-    db_uri = settings.procrastinate_db_uri
-    if db_uri.startswith("memory:"):
+    if settings.in_memory_db:
         # https://procrastinate.readthedocs.io/en/stable/howto/production/testing.html
         return in_memory_connector()
+    db_uri = settings.procrastinate_db_uri
     if sync:
         return procrastinate.SyncPsycopgConnector(conninfo=db_uri)
     return procrastinate.PsycopgConnector(conninfo=db_uri)
@@ -68,9 +68,9 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
 
 def init_db() -> None:
     settings = OpenAlephSettings()
-    if settings.debug:
-        raise RuntimeError("Can't set up database in debug mode!")
     log.info(f"Database `{settings.procrastinate_db_uri}`")
+    if settings.in_memory_db:
+        return
     app = make_app(sync=True)
     with app.open():
         db_ok = app.check_connection()

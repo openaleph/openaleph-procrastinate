@@ -203,3 +203,7 @@ class OpenAlephSettings(BaseSettings):
         validation_alias=AliasChoices("ftm_fragments_uri", "ftm_store_uri"),
     )
     """FollowTheMoney Fragments store uri"""
+
+    @property
+    def in_memory_db(self) -> bool:
+        return self.procrastinate_db_uri.startswith("memory:")
