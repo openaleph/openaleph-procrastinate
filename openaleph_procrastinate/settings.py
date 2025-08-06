@@ -190,6 +190,9 @@ class OpenAlephSettings(BaseSettings):
     )
     """OpenAleph database uri"""
 
+    db_pool_size: int = 5
+    """Max psql pool size per thread"""
+
     procrastinate_db_uri: str = Field(
         default=DEFAULT_DB_URI,
         validation_alias=AliasChoices(

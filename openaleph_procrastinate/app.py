@@ -16,8 +16,12 @@ def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool 
     if settings.in_memory_db:
         return
     if sync:
-        return ConnectionPool(settings.procrastinate_db_uri)
-    return AsyncConnectionPool(settings.procrastinate_db_uri)
+        return ConnectionPool(
+            settings.procrastinate_db_uri, max_size=settings.db_pool_size
+        )
+    return AsyncConnectionPool(
+        settings.procrastinate_db_uri, max_size=settings.db_pool_size
+    )
 
 
 class App(procrastinate.App):
