@@ -17,10 +17,10 @@ def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool 
         return
     if sync:
         return ConnectionPool(
-            settings.procrastinate_db_uri, max_size=settings.db_pool_size
+            settings.procrastinate_db_uri, min_size=1, max_size=settings.db_pool_size
         )
     return AsyncConnectionPool(
-        settings.procrastinate_db_uri, max_size=settings.db_pool_size
+        settings.procrastinate_db_uri, min_size=1, max_size=settings.db_pool_size
     )
 
 
@@ -29,11 +29,15 @@ class App(procrastinate.App):
         self, pool_or_engine: connector.Pool | connector.Engine | None = None
     ) -> procrastinate.App:
         """Use a shared connection pool by default if not provided"""
-        return super().open(pool_or_engine or get_pool(sync=True))
+        if pool_or_engine is None:
+            pool_or_engine = get_pool(sync=True)
+        return super().open(pool_or_engine)
 
     def open_async(self, pool: connector.Pool | None = None) -> utils.AwaitableContext:
         """Use a shared connection pool by default if not provided"""
-        return super().open_async(pool or get_pool())
+        if pool is None:
+            pool = get_pool()
+        return super().open_async(pool)
 
 
 @cache
