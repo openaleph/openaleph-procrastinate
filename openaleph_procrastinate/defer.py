@@ -30,12 +30,16 @@ from typing import Any, Iterable
 
 from banal import ensure_dict
 from followthemoney.proxy import EntityProxy
-from procrastinate import App
 
+from openaleph_procrastinate.app import App
 from openaleph_procrastinate.model import DatasetJob, Job
 from openaleph_procrastinate.settings import DeferSettings
 
 tasks = DeferSettings()
+
+
+def get_priority(data: dict[str, Any], default: int) -> int:
+    return data.get("priority") or default
 
 
 def ingest(
@@ -59,7 +63,8 @@ def ingest(
             entities=entities,
             **context,
         )
-        job.defer(app, tasks.ingest.get_priority())
+        priority = get_priority(context, tasks.ingest.get_priority())
+        job.defer(app, priority)
 
 
 def analyze(
@@ -84,7 +89,8 @@ def analyze(
             dehydrate=True,
             **context,
         )
-        job.defer(app, tasks.analyze.get_priority())
+        priority = get_priority(context, tasks.analyze.get_priority())
+        job.defer(app, priority)
 
 
 def index(
@@ -109,7 +115,8 @@ def index(
             dehydrate=True,
             **context,
         )
-        job.defer(app, tasks.index.get_priority())
+        priority = get_priority(context, tasks.index.get_priority())
+        job.defer(app, priority)
 
 
 def reindex(app: App, dataset: str, **context: Any) -> None:
@@ -129,7 +136,8 @@ def reindex(app: App, dataset: str, **context: Any) -> None:
             task=tasks.reindex.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.reindex.get_priority())
+        priority = get_priority(context, tasks.reindex.get_priority())
+        job.defer(app, priority)
 
 
 def xref(app: App, dataset: str, **context: Any) -> None:
@@ -149,7 +157,8 @@ def xref(app: App, dataset: str, **context: Any) -> None:
             task=tasks.xref.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.xref.get_priority())
+        priority = get_priority(context, tasks.xref.get_priority())
+        job.defer(app, priority)
 
 
 def load_mapping(app: App, dataset: str, **context: Any) -> None:
@@ -169,7 +178,8 @@ def load_mapping(app: App, dataset: str, **context: Any) -> None:
             task=tasks.load_mapping.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.load_mapping.get_priority())
+        priority = get_priority(context, tasks.load_mapping.get_priority())
+        job.defer(app, priority)
 
 
 def flush_mapping(app: App, dataset: str, **context: Any) -> None:
@@ -189,7 +199,8 @@ def flush_mapping(app: App, dataset: str, **context: Any) -> None:
             task=tasks.flush_mapping.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.flush_mapping.get_priority())
+        priority = get_priority(context, tasks.flush_mapping.get_priority())
+        job.defer(app, priority)
 
 
 def export_search(app: App, **context: Any) -> None:
@@ -207,7 +218,8 @@ def export_search(app: App, **context: Any) -> None:
             task=tasks.export_search.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.export_search.get_priority())
+        priority = get_priority(context, tasks.export_search.get_priority())
+        job.defer(app, priority)
 
 
 def export_xref(app: App, dataset: str, **context: Any) -> None:
@@ -226,7 +238,8 @@ def export_xref(app: App, dataset: str, **context: Any) -> None:
             task=tasks.export_xref.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.export_xref.get_priority())
+        priority = get_priority(context, tasks.export_xref.get_priority())
+        job.defer(app, priority)
 
 
 def update_entity(app: App, dataset: str, **context: Any) -> None:
@@ -246,7 +259,8 @@ def update_entity(app: App, dataset: str, **context: Any) -> None:
             task=tasks.update_entity.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.update_entity.get_priority())
+        priority = get_priority(context, tasks.update_entity.get_priority())
+        job.defer(app, priority)
 
 
 def prune_entity(app: App, dataset: str, **context: Any) -> None:
@@ -266,7 +280,8 @@ def prune_entity(app: App, dataset: str, **context: Any) -> None:
             task=tasks.prune_entity.task,
             payload={"context": ensure_dict(context)},
         )
-        job.defer(app, tasks.prune_entity.get_priority())
+        priority = get_priority(context, tasks.prune_entity.get_priority())
+        job.defer(app, priority)
 
 
 def transcribe(
@@ -291,7 +306,8 @@ def transcribe(
             dehydrate=True,
             **context,
         )
-        job.defer(app, tasks.transcribe.get_priority())
+        priority = get_priority(context, tasks.transcribe.get_priority())
+        job.defer(app, priority)
 
 
 def geocode(
@@ -315,7 +331,8 @@ def geocode(
             entities=entities,
             **context,
         )
-        job.defer(app, tasks.geocode.get_priority())
+        priority = get_priority(context, tasks.geocode.get_priority())
+        job.defer(app, priority)
 
 
 def resolve_assets(
@@ -339,4 +356,5 @@ def resolve_assets(
             entities=entities,
             **context,
         )
-        job.defer(app, tasks.assets.get_priority())
+        priority = get_priority(context, tasks.assets.get_priority())
+        job.defer(app, priority)

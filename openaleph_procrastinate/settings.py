@@ -97,7 +97,7 @@ class DeferSettings(BaseSettings):
     index: ServiceSettings = ServiceSettings(
         queue="openaleph",
         task="aleph.procrastinate.tasks.index_entities",
-        min_priority=60,
+        min_priority=70,
     )
     """openaleph indexer"""
 
@@ -118,7 +118,7 @@ class DeferSettings(BaseSettings):
     load_mapping: ServiceSettings = ServiceSettings(
         queue="openaleph",
         task="aleph.procrastinate.tasks.load_mapping",
-        min_priority=70,
+        min_priority=90,
     )
     """openaleph load_mapping"""
 
@@ -144,14 +144,14 @@ class DeferSettings(BaseSettings):
     update_entity: ServiceSettings = ServiceSettings(
         queue="openaleph",
         task="aleph.procrastinate.tasks.update_entity",
-        min_priority=80,
+        min_priority=90,
     )
     """openaleph update_entity"""
 
     prune_entity: ServiceSettings = ServiceSettings(
         queue="openaleph",
         task="aleph.procrastinate.tasks.prune_entity",
-        min_priority=80,
+        min_priority=90,
     )
     """openaleph update_entity"""
 

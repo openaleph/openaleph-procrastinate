@@ -1,4 +1,5 @@
 import functools
+import random
 from typing import Any, Callable
 
 from anystore.logging import get_logger
@@ -33,3 +34,38 @@ def task(app: App, **kwargs):
         return app.task(**kwargs)(wrapped_func)
 
     return wrap
+
+
+class Priorities:
+    """
+    Use different priority buckets in tasks:
+
+    Example:
+        ```python
+        from openaleph_procrastinate.tasks import Priorities
+
+        defer_task(payload, priority=Priorities.MEDIUM)
+        ```
+    """
+
+    MAX = 100
+
+    @property
+    def ANY(self) -> int:
+        return random.randint(1, 100)
+
+    @property
+    def LOW(self) -> int:
+        return random.randint(1, 50)
+
+    @property
+    def MEDIUM(self) -> int:
+        return random.randint(50, 70)
+
+    @property
+    def HIGH(self) -> int:
+        return random.randint(70, 90)
+
+    @property
+    def USER(self) -> int:
+        return random.randint(90, 99)
