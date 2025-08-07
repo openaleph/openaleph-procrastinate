@@ -1,3 +1,4 @@
+import psycopg
 import functools
 import random
 from typing import Any, Callable
@@ -7,8 +8,11 @@ from procrastinate.app import App
 
 from openaleph_procrastinate.exceptions import ErrorHandler
 from openaleph_procrastinate.model import AnyJob, DatasetJob, Job
+from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.app import make_app
 
 log = get_logger(__name__)
+app = make_app()
 
 
 def unpack_job(data: dict[str, Any]) -> AnyJob:
@@ -17,6 +21,49 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
         if "dataset" in data:
             return DatasetJob(**data)
         return Job(**data)
+
+
+def get_job_ids_by_criteria(query: str, job_filter: str) -> list[int] | list:
+    settings = OpenAlephSettings()
+    db_uri = settings.procrastinate_db_uri
+
+    job_ids = []
+    with psycopg.connect(db_uri) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, (job_filter,))
+            job_ids = cursor.fetchall()
+
+    if job_ids:
+        job_ids = [data[0] for data in job_ids]
+
+    return job_ids
+
+
+def cancel_jobs(job_ids: list[int]) -> None:
+    with app.open():
+        for job_id in job_ids:
+            app.job_manager.cancel_job_by_id(job_id)
+
+
+def cancel_jobs_per_dataset(dataset: str) -> None:
+    query = """SELECT id FROM procrastinate_jobs WHERE (args->>'dataset') = (%s)"""
+    job_ids = get_job_ids_by_criteria(query, dataset)
+    if job_ids:
+        cancel_jobs(job_ids)
+
+
+def cancel_jobs_per_queue(queue_name: str) -> None:
+    query = """SELECT id FROM procrastinate_jobs WHERE queue_name = (%s)"""
+    job_ids = get_job_ids_by_criteria(query, queue_name)
+    if job_ids:
+        cancel_jobs(job_ids)
+
+
+def cancel_jobs_per_job_type(job_type: str) -> None:
+    query = """SELECT id FROM procrastinate_jobs WHERE (args->>'task') = (aleph.procrastinate.tasks.%s)"""
+    job_ids = get_job_ids_by_criteria(query, job_type)
+    if job_ids:
+        cancel_jobs(job_ids)
 
 
 def task(app: App, **kwargs):
