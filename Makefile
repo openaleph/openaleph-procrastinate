@@ -15,7 +15,7 @@ typecheck:
 	poetry run mypy --strict openaleph_procrastinate
 
 test:
-	poetry run pytest -v --capture=sys --cov=openaleph_procrastinate --cov-report lcov
+	poetry run pytest tests/ -v --capture=sys --cov=openaleph_procrastinate --cov-report lcov
 
 build:
 	poetry run build

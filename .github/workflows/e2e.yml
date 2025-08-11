@@ -35,6 +35,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install
         run: pip install .
+      - name: Install test requirements
+        run: pip install pytest pytest-env
       - name: Run e2e test
         working-directory: ./e2e
         env:
