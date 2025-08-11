@@ -6,6 +6,7 @@ from procrastinate import connector, testing, utils
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
 from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.util import mask_uri
 
 log = get_logger(__name__)
 
@@ -60,6 +61,8 @@ def get_connector(sync: bool | None = False) -> connector.BaseConnector:
 
 @cache
 def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
+    settings = OpenAlephSettings()
+    db_uri = mask_uri(settings.procrastinate_db_uri)
     configure_logging()
     import_paths = [tasks_module] if tasks_module else None
     connector = get_connector(sync=sync)
@@ -69,6 +72,7 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
         sync=sync,
         tasks=tasks_module,
         module=__name__,
+        db_uri=db_uri,
     )
     app = App(connector=connector, import_paths=import_paths)
     return app
@@ -76,7 +80,6 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
 
 def init_db() -> None:
     settings = OpenAlephSettings()
-    log.info(f"Database `{settings.procrastinate_db_uri}`")
     if settings.in_memory_db:
         return
     app = make_app(sync=True)
