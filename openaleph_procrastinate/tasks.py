@@ -12,7 +12,6 @@ from openaleph_procrastinate.model import AnyJob, DatasetJob, Job
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
-app = make_app()
 
 
 def unpack_job(data: dict[str, Any]) -> AnyJob:
@@ -40,6 +39,7 @@ def get_job_ids_by_criteria(query: str, job_filter: str) -> list[int]:
 
 
 def cancel_jobs(job_ids: list[int]) -> None:
+    app = make_app(sync=True)
     with app.open():
         for job_id in job_ids:
             app.job_manager.cancel_job_by_id(job_id, abort=True)
@@ -83,7 +83,7 @@ def task(app: App, **kwargs):
     return wrap
 
 
-class Priorities:
+class _Priorities:
     """
     Use different priority buckets in tasks:
 
@@ -116,3 +116,6 @@ class Priorities:
     @property
     def USER(self) -> int:
         return random.randint(90, 99)
+
+
+Priorities = _Priorities()
