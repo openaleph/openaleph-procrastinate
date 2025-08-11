@@ -1,0 +1,3 @@
+[tool.pytest_env]
+PROCRASTINATE_SYNC = 0
+PROCRASTINATE_DB_URI = { value = "postgresql:///openaleph", skip_if_set = true }
