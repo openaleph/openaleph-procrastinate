@@ -78,17 +78,17 @@ class DeferSettings(BaseSettings):
     """ftm-analyze"""
 
     transcribe: ServiceSettings = ServiceSettings(
-        queue="transcribe", task="ftm_transcribe.tasks.transcribe"
+        queue="transcribe", task="ftm_transcribe.tasks.transcribe", defer=False
     )
     """ftm-transcribe"""
 
     geocode: ServiceSettings = ServiceSettings(
-        queue="geocode", task="ftm_geocode.tasks.geocode"
+        queue="geocode", task="ftm_geocode.tasks.geocode", defer=False
     )
     """ftm-geocode"""
 
     assets: ServiceSettings = ServiceSettings(
-        queue="assets", task="ftm_assets.tasks.resolve"
+        queue="assets", task="ftm_assets.tasks.resolve", defer=False
     )
     """ftm-assets"""
 
