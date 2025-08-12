@@ -284,6 +284,27 @@ def prune_entity(app: App, dataset: str, **context: Any) -> None:
         job.defer(app, priority)
 
 
+def cancel_dataset(app: App, dataset: str, **context: Any) -> None:
+    """
+    Defer a new job to cancel a dataset processing in OpenAleph
+    It will only deferred if `OPENALEPH_CANCEL_DATASET_DEFER=1` (the default)
+
+    Args:
+        app: The procrastinate app instance
+        dataset: The ftm dataset or collection
+        context: Additional job context
+    """
+    if tasks.cancel_dataset.defer:
+        job = DatasetJob(
+            dataset=dataset,
+            queue=tasks.cancel_dataset.queue,
+            task=tasks.cancel_dataset.task,
+            payload={"context": ensure_dict(context)},
+        )
+        priority = get_priority(context, tasks.cancel_dataset.get_priority())
+        job.defer(app, priority)
+
+
 def transcribe(
     app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
 ) -> None:
