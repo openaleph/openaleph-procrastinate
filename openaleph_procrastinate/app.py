@@ -91,22 +91,25 @@ def init_db() -> None:
     with psycopg.connect(settings.db_uri) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
-                "ALTER TABLE procrastinate_jobs ADD COLUMN IF NOT EXISTS dataset text GENERATED ALWAYS AS (args ->> 'dataset') STORED"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_args_idx ON procrastinate_jobs USING GIN (args)"  # noqa: B950
             )
             cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_args_gin ON procrastinate_jobs USING GIN (args)"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_status_idx ON procrastinate_jobs (status)"  # noqa: B950
             )
             cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_status ON procrastinate_jobs (status)"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_task_name_idx ON procrastinate_jobs (task_name)"  # noqa: B950
             )
             cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_queue_name ON procrastinate_jobs (queue_name)"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_dataset_idx ON procrastinate_jobs ((args->>'dataset'))"  # noqa: B950
             )
             cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_task_name ON procrastinate_jobs (task_name)"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_queue_idx ON procrastinate_jobs ((args->>'dataset'), status, queue_name)"  # noqa: B950
             )
             cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_dataset ON procrastinate_jobs (dataset)"  # noqa: B950
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_tasks_idx ON procrastinate_jobs ((args->>'dataset'), status, task_name)"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_queue_tasks_idx ON procrastinate_jobs ((args->>'dataset'), status, queue_name, task_name)"  # noqa: B950
             )
 
 
