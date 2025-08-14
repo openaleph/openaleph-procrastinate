@@ -13,7 +13,7 @@ def get_status() -> dict:
     with psycopg.connect(db_uri) as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                """SELECT count(*) as number_of_jobs, (args->>'dataset') as dataset, status, queue_name FROM procrastinate_jobs GROUP BY (args->>'dataset'), status, queue_name"""
+                """SELECT count(*) as number_of_jobs, dataset, status, queue_name FROM procrastinate_jobs GROUP BY dataset, status, queue_name"""  # noqa: B950
             )
             jobs_data = cursor.fetchall()
 

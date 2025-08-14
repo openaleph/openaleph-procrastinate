@@ -46,7 +46,7 @@ def cancel_jobs(job_ids: list[int]) -> None:
 
 
 def cancel_jobs_per_dataset(dataset: str) -> None:
-    query = """SELECT id FROM procrastinate_jobs WHERE (args->>'dataset') = (%s)"""
+    query = """SELECT id FROM procrastinate_jobs WHERE dataset = (%s)"""
     job_ids = get_job_ids_by_criteria(query, dataset)
     if job_ids:
         cancel_jobs(job_ids)

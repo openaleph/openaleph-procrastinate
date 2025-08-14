@@ -1,6 +1,7 @@
 from functools import cache
 
 import procrastinate
+import psycopg
 from anystore.logging import configure_logging, get_logger
 from procrastinate import connector, testing, utils
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
@@ -87,6 +88,26 @@ def init_db() -> None:
         db_ok = app.check_connection()
         if not db_ok:
             app.schema_manager.apply_schema()
+    with psycopg.connect(settings.db_uri) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "ALTER TABLE procrastinate_jobs ADD COLUMN IF NOT EXISTS dataset text GENERATED ALWAYS AS (args ->> 'dataset') STORED"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_args_gin ON procrastinate_jobs USING GIN (args)"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_status ON procrastinate_jobs (status)"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_queue_name ON procrastinate_jobs (queue_name)"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_task_name ON procrastinate_jobs (task_name)"  # noqa: B950
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_dataset ON procrastinate_jobs (dataset)"  # noqa: B950
+            )
 
 
 def run_sync_worker(app: App) -> None:
