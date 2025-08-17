@@ -7,6 +7,9 @@ MAX_PRIORITY = 100
 MIN_PRIORITY = 0
 DEFAULT_DB_URI = "memory://"
 
+OPENALEPH_QUEUE = "openaleph"
+OPENALEPH_MANAGEMENT_QUEUE = "openaleph-management"
+
 
 class ServiceSettings(BaseSettings):
     """
@@ -95,68 +98,70 @@ class DeferSettings(BaseSettings):
     # OpenAleph
 
     index: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.index_entities",
         min_priority=70,
     )
     """openaleph entity indexer"""
 
     reindex: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.reindex_collection",
         min_priority=50,
     )
     """openaleph collection reindexer"""
 
     xref: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.xref_collection",
         min_priority=50,
     )
     """openaleph xref collection"""
 
     load_mapping: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.load_mapping",
         min_priority=90,
     )
     """openaleph load_mapping"""
 
     flush_mapping: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.flush_mapping",
         min_priority=40,
     )
     """openaleph flush_mapping"""
 
     export_search: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.export_search",
         max_priority=50,
     )
     """openaleph export_search"""
 
     export_xref: ServiceSettings = ServiceSettings(
-        queue="openaleph", task="aleph.procrastinate.tasks.export_xref", max_priority=50
+        queue=OPENALEPH_QUEUE,
+        task="aleph.procrastinate.tasks.export_xref",
+        max_priority=50,
     )
     """openaleph export_xref"""
 
     update_entity: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.update_entity",
-        min_priority=90,
+        min_priority=99,
     )
     """openaleph update_entity"""
 
     prune_entity: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_QUEUE,
         task="aleph.procrastinate.tasks.prune_entity",
-        min_priority=90,
+        min_priority=99,
     )
-    """openaleph update_entity"""
+    """openaleph prune_entity"""
 
     cancel_dataset: ServiceSettings = ServiceSettings(
-        queue="openaleph",
+        queue=OPENALEPH_MANAGEMENT_QUEUE,
         task="aleph.procrastinate.tasks.cancel_dataset",
         min_priority=101,
     )
