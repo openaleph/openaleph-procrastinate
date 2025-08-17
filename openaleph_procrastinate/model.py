@@ -83,15 +83,8 @@ class Job(JobModel):
         return ensure_dict(self.payload.get("context")) or {}
 
     @property
-    def job_id(self) -> str | None:
-        """Get the job_id if it is stored in the context"""
-        return self.context.get("job_id")
-
-    @property
     def log(self) -> BoundLogger:
-        return get_logger(
-            name="openaleph.job", queue=self.queue, task=self.task, job_id=self.job_id
-        )
+        return get_logger(name="openaleph.job", queue=self.queue, task=self.task)
 
     def defer(self: Self, app: App, priority: int | None = None) -> None:
         """Defer this job"""
@@ -128,7 +121,7 @@ class DatasetJob(Job):
             dataset=self.dataset,
             queue=self.queue,
             task=self.task,
-            job_id=self.job_id,
+            batch=self.batch,
         )
 
     def get_writer(self: Self) -> ContextManager[BulkLoader]:
@@ -207,6 +200,7 @@ class DatasetJob(Job):
             dataset=dataset,
             queue=queue,
             task=task,
+            batch=context.pop("batch", None),
             payload={
                 "entities": [e.to_dict() for e in entities],
                 "context": ensure_dict(context),
