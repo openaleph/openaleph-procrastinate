@@ -1,5 +1,3 @@
-import re
-
 from followthemoney.proxy import EntityProxy
 
 
@@ -20,11 +18,3 @@ def make_checksum_entity(e: EntityProxy, quiet: bool | None = False) -> EntityPr
     stub = make_stub_entity(e)
     stub.add("contentHash", e.get("contentHash", quiet=q), quiet=q)
     return stub
-
-
-def mask_uri(uri: str) -> str:
-    """
-    Replace username and password in a URI with asterisks
-    """
-    pattern = r"([a-zA-Z][a-zA-Z0-9+.-]*)://([^:]+):([^@]+)@"
-    return re.sub(pattern, r"\1://***:***@", uri)

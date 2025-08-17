@@ -1,14 +1,16 @@
 import random
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, ContextManager, Generator, Iterable, Self, TypeAlias
+from typing import Any, ContextManager, Generator, Iterable, Literal, Self, TypeAlias
 
 from anystore.logging import BoundLogger, get_logger
 from anystore.store.virtual import VirtualIO
+from anystore.util import clean_dict
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
 from ftmq.store.fragments.loader import BulkLoader
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 
 from openaleph_procrastinate import helpers
 from openaleph_procrastinate.app import App, run_sync_worker
@@ -50,14 +52,30 @@ class EntityFileReference(BaseModel):
         return helpers.get_localpath(self.dataset, self.content_hash)
 
 
-class Job(BaseModel):
+Status = Literal[
+    "todo", "doing", "succeeded", "failed", "aborted", "aborting", "cancelled"
+]
+
+
+class JobModel(BaseModel):
     """
     A job with arbitrary payload
     """
 
     queue: str
     task: str
-    payload: dict[str, Any]
+    payload: dict[str, Any] = {}
+
+    # from procrastinate table:
+    id: int | None = None
+    status: Status | None = None
+    scheduled_at: datetime | None = None
+
+
+class Job(JobModel):
+    """
+    A job with arbitrary payload
+    """
 
     @property
     def context(self) -> dict[str, Any]:
@@ -78,13 +96,16 @@ class Job(BaseModel):
     def defer(self: Self, app: App, priority: int | None = None) -> None:
         """Defer this job"""
         self.log.debug("Deferring ...", payload=self.payload)
-        data = self.model_dump(mode="json")
+        data = clean_dict(self.model_dump(mode="json"))
         app.configure_task(
             name=self.task, queue=self.queue, priority=priority or get_priority()
         ).defer(**data)
-        if settings.procrastinate_sync:
-            # run worker synchronously (for testing)
-            run_sync_worker(app)
+        if settings.debug:
+            # option to change synchronousness during test runtime
+            _settings = OpenAlephSettings()
+            if _settings.procrastinate_sync:
+                # run worker synchronously (for testing)
+                run_sync_worker(app)
 
 
 class DatasetJob(Job):
@@ -98,6 +119,7 @@ class DatasetJob(Job):
     """
 
     dataset: str
+    batch: str | None = None
 
     @property
     def log(self) -> BoundLogger:
@@ -192,4 +214,109 @@ class DatasetJob(Job):
         )
 
 
+class EntityJob(JobModel):
+    dataset: str
+    entity_id: str
+
+
 AnyJob: TypeAlias = Job | DatasetJob
+
+
+class StatusCounts(BaseModel):
+    todo: int = 0
+    doing: int = 0
+    succeeded: int = 0
+    failed: int = 0
+    aborted: int = 0
+    aborting: int = 0
+    cancelled: int = 0
+
+    min_ts: datetime | None = None
+    max_ts: datetime | None = None
+
+    @computed_field
+    @property
+    def remaining_time(self) -> timedelta | None:
+        if self.finished and self.min_ts and self.max_ts:
+            took = self.max_ts - self.min_ts
+            remaining = (took.seconds / self.finished) * self.todo
+            return timedelta(seconds=remaining)
+
+    @computed_field
+    @property
+    def took(self) -> timedelta | None:
+        max_ts = self.max_ts or datetime.now(UTC)
+        if self.finished and self.min_ts:
+            return max_ts - self.min_ts
+        if self.min_ts:
+            return datetime.now(UTC) - self.min_ts
+
+    @computed_field
+    @property
+    def total(self) -> int:
+        return sum(
+            (
+                self.todo,
+                self.doing,
+                self.succeeded,
+                self.failed,
+                self.aborted,
+                self.aborting,
+                self.cancelled,
+            )
+        )
+
+    @computed_field
+    @property
+    def active(self) -> int:
+        return self.todo + self.doing
+
+    @computed_field
+    @property
+    def finished(self) -> int:
+        return self.succeeded + self.failed + self.aborted + self.cancelled
+
+    def is_active(self) -> bool:
+        return self.active > 0
+
+    def is_running(self) -> bool:
+        return self.doing > 0
+
+    def add_child_stats(self, child: "StatusCounts") -> None:
+        self.todo += child.todo
+        self.doing += child.doing
+        self.succeeded += child.succeeded
+        self.failed += child.failed
+        self.aborted += child.aborted
+        self.cancelled += child.cancelled
+        if child.min_ts:
+            if not self.min_ts or (self.min_ts and self.min_ts > child.min_ts):
+                self.min_ts = child.min_ts
+        if child.max_ts:
+            if not self.max_ts or (self.max_ts and self.max_ts < child.max_ts):
+                self.max_ts = child.max_ts
+
+
+class TaskStatus(StatusCounts):
+    name: str
+
+
+class QueueStatus(StatusCounts):
+    name: str
+    tasks: list[TaskStatus] = []
+
+
+class BatchStatus(StatusCounts):
+    name: str
+    queues: list[QueueStatus] = []
+
+
+SYSTEM_DATASET = "__system__"
+
+
+class DatasetStatus(StatusCounts):
+    name: str
+    batches: list[BatchStatus] = []
+
+    def is_system(self) -> bool:
+        return self.name == SYSTEM_DATASET

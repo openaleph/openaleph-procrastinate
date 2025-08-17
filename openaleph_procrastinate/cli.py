@@ -8,8 +8,8 @@ from ftmq.io import smart_read_proxies
 from rich import print
 
 from openaleph_procrastinate import __version__, model, tasks
-from openaleph_procrastinate.app import init_db as _init_db
 from openaleph_procrastinate.app import make_app
+from openaleph_procrastinate.manage.db import get_db
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 settings = OpenAlephSettings()
@@ -76,4 +76,6 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 @cli.command()
 def init_db():
     """Initialize procrastinate database schema"""
-    _init_db()
+    with ErrorHandler(log):
+        db = get_db()
+        db.configure()

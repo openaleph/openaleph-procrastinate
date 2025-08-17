@@ -1,5 +1,8 @@
+import random
+
 from anystore.logging import get_logger
 from anystore.store import get_store
+from procrastinate.job_context import JobContext
 
 from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.model import AnyJob
@@ -9,13 +12,12 @@ log = get_logger(__name__)
 app = make_app("e2e.tasks")
 
 
-@task(app=app)
-def dummy_task(job: AnyJob) -> None:
-    job.log.info("👋", job=job)
+@task(app=app, pass_context=True)
+def dummy_task(context: JobContext, job: AnyJob) -> None:
+    log.info("👋", job=job, context=context)
     store = get_store(job.payload["path"])
     store.put("dummy_task", job.payload)
     job.task = "e2e.tasks.next_task"
-    job.payload = {"path": store.uri}
     job.defer(app=app)
 
 
@@ -24,3 +26,9 @@ def next_task(job: AnyJob) -> None:
     log.info("I am the next job! 👋", job=job)
     store = get_store(job.payload["path"])
     store.touch("next_task")
+
+
+@task(app=app)
+def task_with_errors(job: AnyJob) -> None:
+    if random.randint(0, 10) > 5:
+        raise Exception("Random int is too high!")

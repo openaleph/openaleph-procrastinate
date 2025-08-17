@@ -1,13 +1,11 @@
-from functools import cache
-
 import procrastinate
-import psycopg
+from anystore.functools import weakref_cache as cache
 from anystore.logging import configure_logging, get_logger
+from anystore.util import mask_uri
 from procrastinate import connector, testing, utils
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
 from openaleph_procrastinate.settings import OpenAlephSettings
-from openaleph_procrastinate.util import mask_uri
 
 log = get_logger(__name__)
 
@@ -79,41 +77,7 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
     return app
 
 
-def init_db() -> None:
-    settings = OpenAlephSettings()
-    if settings.in_memory_db:
-        return
-    app = make_app(sync=True)
-    with app.open():
-        db_ok = app.check_connection()
-        if not db_ok:
-            app.schema_manager.apply_schema()
-    with psycopg.connect(settings.db_uri) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_args_idx ON procrastinate_jobs USING GIN (args)"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_status_idx ON procrastinate_jobs (status)"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_task_name_idx ON procrastinate_jobs (task_name)"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_dataset_idx ON procrastinate_jobs ((args->>'dataset'))"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_queue_idx ON procrastinate_jobs ((args->>'dataset'), status, queue_name)"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_tasks_idx ON procrastinate_jobs ((args->>'dataset'), status, task_name)"  # noqa: B950
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS procrastinate_jobs_grp_queue_tasks_idx ON procrastinate_jobs ((args->>'dataset'), status, queue_name, task_name)"  # noqa: B950
-            )
-
-
 def run_sync_worker(app: App) -> None:
-    # used for testing. Make sure to use async connector
+    # used for testing. Force using async connector with re-initializing app:
     app = make_app(list(app.import_paths)[0])
     app.run_worker(wait=False)

@@ -4,8 +4,8 @@ dendency
 """
 
 from enum import StrEnum
-from functools import cache
 
+from anystore.functools import weakref_cache as cache
 from anystore.store import BaseStore, get_store
 from anystore.types import Uri
 from pydantic_settings import BaseSettings, SettingsConfigDict

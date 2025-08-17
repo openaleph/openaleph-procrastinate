@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 MAX_PRIORITY = 100
 MIN_PRIORITY = 0
-DEFAULT_DB_URI = "postgresql:///openaleph"
+DEFAULT_DB_URI = "memory://"
 
 
 class ServiceSettings(BaseSettings):

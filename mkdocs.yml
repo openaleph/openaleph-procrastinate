@@ -15,6 +15,7 @@ nav:
     - model: reference/model.md
     - helpers: reference/helpers.md
     - settings: reference/settings.md
+    - manage: reference/manage.md
 theme:
   name: material
   logo: https://cdn.investigativedata.org/style/logos/darc/svg/DARC-Logo-RGB-Horizontal-Neg.svg

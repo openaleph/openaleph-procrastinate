@@ -2,14 +2,11 @@ import functools
 import random
 from typing import Any, Callable
 
-import psycopg
 from anystore.logging import get_logger
 from procrastinate.app import App
 
-from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.exceptions import ErrorHandler
 from openaleph_procrastinate.model import AnyJob, DatasetJob, Job
-from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
 
@@ -20,50 +17,6 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
         if "dataset" in data:
             return DatasetJob(**data)
         return Job(**data)
-
-
-def get_job_ids_by_criteria(query: str, job_filter: str) -> list[int]:
-    settings = OpenAlephSettings()
-    db_uri = settings.procrastinate_db_uri
-
-    job_ids: list[int] = []
-    with psycopg.connect(db_uri) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(query, (job_filter,))
-            res = cursor.fetchall()
-
-    if res:
-        job_ids = [r[0] for r in res]
-
-    return job_ids
-
-
-def cancel_jobs(job_ids: list[int]) -> None:
-    app = make_app(sync=True)
-    with app.open():
-        for job_id in job_ids:
-            app.job_manager.cancel_job_by_id(job_id, abort=True)
-
-
-def cancel_jobs_per_dataset(dataset: str) -> None:
-    query = """SELECT id FROM procrastinate_jobs WHERE dataset = (%s)"""
-    job_ids = get_job_ids_by_criteria(query, dataset)
-    if job_ids:
-        cancel_jobs(job_ids)
-
-
-def cancel_jobs_per_queue(queue_name: str) -> None:
-    query = """SELECT id FROM procrastinate_jobs WHERE queue_name = (%s)"""
-    job_ids = get_job_ids_by_criteria(query, queue_name)
-    if job_ids:
-        cancel_jobs(job_ids)
-
-
-def cancel_jobs_per_task(task: str) -> None:
-    query = """SELECT id FROM procrastinate_jobs WHERE task_name = (%s)"""
-    job_ids = get_job_ids_by_criteria(query, task)
-    if job_ids:
-        cancel_jobs(job_ids)
 
 
 def task(app: App, **kwargs):
