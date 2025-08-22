@@ -195,7 +195,8 @@ class DatasetJob(Job):
             context: Job context
         """
         if dehydrate:
-            entities = (make_checksum_entity(e, quiet=True) for e in entities)
+            entities_ = (make_checksum_entity(e, quiet=True) for e in entities)
+            entities = (e for e in entities_ if e is not None)
         return cls(
             dataset=dataset,
             queue=queue,

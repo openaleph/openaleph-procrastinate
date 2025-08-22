@@ -1,4 +1,3 @@
-import pytest
 from followthemoney import model
 
 from openaleph_procrastinate import util
@@ -24,7 +23,5 @@ def test_util():
 
     for i in ("", None):
         e.id = i
-        with pytest.raises(ValueError):
-            util.make_stub_entity(e)
-        with pytest.raises(ValueError):
-            util.make_checksum_entity(e)
+        assert util.make_stub_entity(e) is None
+        assert util.make_checksum_entity(e) is None
