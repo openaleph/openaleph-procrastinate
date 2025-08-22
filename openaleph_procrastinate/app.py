@@ -1,7 +1,11 @@
+import threading
+
 import procrastinate
 from anystore.functools import weakref_cache as cache
 from anystore.logging import configure_logging, get_logger
 from anystore.util import mask_uri
+from cachetools import TTLCache, cached
+from cachetools.keys import hashkey
 from procrastinate import connector, testing, utils
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
@@ -9,8 +13,12 @@ from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
 
+# Thread-safe cache for get_pool function
+_pool_cache = TTLCache(maxsize=10, ttl=3600)  # 1 hour TTL
+_pool_cache_lock = threading.RLock()
 
-@cache
+
+@cached(cache=_pool_cache, lock=_pool_cache_lock, key=lambda sync=False: hashkey(sync))
 def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool | None:
     settings = OpenAlephSettings()
     if settings.in_memory_db:
