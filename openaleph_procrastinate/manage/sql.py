@@ -76,6 +76,25 @@ LEFT JOIN {EVENTS} e2 ON max_id = e2.job_id
 GROUP BY {COLUMNS} ORDER BY {COLUMNS}
 """
 
+# only return status aggregation for active datasets
+STATUS_SUMMARY_ACTIVE = f"""
+WITH {CTE_JOB_STATUS} AS (
+    SELECT {COLUMNS}, COUNT(*) AS jobs, {MIN_ID}, {MAX_ID} FROM {JOBS} j1
+    WHERE {F_DATASET}
+    AND EXISTS (
+        SELECT 1 FROM {JOBS} j2
+        WHERE j2.dataset = j1.dataset
+        AND j2.status IN ('todo', 'doing')
+    )
+    GROUP BY {COLUMNS} ORDER BY {COLUMNS}
+)
+SELECT {COLUMNS},
+MAX(jobs), MIN(e1.at), MAX(e2.at) FROM {CTE_JOB_STATUS}
+LEFT JOIN {EVENTS} e1 ON min_id = e1.job_id
+LEFT JOIN {EVENTS} e2 ON max_id = e2.job_id
+GROUP BY {COLUMNS} ORDER BY {COLUMNS}
+"""
+
 
 ALL_JOBS = f"""
 SELECT id, status, args FROM {JOBS} WHERE id IN (

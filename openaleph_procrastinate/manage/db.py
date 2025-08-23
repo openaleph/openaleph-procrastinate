@@ -56,6 +56,7 @@ class Db:
         queue: str | None = None,
         task: str | None = None,
         status: Status | None = None,
+        active_only: bool | None = True,
     ) -> Rows:
         """
         Iterate through aggregated job status summary
@@ -70,14 +71,20 @@ class Db:
             queue: The queue name to filter for
             task: The task name to filter for
             status: The status to filter for
+            active_only: Only include "active" datasets (at least 1 job in
+                'todo' or 'doing')
 
         Yields:
             Rows a tuple with the fields in this order:
                 dataset, batch, queue_name, task_name, status, jobs count,
                 timestamp first event, timestamp last event
         """
+        if active_only:
+            query = sql.STATUS_SUMMARY_ACTIVE
+        else:
+            query = sql.STATUS_SUMMARY
         yield from self._execute_iter(
-            sql.STATUS_SUMMARY,
+            query,
             dataset=dataset,
             batch=batch,
             queue=queue,
