@@ -57,7 +57,7 @@ def test_e2e_psql_status():
         for job in some_jobs_will_fail:
             job.defer(app)
 
-    datasets = {d.name: d for d in get_status()}
+    datasets = {d.name: d for d in get_status(active_only=False)}
     assert set(datasets.keys()) == {"d1", "d2"}
 
     for dataset in datasets.values():
@@ -74,14 +74,14 @@ def test_e2e_psql_status():
 
     run_sync_worker(app)
 
-    datasets = {d.name: d for d in get_status()}
+    datasets = {d.name: d for d in get_status(active_only=False)}
     assert datasets["d1"].total + datasets["d2"].total == 10
     assert datasets["d1"].doing + datasets["d2"].doing == 0
     assert datasets["d1"].failed + datasets["d2"].failed > 0
     assert not any(d.is_running() for d in datasets.values())
     assert not any(d.is_active() for d in datasets.values())
 
-    d1 = get_dataset_status("d1")
+    d1 = get_dataset_status("d1", active_only=False)
     assert d1 is not None
 
     assert len(list(db.iterate_jobs())) == 10

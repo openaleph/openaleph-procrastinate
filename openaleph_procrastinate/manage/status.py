@@ -13,7 +13,9 @@ from openaleph_procrastinate.model import (
 DEFAULT_BACH = "default"
 
 
-def _gather_status(dataset: str | None = None) -> Generator[DatasetStatus, None, None]:
+def _gather_status(
+    dataset: str | None = None, active_only: bool | None = True
+) -> Generator[DatasetStatus, None, None]:
     db = get_db()
     tree = lambda: defaultdict(tree)  # noqa: E731
     data = tree()
@@ -26,7 +28,7 @@ def _gather_status(dataset: str | None = None) -> Generator[DatasetStatus, None,
         jobs,
         min_ts,
         max_ts,
-    ) in db.iterate_status(dataset):
+    ) in db.iterate_status(dataset, active_only=active_only):
         data[dataset_name][batch][queue][task]["counts"][status] = jobs
         data[dataset_name][batch][queue][task]["min_ts"][status] = min_ts
         data[dataset_name][batch][queue][task]["max_ts"][status] = max_ts
@@ -55,11 +57,11 @@ def _gather_status(dataset: str | None = None) -> Generator[DatasetStatus, None,
         yield dataset_status
 
 
-def get_status() -> Generator[DatasetStatus, None, None]:
-    yield from _gather_status()
+def get_status(active_only: bool | None = True) -> Generator[DatasetStatus, None, None]:
+    yield from _gather_status(active_only=active_only)
 
 
-def get_dataset_status(dataset: str) -> DatasetStatus:
-    for status in _gather_status(dataset):
+def get_dataset_status(dataset: str, active_only: bool | None = True) -> DatasetStatus:
+    for status in _gather_status(dataset, active_only):
         return status
     return DatasetStatus(name=dataset)
