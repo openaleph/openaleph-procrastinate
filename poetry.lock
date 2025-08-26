@@ -1324,13 +1324,13 @@ Werkzeug = ">=0.7"
 
 [[package]]
 name = "followthemoney"
-version = "4.1.2"
+version = "4.2.0"
 description = "A data model for anti corruption data modeling and analysis."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "followthemoney-4.1.2-py3-none-any.whl", hash = "sha256:ca1a231f1290614eafb346d1731371ebfba875661c50a001f335ad60044f39aa"},
+    {file = "followthemoney-4.2.0-py3-none-any.whl", hash = "sha256:c53691ab4f81aec0da03778d3f6213ec87cf356e95fa5ec3c605cdebdbd0fe9c"},
 ]
 
 [package.dependencies]
@@ -5721,4 +5721,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "fd279dbf6e8ddbac323034f7b480d441ddd9594be8d8af11b791f486973bcf74"
+content-hash = "fc8e7f0003805f901f7e12f6c44e53fea2b5230d845b887f4d99bb8c2b717fe5"
