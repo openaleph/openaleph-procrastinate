@@ -77,5 +77,7 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 def init_db():
     """Initialize procrastinate database schema"""
     with ErrorHandler(log):
+        if settings.in_memory_db:
+            return
         db = get_db()
         db.configure()
