@@ -59,6 +59,7 @@ def get_status() -> Generator[DatasetStatus, None, None]:
     yield from _gather_status()
 
 
-def get_dataset_status(dataset: str) -> DatasetStatus | None:
+def get_dataset_status(dataset: str) -> DatasetStatus:
     for status in _gather_status(dataset):
         return status
+    return DatasetStatus(name=dataset)
