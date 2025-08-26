@@ -10,12 +10,14 @@ def test_util():
     e.add("contentHash", "123")
 
     assert util.make_stub_entity(e).to_dict() == {
+        "caption": "test.txt",
         "id": "a",
         "schema": "Document",
         "properties": {},
     }
 
     assert util.make_checksum_entity(e).to_dict() == {
+        "caption": "test.txt",
         "id": "a",
         "schema": "Document",
         "properties": {"contentHash": ["123"]},
