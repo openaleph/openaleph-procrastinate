@@ -11,7 +11,9 @@ def make_stub_entity(e: EntityProxy) -> EntityProxy | None:
     if not e.id:
         log.warning("Entity has no ID!")
         return
-    return EntityProxy.from_dict({"id": e.id, "schema": e.schema.name})
+    return EntityProxy.from_dict(
+        {"id": e.id, "schema": e.schema.name, "caption": e.caption}
+    )
 
 
 def make_checksum_entity(
