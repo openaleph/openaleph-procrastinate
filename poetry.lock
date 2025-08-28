@@ -1493,14 +1493,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.2.0"
+version = "4.2.2"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.2.0-py3-none-any.whl", hash = "sha256:425c6328ac74c6cd4f2191434e61db09ba65c83e1a14a5102050075c91cbd4ff"},
-    {file = "ftmq-4.2.0.tar.gz", hash = "sha256:6a0c209034a7ab8066992299fc02e2e92b9a8e842386bc2d2a91a5bd66dcbecb"},
+    {file = "ftmq-4.2.2-py3-none-any.whl", hash = "sha256:3810d887ce198e5110a970a4219baa903d74a8f23d59e51dbe3f2915110fd935"},
+    {file = "ftmq-4.2.2.tar.gz", hash = "sha256:73476839c97f74b603589f867d7718cc26e07c9bf6e2f3fb42819dde6dbe5696"},
 ]
 
 [package.dependencies]
@@ -1519,7 +1519,7 @@ rigour = ">=1.3.0,<2.0.0"
 aleph = ["alephclient (>=2.6.0,<3.0.0)", "furl (>=2.1.4,<3.0.0)"]
 lake = ["deltalake (>=1.1.4,<2.0.0)", "duckdb (>=1.3.2,<2.0.0)", "pandas (>=2.3.2,<3.0.0)", "pyarrow (>=21.0.0,<22.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
-postgres = ["psycopg2 (>=2.9.10,<3.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
+postgres = ["psycopg (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
 
@@ -5742,4 +5742,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "5bd15f8ddcb2d75b58b19baac0bcf48a3cde152b716dc150b9954aa2e7ac755f"
+content-hash = "75f6b90c23645ec7fceb0513097d5deda68b2161d2fd24fc69632915e1e85001"
