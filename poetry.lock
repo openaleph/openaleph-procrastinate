@@ -1493,14 +1493,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.2.2"
+version = "4.2.3"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.2.2-py3-none-any.whl", hash = "sha256:3810d887ce198e5110a970a4219baa903d74a8f23d59e51dbe3f2915110fd935"},
-    {file = "ftmq-4.2.2.tar.gz", hash = "sha256:73476839c97f74b603589f867d7718cc26e07c9bf6e2f3fb42819dde6dbe5696"},
+    {file = "ftmq-4.2.3-py3-none-any.whl", hash = "sha256:a4647bd91e6ecf70f13b8bb51c877e25b0b3be2c11f6c675fcf3e1c4b0401e7f"},
+    {file = "ftmq-4.2.3.tar.gz", hash = "sha256:a779a3fa31847f997addbfdafd004ac70ccb97d90171232a91e078a6849beada"},
 ]
 
 [package.dependencies]
@@ -1519,7 +1519,7 @@ rigour = ">=1.3.0,<2.0.0"
 aleph = ["alephclient (>=2.6.0,<3.0.0)", "furl (>=2.1.4,<3.0.0)"]
 lake = ["deltalake (>=1.1.4,<2.0.0)", "duckdb (>=1.3.2,<2.0.0)", "pandas (>=2.3.2,<3.0.0)", "pyarrow (>=21.0.0,<22.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
-postgres = ["psycopg (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
+postgres = ["psycopg[pool] (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
 
@@ -2711,14 +2711,14 @@ python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.18.0"
+version = "1.18.1"
 description = "A Python handler for mkdocstrings."
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "mkdocstrings_python-1.18.0-py3-none-any.whl", hash = "sha256:f5056d8afe9a9683ad0c59001df1ecd9668b51c19b9a6b4dc0ff02cc9b76265a"},
-    {file = "mkdocstrings_python-1.18.0.tar.gz", hash = "sha256:0b9924b4034fe9ae43604d78fe8e5107ea2c2391620124fc833043a62e83c744"},
+    {file = "mkdocstrings_python-1.18.1-py3-none-any.whl", hash = "sha256:0a96a084e7b0ef36db190a222a4545efe13e8664382af44f9d4bf39d0d0218a2"},
+    {file = "mkdocstrings_python-1.18.1.tar.gz", hash = "sha256:89e02225a6d2e238337cad35cf25e4ed4df70862feb1ecc967d7d4e2c1737364"},
 ]
 
 [package.dependencies]
@@ -5742,4 +5742,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "75f6b90c23645ec7fceb0513097d5deda68b2161d2fd24fc69632915e1e85001"
+content-hash = "e4e797f7941c9dd567a797ec32916016191ea8b18980baa9fd4dbb54ffdd5679"
