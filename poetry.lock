@@ -1575,7 +1575,7 @@ sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
 [package.source]
 type = "git"
 url = "https://github.com/dataresearchcenter/ftmq.git"
-reference = "HEAD"
+reference = "135d89e26298c9dc5956b9d7ebaebc4acee9d827"
 resolved_reference = "135d89e26298c9dc5956b9d7ebaebc4acee9d827"
 
 [[package]]
@@ -5894,4 +5894,4 @@ django = ["dj-database-url", "django", "procrastinate"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "1a8eee88266f771c4540206ff48173e31d82de350115d2566207039372e1d129"
+content-hash = "4dbe1322a535f1fe8eb6f19d3c1ffd18c61f6426738a712ae7b9824cc8cb204f"
