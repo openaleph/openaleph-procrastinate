@@ -20,15 +20,7 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
 
 
 def task(app: App, **kwargs):
-    """
-    Synchronous task decorator for procrastinate tasks.
-
-    Automatically unpacks JSON job data into Job/DatasetJob model instances.
-    Use this for synchronous task functions. For async tasks, use @async_task.
-
-    https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html
-    """
-
+    # https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html
     def wrap(func: Callable[..., None]):
         def _inner(*job_args, **job_kwargs):
             # turn the json data into the job model instance
@@ -37,33 +29,6 @@ def task(app: App, **kwargs):
 
         # need to call to not register tasks twice (procrastinate complains)
         wrapped_func = functools.update_wrapper(_inner, func, updated=())
-        # call the original procrastinate task decorator with additional
-        # configuration passed through
-        return app.task(**kwargs)(wrapped_func)
-
-    return wrap
-
-
-def async_task(app: App, **kwargs):
-    """
-    Async task decorator that supports async functions.
-
-    Automatically unpacks JSON job data into Job/DatasetJob model instances.
-    Runs async functions in the event loop, allowing use of asyncio.to_thread()
-    for blocking operations.
-
-    https://procrastinate.readthedocs.io/en/stable/howto/advanced/middleware.html
-    """
-
-    def wrap(func):
-        async def _async_inner(*job_args, **job_kwargs):
-            # turn the json data into the job model instance
-            job = unpack_job(job_kwargs)
-            # Call the async function
-            return await func(*job_args, job)  # type: ignore[misc]
-
-        # need to call to not register tasks twice (procrastinate complains)
-        wrapped_func = functools.update_wrapper(_async_inner, func, updated=())
         # call the original procrastinate task decorator with additional
         # configuration passed through
         return app.task(**kwargs)(wrapped_func)
