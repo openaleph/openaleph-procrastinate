@@ -50,8 +50,8 @@ ON {JOBS} (dataset);
 CREATE INDEX IF NOT EXISTS idx_{JOBS}_batch
 ON {JOBS} (batch);
 
-CREATE INDEX IF NOT EXISTS idx_{JOBS}_created_at
-ON {JOBS} (created_at);
+CREATE INDEX IF NOT EXISTS idx_{JOBS}_ts
+ON {JOBS} (ts);
 
 CREATE INDEX IF NOT EXISTS idx_{JOBS}_task
 ON {JOBS} (task_name);
