@@ -81,3 +81,66 @@ def init_db():
             return
         db = get_db()
         db.configure()
+
+
+@cli.command()
+def requeue_failed(
+    dataset: str = OPT_DATASET,
+    queue: str = OPT_QUEUE,
+    task: str = OPT_TASK,
+):
+    """
+    Requeue failed jobs matching the given filters.
+
+    This command finds all jobs with status='failed' that match the optional filters
+    (dataset, queue, task) and retries them by setting their status back to 'todo'.
+    """
+    from procrastinate import utils
+
+    with ErrorHandler(log):
+        if settings.in_memory_db:
+            log.error("Cannot requeue jobs with in-memory database")
+            raise typer.Exit(1)
+
+        db = get_db()
+        app = make_app(sync=True)
+
+        # Get failed jobs using the db manager
+        failed_jobs = list(
+            db.get_failed_jobs(
+                dataset=dataset,
+                queue=queue,
+                task=task,
+            )
+        )
+
+        if not failed_jobs:
+            log.info("No failed jobs found matching the filters")
+            return
+
+        log.info(
+            f"Found {len(failed_jobs)} failed jobs to requeue", count=len(failed_jobs)
+        )
+
+        # Retry each job using the job manager
+        with app.open():
+            requeued = 0
+            for job_id, queue_name, priority, lock in failed_jobs:
+                try:
+                    app.job_manager.retry_job_by_id(
+                        job_id=job_id,
+                        retry_at=utils.utcnow(),
+                        priority=priority,
+                        queue=queue_name,
+                        lock=lock,
+                    )
+                    requeued += 1
+                    log.debug(f"Requeued job {job_id}", job_id=job_id, queue=queue_name)
+                except Exception as e:
+                    log.error(
+                        f"Failed to requeue job {job_id}: {e}",
+                        job_id=job_id,
+                        error=str(e),
+                    )
+
+        log.info(f"Successfully requeued {requeued} jobs", requeued=requeued)

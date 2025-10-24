@@ -167,6 +167,33 @@ class Db:
             sql.CANCEL_JOBS, dataset=dataset, batch=batch, queue=queue, task=task
         )
 
+    def get_failed_jobs(
+        self,
+        dataset: str | None = None,
+        batch: str | None = None,
+        queue: str | None = None,
+        task: str | None = None,
+    ) -> Rows:
+        """
+        Get failed jobs by given criteria with fields needed for retrying.
+
+        Args:
+            dataset: The dataset to filter for
+            batch: The job batch to filter for
+            queue: The queue name to filter for
+            task: The task name to filter for
+
+        Yields:
+            Rows with (id, queue_name, priority, lock) for each failed job
+        """
+        yield from self._execute_iter(
+            sql.GET_FAILED_JOBS,
+            dataset=dataset,
+            batch=batch,
+            queue=queue,
+            task=task,
+        )
+
     def _execute_iter(self, q: LiteralString, **params: str | None) -> Rows:
         with psycopg.connect(self.settings.procrastinate_db_uri) as connection:
             with connection.cursor() as cursor:

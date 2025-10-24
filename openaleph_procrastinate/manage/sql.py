@@ -130,3 +130,12 @@ UPDATE {JOBS} SET abort_requested = true
 WHERE status = 'doing'
 AND {F_DATASET} AND {F_BATCH} AND {F_QUEUE} AND {F_TASK};
 """
+
+# REQUEUE FAILED JOBS #
+# Get failed jobs with necessary fields for retrying
+GET_FAILED_JOBS = f"""
+SELECT id, queue_name, priority, lock
+FROM {JOBS}
+WHERE status = 'failed'
+AND {F_DATASET} AND {F_BATCH} AND {F_QUEUE} AND {F_TASK}
+"""
