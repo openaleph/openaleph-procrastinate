@@ -202,10 +202,22 @@ class Db:
                     yield from rows
 
     def _execute(self, q: LiteralString, **params: str | None) -> None:
-        with psycopg.connect(self.settings.procrastinate_db_uri) as connection:
+        # Use autocommit for DDL (no params) to support multiple statements
+        # with $$-quoted strings. Use transactions for DML (with params)
+        # to maintain atomicity
+        with psycopg.connect(
+            self.settings.procrastinate_db_uri, autocommit=not params
+        ) as connection:
             with connection.cursor() as cursor:
-                for query in q.split(";"):
-                    cursor.execute(query, dict(params))
+                # With parameters, must split to avoid prepared statement error
+                if params:
+                    for query in q.split(";"):
+                        query = query.strip()
+                        if query:
+                            cursor.execute(query, params)
+                # Without parameters, can execute all at once (handles $$-quoted strings)
+                else:
+                    cursor.execute(q)
 
     def _destroy(self) -> None:
         """Destroy all data (used in tests)"""
