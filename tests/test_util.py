@@ -14,6 +14,8 @@ def test_util():
         "id": "a",
         "schema": "Document",
         "properties": {},
+        "datasets": ["default"],
+        "referents": [],
     }
 
     assert util.make_checksum_entity(e).to_dict() == {
@@ -21,6 +23,8 @@ def test_util():
         "id": "a",
         "schema": "Document",
         "properties": {"contentHash": ["123"]},
+        "datasets": ["default"],
+        "referents": [],
     }
 
     for i in ("", None):
