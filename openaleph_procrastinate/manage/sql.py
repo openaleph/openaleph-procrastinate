@@ -3,14 +3,11 @@
 # HELPER VARS #
 JOBS = "procrastinate_jobs"
 EVENTS = "procrastinate_events"
-CTE_JOB_STATUS = "cte_job_status"  # CTE
 
 SYSTEM_DATASET = "__system__"
 DEFAULT_BATCH = "default"
 
 COLUMNS = "dataset, batch, queue_name, task_name, status"
-MAX_ID = "MAX(id) AS max_id"
-MIN_ID = "MIN(id) AS min_id"
 
 # FILTERS #
 F_DATASET = "(%(dataset)s::varchar IS NULL OR dataset = %(dataset)s)"
@@ -33,25 +30,25 @@ ADD COLUMN IF NOT EXISTS batch TEXT GENERATED ALWAYS AS (
 ) STORED;
 
 ALTER TABLE {JOBS}
-ADD COLUMN IF NOT EXISTS ts TIMESTAMPTZ;
+ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 ALTER TABLE {JOBS}
-ALTER COLUMN ts SET DEFAULT NOW();
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-CREATE OR REPLACE FUNCTION update_{JOBS}_ts()
+CREATE OR REPLACE FUNCTION update_{JOBS}_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.ts = NOW();
+    NEW.updated_at = NOW();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trigger_update_{JOBS}_ts ON {JOBS};
+DROP TRIGGER IF EXISTS trigger_update_{JOBS}_updated_at ON {JOBS};
 
-CREATE TRIGGER trigger_update_{JOBS}_ts
+CREATE TRIGGER trigger_update_{JOBS}_updated_at
     BEFORE UPDATE ON {JOBS}
     FOR EACH ROW
-    EXECUTE FUNCTION update_{JOBS}_ts();
+    EXECUTE FUNCTION update_{JOBS}_updated_at();
 """
 
 # INDEXES FOR STATUS QUERY #
@@ -65,8 +62,11 @@ ON {JOBS} (dataset);
 CREATE INDEX IF NOT EXISTS idx_{JOBS}_batch
 ON {JOBS} (batch);
 
-CREATE INDEX IF NOT EXISTS idx_{JOBS}_ts
-ON {JOBS} (ts);
+CREATE INDEX IF NOT EXISTS idx_{JOBS}_created_at
+ON {JOBS} (created_at);
+
+CREATE INDEX IF NOT EXISTS idx_{JOBS}_updated_at
+ON {JOBS} (updated_at);
 
 CREATE INDEX IF NOT EXISTS idx_{JOBS}_task
 ON {JOBS} (task_name);
@@ -83,49 +83,43 @@ ON {EVENTS} (job_id, at);
 
 
 # QUERY JOB STATUS #
-# query status aggregation, optional filtered for dataset. this is quite
-# expensive, make sure the additional indexes and generated fields exist.
+# query status aggregation, optional filtered for dataset.
 # this returns result rows with these values in its order:
-# dataset,batch,queue_name,task_name,status,jobs count,first event,last event
+# dataset,batch,queue_name,task_name,status,jobs count,first created,last updated
 STATUS_SUMMARY = f"""
-WITH {CTE_JOB_STATUS} AS (
-    SELECT {COLUMNS}, COUNT(*) AS jobs, {MIN_ID}, {MAX_ID} FROM {JOBS}
-    WHERE {F_DATASET}
-    GROUP BY {COLUMNS} ORDER BY {COLUMNS}
-)
 SELECT {COLUMNS},
-MAX(jobs), MIN(e1.at), MAX(e2.at) FROM {CTE_JOB_STATUS}
-LEFT JOIN {EVENTS} e1 ON min_id = e1.job_id
-LEFT JOIN {EVENTS} e2 ON max_id = e2.job_id
-GROUP BY {COLUMNS} ORDER BY {COLUMNS}
+    COUNT(*) AS jobs,
+    MIN(created_at) AS min_ts,
+    MAX(updated_at) AS max_ts
+FROM {JOBS}
+WHERE {F_DATASET}
+GROUP BY {COLUMNS}
+ORDER BY {COLUMNS}
 """
 
 # only return status aggregation for active datasets
 STATUS_SUMMARY_ACTIVE = f"""
-WITH {CTE_JOB_STATUS} AS (
-    SELECT {COLUMNS}, COUNT(*) AS jobs, {MIN_ID}, {MAX_ID} FROM {JOBS} j1
-    WHERE {F_DATASET}
-    AND EXISTS (
-        SELECT 1 FROM {JOBS} j2
-        WHERE j2.dataset = j1.dataset
-        AND j2.status IN ('todo', 'doing')
-    )
-    GROUP BY {COLUMNS} ORDER BY {COLUMNS}
-)
 SELECT {COLUMNS},
-MAX(jobs), MIN(e1.at), MAX(e2.at) FROM {CTE_JOB_STATUS}
-LEFT JOIN {EVENTS} e1 ON min_id = e1.job_id
-LEFT JOIN {EVENTS} e2 ON max_id = e2.job_id
-GROUP BY {COLUMNS} ORDER BY {COLUMNS}
+    COUNT(*) AS jobs,
+    MIN(created_at) AS min_ts,
+    MAX(updated_at) AS max_ts
+FROM {JOBS} j1
+WHERE {F_DATASET}
+AND EXISTS (
+    SELECT 1 FROM {JOBS} j2
+    WHERE j2.dataset = j1.dataset
+    AND j2.status IN ('todo', 'doing')
+)
+GROUP BY {COLUMNS}
+ORDER BY {COLUMNS}
 """
 
 
 ALL_JOBS = f"""
-SELECT id, status, args FROM {JOBS} WHERE id IN (
-SELECT job_id FROM {EVENTS}
-WHERE (at BETWEEN %(min_ts)s AND %(max_ts)s)
+SELECT id, status, args
+FROM {JOBS}
+WHERE (updated_at BETWEEN %(min_ts)s AND %(max_ts)s)
 AND {F_ALL_ANDS}
-)
 """
 
 # CANCEL OPS #
