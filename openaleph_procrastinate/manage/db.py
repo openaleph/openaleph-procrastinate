@@ -43,10 +43,12 @@ class Db:
             if not app.check_connection():
                 self.log.info("Configuring procrastinate database schema ...")
                 app.schema_manager.apply_schema()
-        self.log.info("Configuring indexes and generated fields ...")
+        self.log.info("Configuring generated fields, indices, and optimizations ...")
         with Took() as t:
             self._execute(sql.GENERATED_FIELDS)
+            self._execute(sql.REMOVE_FOREIGN_KEY)
             self._execute(sql.INDEXES)
+            self._execute(sql.OPTIMIZED_FETCH_FUNCTION)
             self.log.info("Configuring done.", took=t.took)
 
     def iterate_status(
