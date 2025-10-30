@@ -40,8 +40,10 @@ def _gather_status(
             for queue, tasks in queues.items():
                 queue_status = QueueStatus(name=queue)
                 for task, stats in tasks.items():
-                    min_ts = min(stats["min_ts"].values())
-                    max_ts = min(stats["max_ts"].values())
+                    min_ts_ = [v for v in stats["min_ts"].values() if v is not None]
+                    max_ts_ = [v for v in stats["max_ts"].values() if v is not None]
+                    min_ts = min(min_ts_) if min_ts_ else None
+                    max_ts = max(max_ts_) if max_ts_ else None
                     task_status = TaskStatus(
                         name=task,
                         **stats["counts"],

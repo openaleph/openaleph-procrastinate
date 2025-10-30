@@ -285,10 +285,10 @@ class StatusCounts(BaseModel):
         self.aborted += child.aborted
         self.cancelled += child.cancelled
         if child.min_ts:
-            if not self.min_ts or (self.min_ts and self.min_ts > child.min_ts):
+            if not self.min_ts or self.min_ts > child.min_ts:
                 self.min_ts = child.min_ts
         if child.max_ts:
-            if not self.max_ts or (self.max_ts and self.max_ts < child.max_ts):
+            if not self.max_ts or self.max_ts < child.max_ts:
                 self.max_ts = child.max_ts
 
 
