@@ -2,7 +2,7 @@ from typing import Annotated, Optional
 
 import typer
 from anystore.cli import ErrorHandler
-from anystore.io import smart_stream_json
+from anystore.io import logged_items, smart_stream_json
 from anystore.logging import configure_logging, get_logger
 from ftmq.io import smart_read_proxies
 from rich import print
@@ -105,21 +105,17 @@ def requeue_failed(
         db = get_db()
         app = make_app(sync=True)
 
-        # Get failed jobs using the db manager
-        failed_jobs = list(
+        # Get failed jobs logging iterator
+        failed_jobs = logged_items(
             db.get_failed_jobs(
                 dataset=dataset,
                 queue=queue,
                 task=task,
-            )
-        )
-
-        if not failed_jobs:
-            log.info("No failed jobs found matching the filters")
-            return
-
-        log.info(
-            f"Found {len(failed_jobs)} failed jobs to requeue", count=len(failed_jobs)
+            ),
+            "Requeuing",
+            1000,
+            "Job",
+            log,
         )
 
         # Retry each job using the job manager
@@ -143,4 +139,5 @@ def requeue_failed(
                         error=str(e),
                     )
 
-        log.info(f"Successfully requeued {requeued} jobs", requeued=requeued)
+        if not requeued:
+            log.info("No failed jobs found matching the filters")
