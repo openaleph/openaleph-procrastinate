@@ -3,7 +3,6 @@
 export DEBUG=0
 export PROCRASTINATE_APP="e2e.tasks.app"
 
-pip install procrastinate==3.2.2
 
 opal-procrastinate init-db
 
