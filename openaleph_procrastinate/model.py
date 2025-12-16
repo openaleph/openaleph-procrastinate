@@ -117,7 +117,7 @@ class DatasetJob(Job):
     @property
     def log(self) -> BoundLogger:
         return get_logger(
-            name=f"openaleph.job.{self.dataset}",
+            name=f"{self.dataset}.job",
             dataset=self.dataset,
             queue=self.queue,
             task=self.task,
