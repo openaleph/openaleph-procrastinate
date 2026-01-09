@@ -65,6 +65,34 @@ REMOVE_FOREIGN_KEY = f"""
 ALTER TABLE {JOBS} DROP CONSTRAINT IF EXISTS procrastinate_jobs_worker_id_fkey;
 """
 
+# CUSTOM PRUNE STALLED WORKERS FUNCTION #
+# Replaces procrastinate's built-in procrastinate_prune_stalled_workers_v1
+# The original function just deletes workers, but with FK constraint dropped,
+# this leaves jobs in "doing" status with worker_id pointing to deleted workers.
+# These orphaned jobs become invisible to stalled job detection.
+# This custom version sets worker_id = NULL before deleting, mimicking FK cascade.
+CUSTOM_PRUNE_STALLED_WORKERS = f"""
+CREATE OR REPLACE FUNCTION procrastinate_prune_stalled_workers_v1(seconds_since_heartbeat float)
+RETURNS void AS $$
+BEGIN
+    -- First, set worker_id to NULL for jobs referencing stalled workers
+    -- This mimics the ON DELETE SET NULL behavior of the dropped FK constraint
+    -- and allows these jobs to be detected as stalled
+    UPDATE {JOBS}
+    SET worker_id = NULL
+    WHERE status = 'doing'
+      AND worker_id IN (
+        SELECT id FROM procrastinate_workers
+        WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL
+    );
+
+    -- Then delete the stalled workers (original behavior)
+    DELETE FROM procrastinate_workers
+    WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL;
+END;
+$$ LANGUAGE plpgsql;
+"""
+
 # INDEX TO IMPROVE GENERAL PERFORMANCE AND STATUS QUERIES #
 # Based on performance analysis: minimize indices on high-UPDATE tables
 INDEXES = f"""
@@ -231,4 +259,20 @@ SELECT id, queue_name, priority, lock
 FROM {JOBS}
 WHERE status = 'failed'
 AND {F_DATASET} AND {F_BATCH} AND {F_QUEUE} AND {F_TASK}
+"""
+
+# DETECT ORPHANED JOBS #
+# Find jobs stuck in "doing" status whose workers no longer exist.
+# This can happen when the FK constraint is dropped (for performance) and workers
+# are pruned before the custom prune function is installed, or if using an older
+# version of procrastinate's prune function.
+GET_ORPHANED_JOBS = f"""
+SELECT id, queue_name, priority, lock
+FROM {JOBS}
+WHERE status = 'doing'
+  AND worker_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM procrastinate_workers w WHERE w.id = {JOBS}.worker_id
+  )
+  AND {F_DATASET} AND {F_BATCH} AND {F_QUEUE} AND {F_TASK}
 """

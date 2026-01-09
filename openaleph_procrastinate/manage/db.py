@@ -47,6 +47,7 @@ class Db:
         with Took() as t:
             self._execute(sql.GENERATED_FIELDS)
             self._execute(sql.REMOVE_FOREIGN_KEY)
+            self._execute(sql.CUSTOM_PRUNE_STALLED_WORKERS)
             self._execute(sql.INDEXES)
             self._execute(sql.OPTIMIZED_FETCH_FUNCTION)
             self.log.info("Configuring done.", took=t.took)
@@ -190,6 +191,37 @@ class Db:
         """
         yield from self._execute_iter(
             sql.GET_FAILED_JOBS,
+            dataset=dataset,
+            batch=batch,
+            queue=queue,
+            task=task,
+        )
+
+    def get_orphaned_jobs(
+        self,
+        dataset: str | None = None,
+        batch: str | None = None,
+        queue: str | None = None,
+        task: str | None = None,
+    ) -> Rows:
+        """
+        Get orphaned jobs (status='doing' but worker no longer exists).
+
+        These jobs are stuck because their worker was deleted before the job
+        completed. This can happen when the FK constraint is dropped and workers
+        are pruned before the custom prune function is installed.
+
+        Args:
+            dataset: The dataset to filter for
+            batch: The job batch to filter for
+            queue: The queue name to filter for
+            task: The task name to filter for
+
+        Yields:
+            Rows with (id, queue_name, priority, lock) for each orphaned job
+        """
+        yield from self._execute_iter(
+            sql.GET_ORPHANED_JOBS,
             dataset=dataset,
             batch=batch,
             queue=queue,

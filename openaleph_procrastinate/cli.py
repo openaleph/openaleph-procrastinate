@@ -141,3 +141,70 @@ def requeue_failed(
 
         if not requeued:
             log.info("No failed jobs found matching the filters")
+
+
+@cli.command()
+def requeue_stalled(
+    dataset: str = OPT_DATASET,
+    queue: str = OPT_QUEUE,
+    task: str = OPT_TASK,
+):
+    """
+    Requeue stalled/orphaned jobs matching the given filters.
+
+    This command finds all jobs with status='doing' whose worker no longer exists
+    (orphaned jobs) and retries them by setting their status back to 'todo'.
+
+    Orphaned jobs can occur when the foreign key constraint on worker_id is dropped
+    (for performance) and workers are pruned before completing their jobs.
+    """
+    from procrastinate import utils
+
+    with ErrorHandler(log):
+        if settings.in_memory_db:
+            log.error("Cannot requeue jobs with in-memory database")
+            raise typer.Exit(1)
+
+        db = get_db()
+        app = make_app(sync=True)
+
+        # Get orphaned jobs logging iterator
+        orphaned_jobs = logged_items(
+            db.get_orphaned_jobs(
+                dataset=dataset,
+                queue=queue,
+                task=task,
+            ),
+            "Requeuing stalled",
+            1000,
+            "Job",
+            log,
+        )
+
+        # Retry each job using the job manager
+        with app.open():
+            requeued = 0
+            for job_id, queue_name, priority, lock in orphaned_jobs:
+                try:
+                    app.job_manager.retry_job_by_id(
+                        job_id=job_id,
+                        retry_at=utils.utcnow(),
+                        priority=priority,
+                        queue=queue_name,
+                        lock=lock,
+                    )
+                    requeued += 1
+                    log.debug(
+                        f"Requeued stalled job {job_id}",
+                        job_id=job_id,
+                        queue=queue_name,
+                    )
+                except Exception as e:
+                    log.error(
+                        f"Failed to requeue stalled job {job_id}: {e}",
+                        job_id=job_id,
+                        error=str(e),
+                    )
+
+        if not requeued:
+            log.info("No stalled/orphaned jobs found matching the filters")
