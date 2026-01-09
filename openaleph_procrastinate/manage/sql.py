@@ -73,7 +73,9 @@ ALTER TABLE {JOBS} DROP CONSTRAINT IF EXISTS procrastinate_jobs_worker_id_fkey;
 # This custom version sets worker_id = NULL before deleting, mimicking FK cascade.
 CUSTOM_PRUNE_STALLED_WORKERS = f"""
 CREATE OR REPLACE FUNCTION procrastinate_prune_stalled_workers_v1(seconds_since_heartbeat float)
-RETURNS void AS $$
+    RETURNS TABLE(worker_id bigint)
+    LANGUAGE plpgsql
+AS $$
 BEGIN
     -- First, set worker_id to NULL for jobs referencing stalled workers
     -- This mimics the ON DELETE SET NULL behavior of the dropped FK constraint
@@ -86,11 +88,13 @@ BEGIN
         WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL
     );
 
-    -- Then delete the stalled workers (original behavior)
+    -- Then delete the stalled workers and return their ids (original behavior)
+    RETURN QUERY
     DELETE FROM procrastinate_workers
-    WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL;
+    WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL
+    RETURNING procrastinate_workers.id;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 """
 
 # INDEX TO IMPROVE GENERAL PERFORMANCE AND STATUS QUERIES #
