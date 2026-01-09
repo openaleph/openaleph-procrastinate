@@ -82,8 +82,8 @@ BEGIN
     -- and allows these jobs to be detected as stalled
     UPDATE {JOBS}
     SET worker_id = NULL
-    WHERE status = 'doing'
-      AND worker_id IN (
+    WHERE {JOBS}.status = 'doing'
+      AND {JOBS}.worker_id IN (
         SELECT id FROM procrastinate_workers
         WHERE last_heartbeat < NOW() - (seconds_since_heartbeat || ' SECOND')::INTERVAL
     );
