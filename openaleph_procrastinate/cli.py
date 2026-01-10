@@ -17,12 +17,14 @@ settings = OpenAlephSettings()
 cli = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=settings.debug)
 log = get_logger(__name__)
 
-DEFAULT_QUEUE = "default"
-
 OPT_INPUT_URI = typer.Option("-", "-i", help="Input uri, default stdin")
-OPT_DATASET = typer.Option(..., "-d", help="Dataset")
-OPT_QUEUE = typer.Option(DEFAULT_QUEUE, "-q", help="Queue name")
-OPT_TASK = typer.Option(..., "-t", help="Task module path")
+OPT_DATASET = typer.Option(None, "-d", help="Dataset")
+OPT_QUEUE = typer.Option(None, "-q", help="Queue name")
+OPT_TASK = typer.Option(None, "-t", help="Task module path")
+
+OPT_DATASET_REQUIRED = typer.Option(..., "-d", help="Dataset")
+OPT_QUEUE_REQUIRED = typer.Option(..., "-q", help="Queue name")
+OPT_TASK_REQUIRED = typer.Option(..., "-t", help="Task module path")
 
 
 @cli.callback(invoke_without_command=True)
@@ -45,9 +47,9 @@ def cli_opal_procrastinate(
 @cli.command()
 def defer_entities(
     input_uri: str = OPT_INPUT_URI,
-    dataset: str = OPT_DATASET,
-    queue: str = OPT_QUEUE,
-    task: str = OPT_TASK,
+    dataset: str = OPT_DATASET_REQUIRED,
+    queue: str = OPT_QUEUE_REQUIRED,
+    task: str = OPT_TASK_REQUIRED,
 ):
     """
     Defer jobs for a stream of proxies
@@ -85,9 +87,9 @@ def init_db():
 
 @cli.command()
 def requeue_failed(
-    dataset: str = OPT_DATASET,
-    queue: str = OPT_QUEUE,
-    task: str = OPT_TASK,
+    dataset: str | None = OPT_DATASET,
+    queue: str | None = OPT_QUEUE,
+    task: str | None = OPT_TASK,
 ):
     """
     Requeue failed jobs matching the given filters.
@@ -145,9 +147,9 @@ def requeue_failed(
 
 @cli.command()
 def requeue_stalled(
-    dataset: str = OPT_DATASET,
-    queue: str = OPT_QUEUE,
-    task: str = OPT_TASK,
+    dataset: str | None = OPT_DATASET,
+    queue: str | None = OPT_QUEUE,
+    task: str | None = OPT_TASK,
 ):
     """
     Requeue stalled/orphaned jobs matching the given filters.
@@ -190,7 +192,6 @@ def requeue_stalled(
                         job_id=job_id,
                         retry_at=utils.utcnow(),
                         priority=priority,
-                        queue=queue_name,
                         lock=lock,
                     )
                     requeued += 1
