@@ -9,7 +9,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 WORKDIR /app
 RUN pip install gunicorn
-RUN pip install ".[django]"
+RUN pip install .
 RUN pip install psycopg-binary
 
 ENV PROCRASTINATE_APP="openaleph_procrastinate.app.app"

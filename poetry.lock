@@ -312,7 +312,7 @@ sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
 type = "git"
 url = "https://github.com/dataresearchcenter/anystore.git"
 reference = "chore/refactor"
-resolved_reference = "8e8c06c50f4548910a1cebf54f3851af81a36749"
+resolved_reference = "eade13f985cfdaab4e892d232811773a0dfda330"
 
 [[package]]
 name = "asgiref"
