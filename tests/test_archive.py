@@ -1,4 +1,5 @@
-from anystore.util import SCHEME_FILE, SCHEME_S3, ensure_uri
+from anystore.logic.constants import SCHEME_FILE, SCHEME_S3
+from anystore.util import ensure_uri
 from moto import mock_aws
 from servicelayer.archive import init_archive
 

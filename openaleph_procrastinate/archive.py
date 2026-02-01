@@ -6,7 +6,7 @@ dendency
 from enum import StrEnum
 
 from anystore.functools import weakref_cache as cache
-from anystore.store import BaseStore, get_store
+from anystore.store import Store, get_store
 from anystore.types import Uri
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,7 +37,7 @@ class ArchiveSettings(BaseSettings):
 
 
 @cache
-def get_archive(uri: Uri | None = None) -> BaseStore:
+def get_archive(uri: Uri | None = None) -> Store:
     if uri is not None:
         return get_store(uri=uri)
     settings = ArchiveSettings()
@@ -48,7 +48,7 @@ def get_archive(uri: Uri | None = None) -> BaseStore:
     return get_store(uri=settings.path)
 
 
-def lookup_key(checksum: str, archive: BaseStore | None = None) -> str:
+def lookup_key(checksum: str, archive: Store | None = None) -> str:
     archive = archive or get_archive()
     prefix = make_checksum_key(checksum)
     for key in archive.iterate_keys(prefix=prefix):

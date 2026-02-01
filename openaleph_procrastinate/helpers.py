@@ -6,8 +6,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import ContextManager, Generator
 
-from anystore.store.virtual import VirtualIO, get_virtual_path, open_virtual
-from followthemoney.proxy import EntityProxy
+from anystore.logic.virtual import VirtualIO
+from followthemoney import EntityProxy
 from ftmq.store.fragments import get_fragments
 from ftmq.store.fragments.loader import BulkLoader
 
@@ -27,7 +27,7 @@ def get_localpath(dataset: str, content_hash: str) -> ContextManager[Path]:
     """
     archive = get_archive()
     key = lookup_key(content_hash)
-    return get_virtual_path(key, archive)
+    return archive.local_path(key)
 
 
 def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
@@ -39,7 +39,7 @@ def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
     """
     archive = get_archive()
     key = lookup_key(content_hash)
-    return open_virtual(key, archive)
+    return archive.local_open(key)
 
 
 def load_entity(dataset: str, entity_id: str) -> EntityProxy:
