@@ -85,6 +85,11 @@ class DeferSettings(BaseSettings):
     )
     """ftm-transcribe"""
 
+    translate: ServiceSettings = ServiceSettings(
+        queue="translate", task="ftm_translate.tasks.translate", defer=False
+    )
+    """ftm-translate"""
+
     geocode: ServiceSettings = ServiceSettings(
         queue="geocode", task="ftm_geocode.tasks.geocode", defer=False
     )

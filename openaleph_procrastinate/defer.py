@@ -310,7 +310,7 @@ def transcribe(
 ) -> None:
     """
     Defer a new job for `ftm-transcribe`
-    It will only deferred if `OPENALEPH_TRANSCRIBE_DEFER=1` (the default)
+    It will only deferred if `OPENALEPH_TRANSCRIBE_DEFER=1` (the default is not)
 
     Args:
         app: The procrastinate app instance
@@ -328,6 +328,32 @@ def transcribe(
             **context,
         )
         priority = get_priority(context, tasks.transcribe.get_priority())
+        job.defer(app, priority)
+
+
+def translate(
+    app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
+) -> None:
+    """
+    Defer a new job for `ftm-translate`
+    It will only deferred if `OPENALEPH_TRANSLATE_DEFER=1` (the default is not)
+
+    Args:
+        app: The procrastinate app instance
+        dataset: The ftm dataset or collection
+        entities: The file entities to ingest
+        context: Additional job context
+    """
+    if tasks.translate.defer:
+        job = DatasetJob.from_entities(
+            dataset=dataset,
+            queue=tasks.translate.queue,
+            task=tasks.translate.task,
+            entities=entities,
+            dehydrate=True,
+            **context,
+        )
+        priority = get_priority(context, tasks.translate.get_priority())
         job.defer(app, priority)
 
 
