@@ -9,6 +9,7 @@ from cachetools.keys import hashkey
 from procrastinate import connector, testing, utils
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
+from openaleph_procrastinate.logging import patch_procrastinate_logging
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
@@ -109,6 +110,7 @@ def make_app(tasks_module: str | None = None, sync: bool | None = False) -> App:
     settings = OpenAlephSettings()
     db_uri = mask_uri(settings.procrastinate_db_uri)
     configure_logging()
+    patch_procrastinate_logging()
     import_paths = [tasks_module] if tasks_module else None
     connector = get_connector(sync=sync)
     log.info(
