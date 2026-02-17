@@ -17,6 +17,10 @@ from openaleph_procrastinate.settings import OpenAlephSettings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
 settings = OpenAlephSettings()
+sqlalchemy_pool = {
+    "pool_size": settings.db_pool_size,
+    "max_overflow": settings.db_pool_size,
+}
 
 
 def get_localpath(dataset: str, content_hash: str) -> ContextManager[Path]:
@@ -46,7 +50,9 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
     """
     Retrieve a single entity from the store.
     """
-    store = get_fragments(dataset, database_uri=settings.fragments_uri)
+    store = get_fragments(
+        dataset, database_uri=settings.fragments_uri, **sqlalchemy_pool
+    )
     entity = store.get(entity_id)
     if entity is None:
         raise EntityNotFound(f"Entity `{entity_id}` not found in dataset `{dataset}`")
@@ -60,7 +66,10 @@ def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
     writer is flushed when leaving the context.
     """
     store = get_fragments(
-        dataset, origin=OPAL_ORIGIN, database_uri=settings.fragments_uri
+        dataset,
+        origin=OPAL_ORIGIN,
+        database_uri=settings.fragments_uri,
+        **sqlalchemy_pool,
     )
     loader = store.bulk()
     try:
