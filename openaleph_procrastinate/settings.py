@@ -224,6 +224,9 @@ class OpenAlephSettings(BaseSettings):
     )
     """FollowTheMoney Fragments store uri"""
 
+    procrastinate_dehydrate_entities: bool = True
+    """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
+
     @property
     def in_memory_db(self) -> bool:
         return self.procrastinate_db_uri.startswith("memory:")

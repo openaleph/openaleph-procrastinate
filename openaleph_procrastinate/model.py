@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, ContextManager, Generator, Iterable, Literal, Self, TypeAlias
 
-from anystore.logging import BoundLogger, get_logger
+from anystore.logging import get_logger
 from anystore.store.virtual import VirtualIO
 from anystore.util import clean_dict
 from banal import ensure_dict
@@ -11,6 +11,7 @@ from followthemoney import model
 from followthemoney.proxy import EntityProxy
 from ftmq.store.fragments.loader import BulkLoader
 from pydantic import BaseModel, ConfigDict, computed_field
+from structlog.stdlib import BoundLogger
 
 from openaleph_procrastinate import helpers
 from openaleph_procrastinate.app import App, run_sync_worker
@@ -139,8 +140,13 @@ class DatasetJob(Job):
     def load_entities(self: Self) -> Generator[EntityProxy, None, None]:
         """Load the entities from the store to refresh it to the latest data"""
         assert "entities" in self.payload, "No entities in payload"
-        for data in self.payload["entities"]:
-            yield helpers.load_entity(self.dataset, data["id"])
+
+        # if not dehydrating, just get the payload data:
+        if not settings.procrastinate_dehydrate_entities:
+            yield from self.get_entities()
+        else:
+            for data in self.payload["entities"]:
+                yield helpers.load_entity(self.dataset, data["id"])
 
     # Helpers for file jobs that access the servicelayer archive
 
@@ -179,7 +185,7 @@ class DatasetJob(Job):
         queue: str,
         task: str,
         entities: Iterable[EntityProxy],
-        dehydrate: bool | None = False,
+        dehydrate: bool = settings.procrastinate_dehydrate_entities,
         **context: Any,
     ) -> Self:
         """
