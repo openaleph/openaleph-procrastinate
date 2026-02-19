@@ -16,6 +16,7 @@ from openaleph_procrastinate.exceptions import EntityNotFound
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
+ARCHIVE_CHECKSUM_ALGORITHM = "sha1"
 settings = OpenAlephSettings()
 sqlalchemy_pool = {
     "pool_size": settings.db_pool_size,
@@ -43,7 +44,7 @@ def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
     """
     archive = get_archive()
     key = lookup_key(content_hash)
-    return archive.local_open(key)
+    return archive.local_open(key, algorithm=ARCHIVE_CHECKSUM_ALGORITHM)
 
 
 def load_entity(dataset: str, entity_id: str) -> EntityProxy:
