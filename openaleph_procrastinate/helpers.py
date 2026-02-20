@@ -61,14 +61,16 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
 
 
 @contextmanager
-def entity_writer(dataset: str) -> Generator[BulkLoader, None, None]:
+def entity_writer(
+    dataset: str, origin: str = OPAL_ORIGIN
+) -> Generator[BulkLoader, None, None]:
     """
     Get the `ftmq.store.fragments.BulkLoader` for the given `dataset`. The
     writer is flushed when leaving the context.
     """
     store = get_fragments(
         dataset,
-        origin=OPAL_ORIGIN,
+        origin=origin,
         database_uri=settings.fragments_uri,
         **sqlalchemy_pool,
     )
