@@ -101,5 +101,5 @@ def defer_job(entity):
 To defer the _Address_ entities of the dataset [de_lobbyregister](https://dataresearchcenter.org/library/de_lobbyregister/) to the geocoding (using [`ftmq`](https://docs.investigraph.dev/lib/ftmq/) for remote loading and filtering):
 
 ```bash
-ftmq -i https://data.ftm.store/de_lobbyregister/entities.ftm.json -s Address | opal-procrastinate defer-entities -q ftm-geocode -t ftm_geocode.tasks.geocode -d de_lobbyregister
+ftmq -i https://data.ftm.store/de_lobbyregister/entities.ftm.json -s Address | openaleph-procrastinate defer-entities -q ftm-geocode -t ftm_geocode.tasks.geocode -d de_lobbyregister
 ```

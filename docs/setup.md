@@ -31,4 +31,4 @@ Set up the environment variable `PROCRASTINATE_DB_URI` which falls back to `OPEN
 
 ### Initial database setup
 
-    opal-procrastinate init-db
+    openaleph-procrastinate init-db
