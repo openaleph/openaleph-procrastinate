@@ -125,9 +125,9 @@ class DatasetJob(Job):
             batch=self.batch,
         )
 
-    def get_writer(self: Self) -> ContextManager[BulkLoader]:
+    def get_writer(self: Self, origin: str = helpers.OPAL_ORIGIN) -> ContextManager[BulkLoader]:
         """Get the writer for the dataset of the current job"""
-        return helpers.entity_writer(self.dataset)
+        return helpers.entity_writer(self.dataset, origin)
 
     def get_entities(self) -> Generator[EntityProxy, None, None]:
         """
