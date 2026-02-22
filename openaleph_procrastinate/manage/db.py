@@ -4,10 +4,10 @@ the future
 """
 
 from datetime import datetime
+from functools import cache
 from typing import Any, Generator, LiteralString, TypeAlias
 
 import psycopg
-from anystore.functools import weakref_cache as cache
 from anystore.logging import get_logger
 from anystore.util import Took, mask_uri
 from psycopg.errors import UndefinedTable

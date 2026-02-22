@@ -1,7 +1,7 @@
 import threading
+from functools import cache
 
 import procrastinate
-from anystore.functools import weakref_cache as cache
 from anystore.logging import configure_logging, get_logger
 from anystore.util import mask_uri
 from cachetools import TTLCache, cached
