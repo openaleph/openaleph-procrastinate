@@ -86,6 +86,26 @@ def init_db():
 
 
 @cli.command()
+def ensure_indexes(
+    force: Annotated[
+        bool, typer.Option("--force", help="Drop and recreate all custom indexes")
+    ] = False,
+):
+    """Ensure desired indexes exist and drop stale ones.
+
+    Runs db.configure() to create desired schema and indexes, then drops any
+    indexes on procrastinate_jobs not in the known-good set.
+
+    Use --force to drop and recreate all custom indexes.
+    """
+    with ErrorHandler(log):
+        if settings.in_memory_db:
+            return
+        db = get_db()
+        db.ensure_indexes(force=force)
+
+
+@cli.command()
 def requeue_failed(
     dataset: str | None = OPT_DATASET,
     queue: str | None = OPT_QUEUE,

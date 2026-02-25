@@ -117,6 +117,36 @@ ON {JOBS} (dataset, batch, queue_name, task_name, status);
 CREATE INDEX IF NOT EXISTS idx_{JOBS}_no_lock_fast_path
 ON {JOBS}(queue_name, priority DESC, id ASC)
 WHERE status = 'todo' AND lock IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_{JOBS}_status
+ON {JOBS} (status);
+"""
+
+# Procrastinate built-in indexes (created by apply_schema, never dropped)
+BUILTIN_INDEXES: set[str] = {
+    "procrastinate_jobs_pkey",
+    "procrastinate_jobs_priority_idx_v1",
+    "procrastinate_jobs_id_lock_idx_v1",
+    "procrastinate_jobs_queueing_lock_idx_v1",
+    "procrastinate_jobs_lock_idx_v1",
+    "procrastinate_jobs_queue_name_idx_v1",
+}
+
+# Custom indexes (created by INDEXES above)
+CUSTOM_INDEXES: set[str] = {
+    f"idx_{JOBS}_dataset",
+    f"idx_{JOBS}_grouping",
+    f"idx_{JOBS}_no_lock_fast_path",
+    f"idx_{JOBS}_status",
+}
+
+# Known-good indexes for procrastinate_jobs table.
+# ensure_indexes() will drop anything not in this set.
+DESIRED_INDEXES: set[str] = BUILTIN_INDEXES | CUSTOM_INDEXES
+
+GET_INDEXES = f"""
+SELECT indexname FROM pg_indexes
+WHERE schemaname = 'public' AND tablename = '{JOBS}'
 """
 
 # OPTIMIZED JOB FETCH FUNCTION #

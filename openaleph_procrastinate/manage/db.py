@@ -228,6 +228,51 @@ class Db:
             task=task,
         )
 
+    def ensure_indexes(self, force: bool = False) -> None:
+        """Ensure only desired indexes exist on procrastinate_jobs.
+
+        Calls configure() to create desired indexes and schema, then drops any
+        indexes not in the known-good set.
+
+        Args:
+            force: If True, drop and recreate all custom indexes.
+        """
+        if force:
+            self.log.info("Force rebuilding custom indexes ...")
+            custom = sql.DESIRED_INDEXES - sql.BUILTIN_INDEXES
+            with psycopg.connect(self.uri, autocommit=True) as conn:
+                with conn.cursor() as cur:
+                    for index_name in sorted(custom):
+                        self.log.info(f"Dropping index {index_name} ...")
+                        cur.execute(
+                            psycopg.sql.SQL(
+                                "DROP INDEX CONCURRENTLY IF EXISTS {}"
+                            ).format(psycopg.sql.Identifier(index_name))
+                        )
+        self.configure()
+        self.log.info("Checking for stale indexes ...")
+        with psycopg.connect(self.uri) as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql.GET_INDEXES)
+                current = {row[0] for row in cur.fetchall()}
+        stale = current - sql.DESIRED_INDEXES
+        if not stale:
+            self.log.info("No stale indexes found.")
+            return
+        self.log.info(
+            f"Dropping {len(stale)} stale indexes: {', '.join(sorted(stale))}"
+        )
+        with psycopg.connect(self.uri, autocommit=True) as conn:
+            with conn.cursor() as cur:
+                for index_name in sorted(stale):
+                    self.log.info(f"Dropping index {index_name} ...")
+                    cur.execute(
+                        psycopg.sql.SQL("DROP INDEX CONCURRENTLY IF EXISTS {}").format(
+                            psycopg.sql.Identifier(index_name)
+                        )
+                    )
+        self.log.info("Index ensure complete.")
+
     def _execute_iter(self, q: LiteralString, **params: str | None) -> Rows:
         with psycopg.connect(self.settings.procrastinate_db_uri) as connection:
             with connection.cursor() as cursor:
