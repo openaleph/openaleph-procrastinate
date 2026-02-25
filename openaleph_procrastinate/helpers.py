@@ -4,7 +4,7 @@ Helper functions to access Archive and FollowTheMoney data within Jobs
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import ContextManager, Generator
+from typing import ContextManager, Generator, Iterable
 
 from anystore.logic.virtual import VirtualIO
 from followthemoney import EntityProxy
@@ -58,6 +58,18 @@ def load_entity(dataset: str, entity_id: str) -> EntityProxy:
     if entity is None:
         raise EntityNotFound(f"Entity `{entity_id}` not found in dataset `{dataset}`")
     return entity
+
+
+def load_entities(
+    dataset: str, entity_ids: Iterable[str]
+) -> Generator[EntityProxy, None, None]:
+    """
+    Batch retrieve entities from the fragment store.
+    """
+    store = get_fragments(
+        dataset, database_uri=settings.fragments_uri, **sqlalchemy_pool
+    )
+    yield from store.iterate(entity_ids)
 
 
 @contextmanager

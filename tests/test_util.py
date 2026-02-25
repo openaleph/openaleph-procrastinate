@@ -8,6 +8,7 @@ def test_util():
     e.id = "a"
     e.add("fileName", "test.txt")
     e.add("contentHash", "123")
+    e.add("parent", "1")
 
     assert util.make_stub_entity(e).to_dict() == {
         "caption": "test.txt",
@@ -18,11 +19,15 @@ def test_util():
         "referents": [],
     }
 
-    assert util.make_checksum_entity(e).to_dict() == {
+    assert util.make_file_entity(e).to_dict() == {
         "caption": "test.txt",
         "id": "a",
         "schema": "Document",
-        "properties": {"contentHash": ["123"]},
+        "properties": {
+            "contentHash": ["123"],
+            "fileName": ["test.txt"],
+            "parent": ["1"],
+        },
         "datasets": ["default"],
         "referents": [],
     }
@@ -30,4 +35,4 @@ def test_util():
     for i in ("", None):
         e.id = i
         assert util.make_stub_entity(e) is None
-        assert util.make_checksum_entity(e) is None
+        assert util.make_file_entity(e) is None

@@ -22,7 +22,7 @@ def make_stub_entity(
     )
 
 
-def make_checksum_entity(
+def make_file_entity(
     e: E, entity_type: Type[E] | None = ValueEntity, quiet: bool | None = False
 ) -> E | None:
     """
@@ -32,4 +32,6 @@ def make_checksum_entity(
     stub = make_stub_entity(e, entity_type)
     if stub is not None:
         stub.add("contentHash", e.get("contentHash", quiet=q), quiet=q)
+        stub.add("fileName", e.get("fileName", quiet=q), quiet=q)
+        stub.add("parent", e.get("parent", quiet=q), quiet=q)
         return stub

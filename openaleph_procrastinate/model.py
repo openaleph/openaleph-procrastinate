@@ -20,7 +20,7 @@ from openaleph_procrastinate.settings import (
     MIN_PRIORITY,
     OpenAlephSettings,
 )
-from openaleph_procrastinate.util import make_checksum_entity
+from openaleph_procrastinate.util import make_file_entity
 
 settings = OpenAlephSettings()
 
@@ -125,7 +125,9 @@ class DatasetJob(Job):
             batch=self.batch,
         )
 
-    def get_writer(self: Self, origin: str = helpers.OPAL_ORIGIN) -> ContextManager[BulkLoader]:
+    def get_writer(
+        self: Self, origin: str = helpers.OPAL_ORIGIN
+    ) -> ContextManager[BulkLoader]:
         """Get the writer for the dataset of the current job"""
         return helpers.entity_writer(self.dataset, origin)
 
@@ -145,8 +147,8 @@ class DatasetJob(Job):
         if not settings.procrastinate_dehydrate_entities:
             yield from self.get_entities()
         else:
-            for data in self.payload["entities"]:
-                yield helpers.load_entity(self.dataset, data["id"])
+            entity_ids = [e["id"] for e in self.payload["entities"]]
+            yield from helpers.load_entities(self.dataset, entity_ids)
 
     # Helpers for file jobs that access the servicelayer archive
 
@@ -201,7 +203,7 @@ class DatasetJob(Job):
             context: Job context
         """
         if dehydrate:
-            entities_ = (make_checksum_entity(e, quiet=True) for e in entities)
+            entities_ = (make_file_entity(e, quiet=True) for e in entities)
             entities = (e for e in entities_ if e is not None)
         return cls(
             dataset=dataset,
