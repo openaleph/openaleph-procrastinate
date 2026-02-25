@@ -7,16 +7,12 @@ from ftmq.util import make_entity
 log = get_logger(__name__)
 
 
-def make_stub_entity(
-    e: E,
-    entity_type: Type[E] | None = ValueEntity,
-) -> E | None:
+def make_stub_entity(e: E, entity_type: Type[E] | None = ValueEntity) -> E:
     """
     Reduce an entity to its ID and schema
     """
     if not e.id:
-        log.warning("Entity has no ID!")
-        return
+        raise RuntimeError("Entity has no ID!")
     return make_entity(
         {"id": e.id, "schema": e.schema.name, "caption": e.caption}, entity_type
     )
