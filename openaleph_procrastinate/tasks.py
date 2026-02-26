@@ -37,8 +37,12 @@ def task(app: App, **kwargs):
             # turn the json data into the job model instance
             job = unpack_job(job_kwargs)
             handle_trace(job, "doing", tracer_uri)
-            func(*job_args, job)
-            handle_trace(job, "succeeded", tracer_uri)
+            try:
+                func(*job_args, job)
+                handle_trace(job, "succeeded", tracer_uri)
+            except Exception as e:
+                handle_trace(job, "failed", tracer_uri)
+                raise e
 
         # need to call to not register tasks twice (procrastinate complains)
         wrapped_func = functools.update_wrapper(_inner, func, updated=())
