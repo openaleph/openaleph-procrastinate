@@ -37,7 +37,7 @@ class Tracer:
     def __init__(self, queue: str, task: str, uri: Uri | None = None) -> None:
         if uri is None:
             settings = OpenAlephSettings()
-            uri = settings.redis_uri
+            uri = settings.redis_url
         self._store = get_store(uri or "memory://")
         self.queue = queue
         self.task = task

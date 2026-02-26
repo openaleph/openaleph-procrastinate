@@ -240,7 +240,7 @@ class OpenAlephSettings(BaseSettings):
     )
     """FollowTheMoney Fragments store uri"""
 
-    redis_uri: str | None = Field(default=None, validation_alias="redis_uri")
+    redis_url: str | None = Field(default=None, validation_alias="redis_url")
     """Redis instance uri"""
 
     procrastinate_dehydrate_entities: bool = True
