@@ -224,6 +224,9 @@ class OpenAlephSettings(BaseSettings):
     )
     """FollowTheMoney Fragments store uri"""
 
+    redis_uri: str | None = Field(default=None, validation_alias="redis_uri")
+    """Redis instance uri"""
+
     procrastinate_dehydrate_entities: bool = True
     """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
 
