@@ -1,7 +1,12 @@
 import random
+from typing import TYPE_CHECKING
 
+from anystore.types import Uri
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+if TYPE_CHECKING:
+    from openaleph_procrastinate.tracer import Tracer
 
 MAX_PRIORITY = 100
 MIN_PRIORITY = 0
@@ -41,6 +46,12 @@ class ServiceSettings(BaseSettings):
         min_priority = max(priority or MIN_PRIORITY, self.min_priority)
         max_priority = max(min_priority, self.max_priority)
         return random.randint(min_priority, max_priority)
+
+    def get_tracer(self, uri: Uri | None = None) -> "Tracer":
+        """Get task status tracer."""
+        from openaleph_procrastinate.tracer import get_tracer
+
+        return get_tracer(self.queue, self.task, uri)
 
 
 class DeferSettings(BaseSettings):
@@ -99,6 +110,11 @@ class DeferSettings(BaseSettings):
         queue="assets", task="ftm_assets.tasks.resolve", defer=False
     )
     """ftm-assets"""
+
+    vectorize: ServiceSettings = ServiceSettings(
+        queue="vectorize", task="ftm_vectorize.tasks.vectorize", defer=False
+    )
+    """ftm-vectorize"""
 
     # OpenAleph
 
@@ -223,6 +239,9 @@ class OpenAlephSettings(BaseSettings):
         validation_alias=AliasChoices("ftm_fragments_uri", "ftm_store_uri"),
     )
     """FollowTheMoney Fragments store uri"""
+
+    redis_url: str | None = Field(default=None, validation_alias="redis_url")
+    """Redis instance uri"""
 
     procrastinate_dehydrate_entities: bool = True
     """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
