@@ -19,13 +19,12 @@ def process(job) -> None:
 
 (See test suite for example)
 
-The tracer backend accepts any uri (sql, file-like, ...), but it is preferable
-to use redis for performance reasons.
+The tracer backend currently accepts only redis uri.
 """
 
 from functools import cache
 
-from anystore.store import get_store
+from anystore.fs.redis import _get_redis
 from anystore.types import Uri
 from anystore.util import join_relpaths
 
@@ -38,7 +37,9 @@ class Tracer:
         if uri is None:
             settings = OpenAlephSettings()
             uri = settings.redis_url
-        self._store = get_store(uri or "memory://")
+        if uri is None:
+            raise RuntimeError("Redis uri not set!")
+        self._cache = _get_redis(uri)
         self.queue = queue
         self.task = task
 
@@ -52,8 +53,9 @@ class Tracer:
         'succeeded' remove the data from the tracer."""
         key = self._make_key(entity_id)
         if status == "succeeded":
-            return self._store.delete(key, ignore_errors=True)
-        self._store.put(key, status)
+            self._cache.delete(key)
+        else:
+            self._cache.set(key, status)
 
     def add(self, entity_id: str) -> None:
         """Mark as todo"""
@@ -70,9 +72,9 @@ class Tracer:
     def is_processing(self, entity_id: str) -> bool:
         """Check if a task for the entity_id is either pending or doing"""
         key = self._make_key(entity_id)
-        if not self._store.exists(key):
+        if not self._cache.exists(key):
             return False
-        status = self._store.get(key)
+        status = self._cache.get(key)
         return status in ("todo", "doing")
 
 
