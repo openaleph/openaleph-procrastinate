@@ -291,12 +291,10 @@ name = "anystore"
 version = "1.1.2"
 description = "Store and cache things anywhere"
 optional = false
-python-versions = "<4,>=3.11"
+python-versions = ">=3.11,<4"
 groups = ["main"]
-files = [
-    {file = "anystore-1.1.2-py3-none-any.whl", hash = "sha256:3fe59a74a74a45d3b3d81dc05d1a3abb6db6cec2a18a006d348afb9aa8d44c1d"},
-    {file = "anystore-1.1.2.tar.gz", hash = "sha256:3f2b7c93ce607012ef34da08ab255ca36c6518524f324556637fc1c59e472b2d"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 banal = ">=1.0.6,<2.0.0"
@@ -320,6 +318,12 @@ uuid7 = ">=0.1.0,<0.2.0"
 api = ["fastapi (>=0.115.0,<1.0.0)", "uvicorn (>=0.34.0,<1.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=4.0.0)"]
 sql = ["sqlalchemy (>=2.0.36,<3.0.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/dataresearchcenter/anystore.git"
+reference = "HEAD"
+resolved_reference = "b8781e091b132dcfa4e00377168e90907e6ad93a"
 
 [[package]]
 name = "asgiref"
@@ -6335,4 +6339,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "c6987925302b0f4538f16329d09ab52f2aab7a09f1f52c62c250a46e6005b427"
+content-hash = "17393a98e0bfd104643e3437397516ba3f22fc3416a4a4abdb65a2d698a71a63"
