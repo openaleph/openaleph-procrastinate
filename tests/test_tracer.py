@@ -10,6 +10,12 @@ def test_traced_task(tmp_path):
     app = make_app("tests.tasks")
     assert isinstance(app.connector, InMemoryConnector)
 
+    # Reset stale notification handler from previous tests — the cached
+    # InMemoryConnector may still reference a closed event loop from an
+    # earlier sync worker run, causing _notify to fail with
+    # "Event loop is closed" when it tries cross-thread scheduling.
+    app.connector.on_notification = None
+
     entity = ftm_model.make_entity("Person")
     entity.id = "test-entity-123"
     entity.add("name", "Test Person")
