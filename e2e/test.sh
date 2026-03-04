@@ -4,9 +4,9 @@ export DEBUG=0
 export PROCRASTINATE_APP="e2e.tasks.app"
 
 
-opal-procrastinate init-db
+openaleph-procrastinate init-db
 
-opal-procrastinate defer-jobs -i jobs.json
+openaleph-procrastinate defer-jobs -i jobs.json
 
 procrastinate worker -q default --one-shot
 
