@@ -12,7 +12,6 @@ from ftmq.store.fragments import get_fragments
 from ftmq.store.fragments.loader import BulkLoader
 
 from openaleph_procrastinate.archive import get_archive, lookup_key
-from openaleph_procrastinate.exceptions import EntityNotFound
 from openaleph_procrastinate.settings import OpenAlephSettings
 
 OPAL_ORIGIN = "openaleph_procrastinate"
@@ -45,19 +44,6 @@ def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
     archive = get_archive()
     key = lookup_key(content_hash)
     return archive.local_open(key, algorithm=ARCHIVE_CHECKSUM_ALGORITHM)
-
-
-def load_entity(dataset: str, entity_id: str) -> EntityProxy:
-    """
-    Retrieve a single entity from the store.
-    """
-    store = get_fragments(
-        dataset, database_uri=settings.fragments_uri, **sqlalchemy_pool
-    )
-    entity = store.get(entity_id)
-    if entity is None:
-        raise EntityNotFound(f"Entity `{entity_id}` not found in dataset `{dataset}`")
-    return entity
 
 
 def load_entities(

@@ -1,8 +1,9 @@
-from anystore.logging import BoundLogger, get_logger
+from anystore.logging import get_logger
+from structlog import BoundLogger
 
 from openaleph_procrastinate.settings import OpenAlephSettings
 
-settings = OpenAlephSettings
+settings = OpenAlephSettings()
 log = get_logger(__name__)
 
 
@@ -11,10 +12,6 @@ class InvalidJob(Exception):
 
 
 class ArchiveFileNotFound(Exception):
-    pass
-
-
-class EntityNotFound(Exception):
     pass
 
 
