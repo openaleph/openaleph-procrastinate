@@ -1673,18 +1673,18 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.7.0"
+version = "4.7.1"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<3.14,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.7.0-py3-none-any.whl", hash = "sha256:12e7f7f3729a57cd47a0f17c922ec2cbef1a86b2b2f2c482307bbefdd65af88c"},
-    {file = "ftmq-4.7.0.tar.gz", hash = "sha256:70ee24a33858967e5e74abea50ca5ca7049125a528becba751e32e113d1c04f5"},
+    {file = "ftmq-4.7.1-py3-none-any.whl", hash = "sha256:451fa40547e2f94b71212df925364071794ebd225deb4d63fe98759657406112"},
+    {file = "ftmq-4.7.1.tar.gz", hash = "sha256:5fbbaac81cb7a78dc6dbe7c72070a83431182491c9e02bd783aab36c2e4ba092"},
 ]
 
 [package.dependencies]
-anystore = ">=1.1.5,<2.0.0"
+anystore = ">=1.1.6,<2.0.0"
 click = ">=8.2.1,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 followthemoney = ">=4.7.0,<5.0.0"
@@ -1696,7 +1696,7 @@ rigour = ">=1.7.5,<2.0.0"
 
 [package.extras]
 aleph = ["alephclient (>=2.6.0,<3.0.0)", "furl (>=2.1.4,<3.0.0)"]
-lake = ["deltalake (>=1.5.0,<2.0.0)", "duckdb (>=1.5.1,<2.0.0)", "pandas (>=3.0.1,<4.0.0)", "pyarrow (>=23.0.1,<24.0.0)"]
+lake = ["deltalake (>=1.5.0,<2.0.0)", "duckdb (>=1.5.1,<2.0.0)", "pandas (>=3.0.2,<4.0.0)", "pyarrow (>=23.0.1,<24.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg[pool] (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.36,<3.0.0)"]
 redis = ["fakeredis (>=2.26.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
@@ -6390,4 +6390,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "56b59eb5bd5f460ae1b0bdd8d61e972223d2241cdc62d1d421f7d8e299ef6db9"
+content-hash = "8e0c91ef8d2de487729b7288cdc111dbc9bf5a9b866aa61b0cf8ede84d2d8814"
