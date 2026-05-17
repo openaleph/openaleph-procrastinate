@@ -22,8 +22,8 @@ dependencies = [
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.10.1,<3.0.0)",
     "followthemoney (>=4.8.2,<5.0.0)",
-    "ftmq @ git+https://github.com/dataresearchcenter/ftmq.git",
-    "anystore @ git+https://github.com/dataresearchcenter/anystore.git",
+    "ftmq (>=4.8.2,<5.0.0)",
+    "anystore (>=1.2.0,<2.0.0)",
     "cachetools (<6)",
     "psycopg (>=3.3.3,<4.0.0)",
     "psycopg-pool (>=3.3.0,<4.0.0)",
@@ -33,8 +33,8 @@ dependencies = [
 openaleph-procrastinate = "openaleph_procrastinate.cli:cli"
 
 [project.urls]
-Homepage = "https://github.com/openaleph/openaleph-procrastinate"
-Documentation = "https://github.com/openaleph/openaleph-procrastinate"
+Homepage = "https://openaleph.org/docs/lib/openaleph-procrastinate"
+Documentation = "https://openaleph.org/docs/lib/openaleph-procrastinate"
 Repository = "https://github.com/openaleph/openaleph-procrastinate"
 Issues = "https://github.com/openaleph/openaleph-procrastinate/issues"
 
