@@ -208,7 +208,7 @@ class OpenAlephSettings(BaseSettings):
         extra="ignore",  # other envs in .env file
     )
 
-    instance: str = Field(default="openaleph")
+    instance: str = Field(default="openaleph", validation_alias="openaleph_instance")
     """Instance identifier"""
 
     debug: bool = Field(default=False, alias="debug")
@@ -223,7 +223,7 @@ class OpenAlephSettings(BaseSettings):
     )
     """OpenAleph database uri"""
 
-    db_pool_size: int = 5
+    db_pool_size: int = Field(default=5, validation_alias="openaleph_db_pool_size")
     """Max psql pool size per thread"""
 
     procrastinate_db_uri: str = Field(
@@ -243,7 +243,9 @@ class OpenAlephSettings(BaseSettings):
     redis_url: str | None = Field(default=None, validation_alias="redis_url")
     """Redis instance uri"""
 
-    procrastinate_dehydrate_entities: bool = True
+    procrastinate_dehydrate_entities: bool = Field(
+        default=False, validation_alias="openaleph_procrastinate_dehydrate_entities"
+    )
     """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
 
     @property
