@@ -244,7 +244,7 @@ class OpenAlephSettings(BaseSettings):
     """Redis instance uri"""
 
     procrastinate_dehydrate_entities: bool = Field(
-        default=False, validation_alias="openaleph_procrastinate_dehydrate_entities"
+        default=True, validation_alias="openaleph_procrastinate_dehydrate_entities"
     )
     """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
 
