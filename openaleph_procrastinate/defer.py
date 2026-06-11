@@ -86,7 +86,6 @@ def analyze(
             queue=tasks.analyze.queue,
             task=tasks.analyze.task,
             entities=entities,
-            dehydrate=True,
             **context,
         )
         priority = get_priority(context, tasks.analyze.get_priority())
@@ -112,7 +111,6 @@ def index(
             queue=tasks.index.queue,
             task=tasks.index.task,
             entities=entities,
-            dehydrate=True,
             **context,
         )
         priority = get_priority(context, tasks.index.get_priority())
@@ -324,7 +322,6 @@ def transcribe(
             queue=tasks.transcribe.queue,
             task=tasks.transcribe.task,
             entities=entities,
-            dehydrate=True,
             **context,
         )
         priority = get_priority(context, tasks.transcribe.get_priority())
@@ -350,7 +347,6 @@ def translate(
             queue=tasks.translate.queue,
             task=tasks.translate.task,
             entities=entities,
-            dehydrate=True,
             **context,
         )
         priority = get_priority(context, tasks.translate.get_priority())
