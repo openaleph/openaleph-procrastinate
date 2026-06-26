@@ -2,11 +2,11 @@ from typing import Type
 
 from anystore.logging import get_logger
 from followthemoney import E, ValueEntity
+from followthemoney.namespace import Namespace
 from followthemoney.proxy import EntityProxy
 from followthemoney.util import make_entity_id
-from followthemoney.namespace import Namespace
-from ftmq.util import make_entity
 from ftmq.store.fragments import get_fragments
+from ftmq.util import make_entity
 
 from openaleph_procrastinate.settings import OpenAlephSettings
 
@@ -45,6 +45,7 @@ def make_file_entity(
         stub.add("contentHash", e.get("contentHash", quiet=q), quiet=q)
         stub.add("fileName", e.get("fileName", quiet=q), quiet=q)
         stub.add("parent", e.get("parent", quiet=q), quiet=q)
+        stub.add("ancestors", e.get("ancestors", quiet=q), quiet=q)
         return stub
 
 
