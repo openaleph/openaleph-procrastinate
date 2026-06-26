@@ -1762,41 +1762,6 @@ docs = ["Sphinx", "furo"]
 test = ["objgraph", "psutil", "setuptools"]
 
 [[package]]
-name = "griffe"
-version = "2.1.0"
-description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
-optional = false
-python-versions = ">=3.10"
-groups = ["dev"]
-files = [
-    {file = "griffe-2.1.0-py3-none-any.whl", hash = "sha256:2ccdab17fb9cd76f278d7b5611cfc8f68cbe846d8d48df63dff80b62ecfa6f65"},
-    {file = "griffe-2.1.0.tar.gz", hash = "sha256:c58845df5a364feaabd05ee8c767b97b03e478da8aa18b9923553c812fb0d955"},
-]
-
-[package.dependencies]
-griffecli = "2.1.0"
-griffelib = "2.1.0"
-
-[package.extras]
-pypi = ["griffelib[pypi] (==2.1.0)"]
-
-[[package]]
-name = "griffecli"
-version = "2.1.0"
-description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
-optional = false
-python-versions = ">=3.10"
-groups = ["dev"]
-files = [
-    {file = "griffecli-2.1.0-py3-none-any.whl", hash = "sha256:6e22b1423d562ddc510997b4be1fe89de59e19dcff78831c0f4bfc3b8134a718"},
-    {file = "griffecli-2.1.0.tar.gz", hash = "sha256:2ff68dbee9395fdb668b10374c51683392d697b226ac60159798f4add1ee716c"},
-]
-
-[package.dependencies]
-colorama = ">=0.4"
-griffelib = "2.1.0"
-
-[[package]]
 name = "griffelib"
 version = "2.1.0"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
@@ -2908,18 +2873,18 @@ python-legacy = ["mkdocstrings-python-legacy (>=0.2.1)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.19.0"
+version = "2.0.5"
 description = "A Python handler for mkdocstrings."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "mkdocstrings_python-1.19.0-py3-none-any.whl", hash = "sha256:395c1032af8f005234170575cc0c5d4d20980846623b623b35594281be4a3059"},
-    {file = "mkdocstrings_python-1.19.0.tar.gz", hash = "sha256:917aac66cf121243c11db5b89f66b0ded6c53ec0de5318ff5e22424eb2f2e57c"},
+    {file = "mkdocstrings_python-2.0.5-py3-none-any.whl", hash = "sha256:30c837bbff016549f659fcba6539ac351303f0fd7e713c89a040611072236e9d"},
+    {file = "mkdocstrings_python-2.0.5.tar.gz", hash = "sha256:3a4d92556ad39637e88af94a5374213af9a8e3040c3824ceaed04b486c017594"},
 ]
 
 [package.dependencies]
-griffe = ">=1.13"
+griffelib = ">=2.0"
 mkdocs-autorefs = ">=1.4"
 mkdocstrings = ">=0.30"
 
@@ -6227,4 +6192,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "0d12fa8074d251656f2d744ddb8e60105aa5d9dcf5853ea19c3cb62b9d15789d"
+content-hash = "849e924ea02a4da1ee4d1e9882c264b72b1586c4c6cfbcd85b675ca401c513e7"
