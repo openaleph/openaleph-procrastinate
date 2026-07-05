@@ -23,7 +23,7 @@ dependencies = [
     "pydantic-settings (>=2.14.2,<3.0.0)",
     "followthemoney (>=4.9.2,<5.0.0)",
     "ftmq (>=4.9.2,<5.0.0)",
-    "anystore (>=1.2.2,<2.0.0)",
+    "anystore[http,s3] (>=1.2.4,<2.0.0)",
     "cachetools (<6)",
     "psycopg (>=3.3.4,<4.0.0)",
     "psycopg-pool (>=3.3.1,<4.0.0)",
@@ -51,15 +51,12 @@ bump2version = "^1.0.1"
 cloudpickle = ">=2.2.1,<4.0.0"
 pytest-env = "^1.6.0"
 bump-pydantic = ">=0.7,<0.9"
-mkdocs = "^1.6.1"
-mkdocstrings-python = "^2.0.5"
-mkdocs-material = "^9.6.14"
-mkdocs-autorefs = "^1.4.2"
 rich = "<15"
-mkdocs-typer2 = "^0.4.1"
 moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
 openaleph-servicelayer = "^1.24.0"
+zensical = "^0.0.46"
+mkdocstrings-python = "^2.0.5"
 
 [build-system]
 requires = ["poetry-core"]
