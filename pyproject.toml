@@ -55,7 +55,7 @@ rich = "<15"
 moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
 openaleph-servicelayer = "^1.24.0"
-zensical = "^0.0.46"
+zensical = "^0.0.48"
 mkdocstrings-python = "^2.0.5"
 
 [build-system]
