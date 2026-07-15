@@ -21,7 +21,7 @@ dependencies = [
     "procrastinate (>=3.9.0,<4.0.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.14.2,<3.0.0)",
-    "followthemoney (>=4.9.2,<5.0.0)",
+    "followthemoney (>=4.10.0,<5.0.0)",
     "ftmq (>=4.9.2,<5.0.0)",
     "anystore[http,s3] (>=1.2.4,<2.0.0)",
     "cachetools (<6)",
