@@ -244,14 +244,14 @@ files = [
 
 [[package]]
 name = "anystore"
-version = "1.2.4"
+version = "1.2.5"
 description = "Store and cache things anywhere"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "anystore-1.2.4-py3-none-any.whl", hash = "sha256:004a006322b1e96a62479fd58c919d528965feb1655b40ebd2b5f21f68fe7078"},
-    {file = "anystore-1.2.4.tar.gz", hash = "sha256:f4bbede8277aea3e2bbd407bcadd0d2a14ccffe5fec6b5c939a3e4a9fe40dd42"},
+    {file = "anystore-1.2.5-py3-none-any.whl", hash = "sha256:6465c3f4a7316bbc8fdc74de09fe25fdb9e24be5abfe3851e2c4b5c2e9af5bc8"},
+    {file = "anystore-1.2.5.tar.gz", hash = "sha256:68e549edc43b55d714ff4f88213888a5d03e3943f066ed3eb93ead1765ad211e"},
 ]
 
 [package.dependencies]
@@ -264,19 +264,19 @@ fsspec = [
 ]
 imohash = ">=1.1.0,<2.0.0"
 orjson = ">=3.11.9,<4.0.0"
-pyaml = ">=26.2.1,<27.0.0"
+pyaml = ">=26.7.0,<27.0.0"
 pydantic = ">=2.13.4,<3.0.0"
 pydantic-settings = ">=2.7.1,<3.0.0"
 rich = ">=10.0.0,<16.0.0"
 rigour = ">=2.1.1,<3.0.0"
 s3fs = {version = ">2023.10,<2027", optional = true, markers = "extra == \"s3\""}
 structlog = ">=22.0.0"
-tqdm = ">=4.68.1,<5.0.0"
+tqdm = ">=4.68.4,<5.0.0"
 typer = ">=0.25.1"
 uuid7 = ">=0.1.0,<0.2.0"
 
 [package.extras]
-api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.136.3,<1.0.0)", "uvicorn (>=0.48.0,<1.0.0)"]
+api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.136.3,<1.0.0)", "uvicorn (>=0.51.0,<1.0.0)"]
 http = ["fsspec[http] (>2023.10,<2027)"]
 redis = ["fakeredis (>=2.36.2,<3.0.0)", "redis (>=4.0.0)"]
 s3 = ["s3fs (>2023.10,<2027)"]
@@ -1637,16 +1637,18 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.9.2"
+version = "4.10.0"
 description = "followthemoney query dsl and io helpers"
 optional = false
-python-versions = ">=3.11,<3.15"
+python-versions = "<3.15,>=3.11"
 groups = ["main"]
-files = []
-develop = false
+files = [
+    {file = "ftmq-4.10.0-py3-none-any.whl", hash = "sha256:abbd1ff0f816bf0fc65815161e7d87b58fa03711d4adfe30c6ebaf3c5279dea4"},
+    {file = "ftmq-4.10.0.tar.gz", hash = "sha256:346e66035608a1b341b32402ef442f3e75641c2a14afc750cfeecb33d2ec141c"},
+]
 
 [package.dependencies]
-anystore = ">=1.2.4,<2.0.0"
+anystore = ">=1.2.5,<2.0.0"
 click = ">=8.4.2,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
 followthemoney = ">=4.10.0,<5.0.0"
@@ -1663,12 +1665,6 @@ level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg[pool] (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.51,<3.0.0)"]
 redis = ["fakeredis (>=2.36.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.51,<3.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/dataresearchcenter/ftmq.git"
-reference = "HEAD"
-resolved_reference = "36d7ef8754d32d55fd58abb468b133c6f47f3849"
 
 [[package]]
 name = "ghp-import"
@@ -6350,4 +6346,4 @@ tomli = ">=2.4.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "79e2f2d9e3101ee1bb00495939e330c15aee09052c2daa2a4614eb71548fce94"
+content-hash = "d5190110f024fb011a0138b202a5bec4829d88cf88a4b9ec2a43f28f8c8f5e9d"
