@@ -15,14 +15,15 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 dependencies = [
     "procrastinate (>=3.9.0,<4.0.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.14.2,<3.0.0)",
     "followthemoney (>=4.10.0,<5.0.0)",
-    "ftmq (>=4.9.2,<5.0.0)",
+    "ftmq @ git+https://github.com/dataresearchcenter/ftmq.git",
     "anystore[http,s3] (>=1.2.4,<2.0.0)",
     "cachetools (<6)",
     "psycopg (>=3.3.4,<4.0.0)",
