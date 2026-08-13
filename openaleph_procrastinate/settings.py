@@ -1,5 +1,6 @@
 import random
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from anystore.types import Uri
 from pydantic import AliasChoices, Field
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
 
 MAX_PRIORITY = 100
 MIN_PRIORITY = 0
-DEFAULT_DB_URI = "memory://"
+DEFAULT_DB_URI = "sqlite:///:memory:"
 
 OPENALEPH_QUEUE = "openaleph"
 OPENALEPH_MANAGEMENT_QUEUE = "openaleph-management"
@@ -250,4 +251,4 @@ class OpenAlephSettings(BaseSettings):
 
     @property
     def in_memory_db(self) -> bool:
-        return self.procrastinate_db_uri.startswith("memory:")
+        return urlparse(self.procrastinate_db_uri).path == "/:memory:"
