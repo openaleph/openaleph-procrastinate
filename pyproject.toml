@@ -57,7 +57,7 @@ moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
 openaleph-servicelayer = "^1.24.0"
 zensical = "^0.0.53"
-mkdocstrings-python = "^2.0.5"
+mkdocstrings-python = "^2.0.6"
 
 [build-system]
 requires = ["poetry-core"]
