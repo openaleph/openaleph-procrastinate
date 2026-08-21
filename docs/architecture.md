@@ -6,7 +6,7 @@
 
 This base library doesn't know about the actual queues and tasks. The worker services would have `openaleph-procrastinate` as a dependency and import the helpers and Job model from there.
 
-For task inspection, `openaleph-procrastinate` provides the [Django](https://www.djangoproject.com/) app for exposing the procrastinate admin views and a REST api for exposing concrete dataset & job status to the OpenAleph status page frontend.
+For task inspection, `openaleph-procrastinate` provides the [manage](./reference/manage.md) module: dataset, batch, queue and task status aggregation plus bulk job operations, queried directly against the procrastinate tables and exposed via the [command line](./reference/cli.md).
 
 ## Services
 
