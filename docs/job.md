@@ -109,7 +109,7 @@ def process_entities(job: DatasetJob):
 The bulk writer is flushed when leaving the context.
 
 
-### A job for processing file entities from the servicelayer
+### A job for processing file entities from the archive
 
 The entities must have [`contentHash`](https://followthemoney.tech/explorer/schemata/Document/#property-contentHash) properties.
 
@@ -134,7 +134,7 @@ def process_file(job: DatasetJob):
             some_function(fh, entity=reference.entity)
 ```
 
-Under the hood, the file is retrieved from the [servicelayer](https://github.com/openaleph/servicelayer) Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+Under the hood, the file is retrieved from the configured [archive](./reference/repository.md). A remote archive is fetched into a local temporary folder that is cleaned up when leaving the context; a local archive hands out the archived file itself and leaves it in place.
 
 #### Get temporary file paths within a task
 
@@ -148,7 +148,7 @@ def process_file(job: DatasetJob):
             subprocess.run(f"some-program -f {path}")
 ```
 
-Under the hood, the file is retrieved from the [servicelayer](https://github.com/openaleph/servicelayer) Archive and stored in a local temporary folder. After leaving the context, the file is cleaned up (deleted) locally.
+Under the hood, the file is retrieved from the configured [archive](./reference/repository.md). A remote archive is fetched into a local temporary folder that is cleaned up when leaving the context; a local archive hands out the archived file itself and leaves it in place.
 
 
 ## Defer to next stage

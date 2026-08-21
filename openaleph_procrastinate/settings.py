@@ -1,13 +1,16 @@
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 from urllib.parse import urlparse
 
+from anystore.logging import get_logger
 from anystore.types import Uri
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
     from openaleph_procrastinate.tracer import Tracer
+
+log = get_logger(__name__)
 
 MAX_PRIORITY = 100
 MIN_PRIORITY = 0
@@ -249,6 +252,24 @@ class OpenAlephSettings(BaseSettings):
     )
     """Dehydrate entity in job payload, jobs need to re-fetch entity from store"""
 
+    lakehouse: bool = Field(default=False, validation_alias="openaleph_lakehouse")
+    """Activate lakehouse storage backend (experimental)"""
+
+    @model_validator(mode="after")
+    def enforce_lakehouse_payloads(self) -> Self:
+        """The lakehouse backend takes entities fully from the job payload
+        instead of re-fetching them from the store, so dehydrating is off."""
+        if self.lakehouse and self.procrastinate_dehydrate_entities:
+            log.warning(
+                "Disabling `procrastinate_dehydrate_entities`: the lakehouse "
+                "backend needs the full entity in the job payload."
+            )
+            self.procrastinate_dehydrate_entities = False
+        return self
+
     @property
     def in_memory_db(self) -> bool:
-        return urlparse(self.procrastinate_db_uri).path == "/:memory:"
+        return (
+            self.procrastinate_db_uri.startswith("memory")
+            or urlparse(self.procrastinate_db_uri).path == "/:memory:"
+        )

@@ -2,7 +2,7 @@
 
 ## OpenAleph Procrastinate
 
-`openaleph-procrastinate` acts as a shared library for _services_ that can handle tasks within the **OpenAleph** infrastructure. It holds a [`Job`](./reference/model.md) model (via [pydantic](https://docs.pydantic.dev/)), `procrastinate.App` logic and [helpers](./reference/helpers.md) for reading/writing archive files and followthemoney data.
+`openaleph-procrastinate` acts as a shared library for _services_ that can handle tasks within the **OpenAleph** infrastructure. It holds a [`Job`](./reference/model.md) model (via [pydantic](https://docs.pydantic.dev/)), `procrastinate.App` logic and [helpers](./reference/helpers.md) for reading/writing archive files and followthemoney data via the [repository](./reference/repository.md).
 
 This base library doesn't know about the actual queues and tasks. The worker services would have `openaleph-procrastinate` as a dependency and import the helpers and Job model from there.
 

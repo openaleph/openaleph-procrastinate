@@ -23,7 +23,7 @@ Your service needs to access the `procrastinate` task queues in the postgresql d
 
 - Use the environment variable `OPENALEPH_PROCRASTINATE_DB_URI` which falls back to `OPENALEPH_DB_URI` (default: `postgresql:///openaleph`).
 - If your tasks write entities to the [followthemoney-store](https://github.com/alephdata/followthemoney-store), its store needs to be configured if it differs from the main database: `OPENALEPH_FTM_STORE_URI` which falls back to `FTM_STORE_URI`. If it's not set, the main database uri will be used.
-- If your tasks need access to the [servicelayer](https://github.com/dataresearchcenter/servicelayer) Archive, configure it properly via the `ARCHIVE_*` env vars.
+- If your tasks need access to the [archive](./reference/repository.md), configure it properly via the `ARCHIVE_*` env vars – or, for the lakehouse backend, set `OPENALEPH_LAKEHOUSE=1` and `LAKEHOUSE_URI`.
 
 ## Creating a task
 

@@ -1,5 +1,12 @@
 """
-Helper functions to access Archive and FollowTheMoney data within Jobs
+Helper functions to access the archive and FollowTheMoney entities of a dataset
+within Jobs.
+
+Everything here goes through
+[the repository][openaleph_procrastinate.repository], which speaks to either
+the legacy stores or the lakehouse depending on the
+[`lakehouse`][openaleph_procrastinate.settings.OpenAlephSettings.lakehouse]
+setting.
 """
 
 from contextlib import contextmanager
@@ -7,20 +14,15 @@ from pathlib import Path
 from typing import ContextManager, Generator, Iterable
 
 from anystore.logic.virtual import VirtualIO
-from followthemoney import EntityProxy
-from ftmq.store.fragments import get_fragments
-from ftmq.store.fragments.loader import BulkLoader
+from ftmq.types import EntityProxies
 
-from openaleph_procrastinate.archive import get_archive, lookup_key
-from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.repository import (
+    EntityStore,
+    get_archive,
+    get_entity_store,
+)
 
 OPAL_ORIGIN = "openaleph_procrastinate"
-ARCHIVE_CHECKSUM_ALGORITHM = "sha1"
-settings = OpenAlephSettings()
-sqlalchemy_pool = {
-    "pool_size": settings.db_pool_size,
-    "max_overflow": settings.db_pool_size,
-}
 
 
 def get_localpath(dataset: str, content_hash: str) -> ContextManager[Path]:
@@ -29,9 +31,7 @@ def get_localpath(dataset: str, content_hash: str) -> ContextManager[Path]:
     further processing. The file is cleaned up after leaving the context.
     [Reference][openaleph_procrastinate.model.DatasetJob.get_file_references]
     """
-    archive = get_archive()
-    key = lookup_key(content_hash)
-    return archive.local_path(key)
+    return get_archive(dataset).local_path(content_hash)
 
 
 def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
@@ -41,39 +41,26 @@ def open_file(dataset: str, content_hash: str) -> ContextManager[VirtualIO]:
     cleaned up after leaving the context.
     [Reference][openaleph_procrastinate.model.DatasetJob.get_file_references]
     """
-    archive = get_archive()
-    key = lookup_key(content_hash)
-    return archive.local_open(key, algorithm=ARCHIVE_CHECKSUM_ALGORITHM)
+    return get_archive(dataset).open(content_hash)
 
 
-def load_entities(
-    dataset: str, entity_ids: Iterable[str]
-) -> Generator[EntityProxy, None, None]:
+def load_entities(dataset: str, entity_ids: Iterable[str]) -> EntityProxies:
     """
-    Batch retrieve entities from the fragment store.
+    Batch retrieve entities from the entity store.
     """
-    store = get_fragments(
-        dataset, database_uri=settings.fragments_uri, **sqlalchemy_pool
-    )
-    yield from store.iterate(entity_ids)
+    yield from get_entity_store(dataset).iterate(entity_ids)
 
 
 @contextmanager
 def entity_writer(
     dataset: str, origin: str = OPAL_ORIGIN
-) -> Generator[BulkLoader, None, None]:
+) -> Generator[EntityStore, None, None]:
     """
-    Get the `ftmq.store.fragments.BulkLoader` for the given `dataset`. The
-    writer is flushed when leaving the context.
+    Get the [`EntityStore`][openaleph_procrastinate.repository.EntityStore] for
+    the given `dataset` to write to. It is flushed when leaving the context.
     """
-    store = get_fragments(
-        dataset,
-        origin=origin,
-        database_uri=settings.fragments_uri,
-        **sqlalchemy_pool,
-    )
-    loader = store.bulk()
+    store = get_entity_store(dataset, origin)
     try:
-        yield loader
+        yield store
     finally:
-        loader.flush()
+        store.flush()

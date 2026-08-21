@@ -14,6 +14,7 @@ nav:
     - command line: reference/cli.md
     - model: reference/model.md
     - helpers: reference/helpers.md
+    - repository: reference/repository.md
     - settings: reference/settings.md
     - manage: reference/manage.md
 theme:

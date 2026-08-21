@@ -105,3 +105,15 @@ def test_settings_subclass_equals_base(monkeypatch):
         assert getattr(settings, name) == getattr(
             base, name
         ), f"`{name}` is remapped by the subclass `env_prefix`"
+
+
+def test_settings_lakehouse_disables_dehydrate(monkeypatch):
+    # the lakehouse takes entities from the job payload instead of re-reading
+    # them from the store, so dehydrating has to be off
+    monkeypatch.setenv("OPENALEPH_PROCRASTINATE_DEHYDRATE_ENTITIES", "true")
+    assert OpenAlephSettings(_env_file=None).procrastinate_dehydrate_entities is True
+
+    monkeypatch.setenv("OPENALEPH_LAKEHOUSE", "true")
+    settings = OpenAlephSettings(_env_file=None)
+    assert settings.lakehouse is True
+    assert settings.procrastinate_dehydrate_entities is False

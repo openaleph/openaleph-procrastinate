@@ -5,21 +5,15 @@ from followthemoney import E, ValueEntity
 from followthemoney.namespace import Namespace
 from followthemoney.proxy import EntityProxy
 from followthemoney.util import make_entity_id
-from ftmq.store.fragments import get_fragments
+from ftmq.types import EntityProxies
 from ftmq.util import make_entity
 
-from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.repository import get_entity_store
 
 log = get_logger(__name__)
 
 # FTMQ BulkLoader default size = 1000
 QUERY_LIMIT = 1000
-
-openaleph_settings = OpenAlephSettings()
-sqlalchemy_pool = {
-    "pool_size": openaleph_settings.db_pool_size,
-    "max_overflow": openaleph_settings.db_pool_size,
-}
 
 
 def make_stub_entity(e: E, entity_type: Type[E] | None = ValueEntity) -> E:
@@ -51,35 +45,35 @@ def make_file_entity(
 
 def get_page_entity_fragments(
     entity: EntityProxy, ftm_dataset: str, ns: Namespace, origin: str = "ingest"
-):
+) -> EntityProxies:
     """
-    Get all the Page entities corresponding to a Pages entity
+    Get all the Page entities corresponding to a Pages entity.
+
+    Page ids are derived rather than looked up, so they are queried in batches
+    of `QUERY_LIMIT` until a batch comes back incomplete. Both the signed and
+    the unsigned form of each id is asked for: the legacy store namespaces
+    entities, the lakehouse never does.
     """
-    store = get_fragments(
-        ftm_dataset,
-        origin=origin,
-        database_uri=openaleph_settings.fragments_uri,
-        **sqlalchemy_pool,
-    )
+    if not entity.id:
+        raise RuntimeError("Entity has no ID!")
+    # https://github.com/openaleph/ingest-file/issues/30
+    keys = (entity.id, entity.id.split(".")[0])
+    store = get_entity_store(ftm_dataset, origin)
     current_page = 1
     while True:
         page_batch = range(current_page, current_page + QUERY_LIMIT)
-        page_ids = set(
-            make_entity_id(entity.id, p, key_prefix=ftm_dataset) for p in page_batch
-        )
-        # https://github.com/openaleph/ingest-file/issues/30
-        page_id_no_ns = set(
-            make_entity_id(entity.id.split(".")[0], p, key_prefix=ftm_dataset)
+        page_ids = {
+            id_
+            for key in keys
             for p in page_batch
-        )
-        page_ids.update(page_id_no_ns)
-        # apply correct namespace
-        page_ids = list(map(ns.sign, page_ids))
-        ix = 1
-        for ix, fragment in enumerate(  # noqa: B007
-            store.fragments(page_ids, "default"), 1
-        ):
-            yield fragment
-        if ix <= QUERY_LIMIT:
+            if (id_ := make_entity_id(key, p, key_prefix=ftm_dataset))
+        }
+        page_ids.update(signed for i in set(page_ids) if (signed := ns.sign(i)))
+        found = 0
+        for page in store.iterate(page_ids):
+            found += 1
+            yield page
+        # pages are numbered consecutively, so an incomplete batch is the last
+        if found < QUERY_LIMIT:
             break
         current_page += QUERY_LIMIT

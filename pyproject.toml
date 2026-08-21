@@ -28,6 +28,8 @@ dependencies = [
     "cachetools (<6)",
     "psycopg (>=3.3.4,<4.0.0)",
     "psycopg-pool (>=3.3.1,<4.0.0)",
+    "ftm-lakehouse @ git+https://github.com/openaleph/ftm-lakehouse.git",
+    "openaleph-servicelayer (>=1.24.0,<2.0.0)",
 ]
 
 [project.scripts]
@@ -55,9 +57,13 @@ bump-pydantic = ">=0.7,<0.9"
 rich = "<16"
 moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
-openaleph-servicelayer = "^1.24.0"
 zensical = "^0.0.55"
 mkdocstrings-python = "^2.0.6"
+
+[[tool.mypy.overrides]]
+# neither ships a `py.typed` marker
+module = ["ftm_lakehouse.*", "servicelayer.*"]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core"]

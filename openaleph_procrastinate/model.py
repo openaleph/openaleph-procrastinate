@@ -9,12 +9,12 @@ from anystore.util import clean_dict
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
-from ftmq.store.fragments.loader import BulkLoader
 from pydantic import BaseModel, ConfigDict, computed_field
 from structlog.stdlib import BoundLogger
 
 from openaleph_procrastinate import helpers
 from openaleph_procrastinate.app import App, run_sync_worker
+from openaleph_procrastinate.repository import EntityStore
 from openaleph_procrastinate.settings import (
     MAX_PRIORITY,
     MIN_PRIORITY,
@@ -31,7 +31,8 @@ def get_priority() -> int:
 
 class EntityFileReference(BaseModel):
     """
-    A file reference (via `content_hash`) to a servicelayer file from an entity
+    A file reference (via `content_hash`) from an entity to a file in the
+    [archive][openaleph_procrastinate.repository.Archive]
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -127,7 +128,7 @@ class DatasetJob(Job):
 
     def get_writer(
         self: Self, origin: str = helpers.OPAL_ORIGIN
-    ) -> ContextManager[BulkLoader]:
+    ) -> ContextManager[EntityStore]:
         """Get the writer for the dataset of the current job"""
         return helpers.entity_writer(self.dataset, origin)
 
@@ -199,9 +200,11 @@ class DatasetJob(Job):
             task: Python module path of the task
             entities: Entities
             dehydrate: Reduce entity payload to only a reference (tasks should
-                re-fetch these entities from the store if they need more data)
+                re-fetch these entities from the store if they need more data).
+                Ignored when `procrastinate_dehydrate_entities` is disabled
             context: Job context
         """
+        dehydrate = dehydrate and settings.procrastinate_dehydrate_entities
         if dehydrate:
             entities_ = (make_file_entity(e, quiet=True) for e in entities)
             entities = (e for e in entities_ if e is not None)
