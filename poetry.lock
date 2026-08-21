@@ -1637,33 +1637,33 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftmq"
-version = "4.10.0"
+version = "4.10.1"
 description = "followthemoney query dsl and io helpers"
 optional = false
 python-versions = "<3.15,>=3.11"
 groups = ["main"]
 files = [
-    {file = "ftmq-4.10.0-py3-none-any.whl", hash = "sha256:abbd1ff0f816bf0fc65815161e7d87b58fa03711d4adfe30c6ebaf3c5279dea4"},
-    {file = "ftmq-4.10.0.tar.gz", hash = "sha256:346e66035608a1b341b32402ef442f3e75641c2a14afc750cfeecb33d2ec141c"},
+    {file = "ftmq-4.10.1-py3-none-any.whl", hash = "sha256:8014750803858dd8dcfe22725ea68ab6843a514ecbb120a612d087c3d8ed9854"},
+    {file = "ftmq-4.10.1.tar.gz", hash = "sha256:d4f8698ccaf3308638fa64cd10516340f4b20cf772a06cfc94868346c5e75573"},
 ]
 
 [package.dependencies]
 anystore = ">=1.2.5,<2.0.0"
 click = ">=8.4.2,<9.0.0"
 click-default-group = ">=1.2.4,<2.0.0"
-followthemoney = ">=4.10.0,<5.0.0"
-nomenklatura = ">=4.11.4,<5.0.0"
+followthemoney = ">=4.10.1,<5.0.0"
+nomenklatura = ">=4.13.0,<5.0.0"
 normality = ">=3.1.0,<4.0.0"
 orjson = ">=3.10.18,<4.0.0"
 pydantic = ">=2.13.3,<3.0.0"
-rigour = ">=2.1.2,<3.0.0"
+rigour = ">=2.3.1,<3.0.0"
 
 [package.extras]
 aleph = ["alephclient (>=2.6.0,<3.0.0)", "furl (>=2.1.4,<3.0.0)"]
-lake = ["deltalake (>=1.6.2,<2.0.0)", "duckdb (>=1.5.4,<2.0.0)", "pandas (>=3.0.3,<4.0.0)", "pyarrow (>=24.0.0,<25.0.0)"]
+lake = ["deltalake (>=1.6.2,<2.0.0)", "duckdb (>=1.5.5,<2.0.0)", "pandas (>=3.0.5,<4.0.0)", "pyarrow (>=24.0.0,<25.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg[pool] (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.51,<3.0.0)"]
-redis = ["fakeredis (>=2.36.2,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
+redis = ["fakeredis (>=2.37.0,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 sql = ["sqlalchemy (>=2.0.51,<3.0.0)"]
 
 [[package]]
@@ -3367,13 +3367,13 @@ files = [
 
 [[package]]
 name = "nomenklatura"
-version = "4.11.4"
+version = "4.13.1"
 description = "Make record linkages in followthemoney data."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "nomenklatura-4.11.4-py3-none-any.whl", hash = "sha256:c90a7e2c02d9a773422d58ae959017ec3150033889dab8f68d21b60f67cc9840"},
+    {file = "nomenklatura-4.13.1-py3-none-any.whl", hash = "sha256:71fd04dbe743fcd320b00e294c5422f7445cefa68c1043cfbd5c1a02d0036a98"},
 ]
 
 [package.dependencies]
@@ -3384,7 +3384,7 @@ followthemoney = ">=4.8.1,<5.0.0"
 lxml = ">4.0.0,<7.0.0"
 pydantic = ">2.0.0,<3.0.0"
 rich = ">=13.0.0,<16.0.0"
-rigour = ">=2.1.0,<3.0.0"
+rigour = ">=2.2.3,<3.0.0"
 scikit-learn = "1.9.0"
 shortuuid = ">=1.0.11,<2.0.0"
 sqlalchemy = ">=2.0.0"
@@ -6351,4 +6351,4 @@ tomli = ">=2.4.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "af0f012e9cd71747e992cc8b328300ac4c9b7dce48a7f092ee47db1d3ea9a4af"
+content-hash = "db81d55e3a010d826de207e7b676344b6b5fb523ec29cc5376d87a512d7386c8"
