@@ -3,14 +3,18 @@ import random
 from typing import Any, Callable, cast
 
 from anystore.logging import get_logger
-from anystore.types import Uri
+from ftm_lakehouse import get_entities as get_lakehouse_entities
 from procrastinate.app import App
 
 from openaleph_procrastinate.exceptions import ErrorHandler
 from openaleph_procrastinate.model import AnyJob, DatasetJob, Job, Status
-from openaleph_procrastinate.tracer import get_tracer
+from openaleph_procrastinate.settings import OpenAlephSettings
+from openaleph_procrastinate.tracer import Tracer, get_job_tracer
 
 log = get_logger(__name__)
+settings = OpenAlephSettings()
+
+PENDING_FLUSH = "pending_flush"
 
 
 def unpack_job(data: dict[str, Any]) -> AnyJob:
@@ -21,11 +25,25 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
         return Job(**data)
 
 
-def handle_trace(job: AnyJob, status: Status, tracer_uri: Uri | None) -> None:
-    if tracer_uri is not None and isinstance(job, DatasetJob):
-        tracer = get_tracer(job.queue, job.task, tracer_uri)
-        for entity in job.get_entities():
-            tracer.mark(cast(str, entity.id), status)
+def handle_trace(entity_ids: list[str], status: Status, tracer: Tracer) -> None:
+    for entity_id in entity_ids:
+        tracer.mark(entity_id, status)
+    if status in ("succeeded", "failed"):
+        tracer.incr(status, 1)
+        tracer.incr(PENDING_FLUSH, len(entity_ids))
+
+
+def handle_flush(dataset: str, tracer: Tracer) -> None:
+    """Flush the lakehouse journal to parquet once enough entities have been
+    processed."""
+    if not settings.lakehouse or settings.lakehouse_flush_threshold < 1:
+        return
+    if (tracer.get(PENDING_FLUSH) or 0) >= settings.lakehouse_flush_threshold:
+        # subtract before flushing: a concurrent worker shouldn't flush the
+        # same batch again, and the overflow carries over to the next one
+        tracer.incr(PENDING_FLUSH, -settings.lakehouse_flush_threshold)
+        log.info("Flushing lakehouse journal ...", dataset=dataset)
+        get_lakehouse_entities(dataset).flush()
 
 
 def task(app: App, **kwargs):
@@ -36,13 +54,22 @@ def task(app: App, **kwargs):
         def _inner(*job_args, **job_kwargs):
             # turn the json data into the job model instance
             job = unpack_job(job_kwargs)
-            handle_trace(job, "doing", tracer_uri)
+            tracer = None
+            entity_ids = []
+            if tracer_uri and isinstance(job, DatasetJob):
+                tracer = get_job_tracer(job, tracer_uri)
+                entity_ids = list([cast(str, e.id) for e in job.get_entities()])
+                handle_trace(entity_ids, "doing", tracer)
             try:
                 func(*job_args, job)
-                handle_trace(job, "succeeded", tracer_uri)
+                if tracer:
+                    handle_trace(entity_ids, "succeeded", tracer)
             except Exception as e:
-                handle_trace(job, "failed", tracer_uri)
+                if tracer:
+                    handle_trace(entity_ids, "failed", tracer)
                 raise e
+            if tracer:
+                handle_flush(job.dataset, tracer)
 
         # need to call to not register tasks twice (procrastinate complains)
         wrapped_func = functools.update_wrapper(_inner, func, updated=())

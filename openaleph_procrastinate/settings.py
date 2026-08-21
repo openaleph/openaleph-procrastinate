@@ -255,6 +255,12 @@ class OpenAlephSettings(BaseSettings):
     lakehouse: bool = Field(default=False, validation_alias="openaleph_lakehouse")
     """Activate lakehouse storage backend (experimental)"""
 
+    lakehouse_flush_threshold: int = Field(
+        default=100_000, validation_alias="openaleph_lakehouse_flush_threshold"
+    )
+    """Auto-flush the lakehouse journal to parquet after this number of
+    processed entities (needs a traced task, see `tracer` module)"""
+
     @model_validator(mode="after")
     def enforce_lakehouse_payloads(self) -> Self:
         """The lakehouse backend takes entities fully from the job payload

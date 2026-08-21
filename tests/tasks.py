@@ -5,7 +5,7 @@ from procrastinate.job_context import JobContext
 from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.model import AnyJob, DatasetJob
 from openaleph_procrastinate.tasks import task
-from openaleph_procrastinate.tracer import Tracer
+from openaleph_procrastinate.tracer import get_job_tracer
 
 log = get_logger(__name__)
 app = make_app("tests.tasks")
@@ -30,7 +30,7 @@ def next_task(job: AnyJob) -> None:
 @task(app=app, tracer_uri="memory://")
 def traced_task(job: AnyJob) -> None:
     assert isinstance(job, DatasetJob)
-    tracer = Tracer(job.queue, job.task, "memory://")
+    tracer = get_job_tracer(job, "memory://")
     store = get_store(job.payload["tmp_path"])
     for entity in job.get_entities():
         store.put(f"traced_{entity.id}", tracer.is_processing(str(entity.id)))
