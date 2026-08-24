@@ -57,7 +57,7 @@ bump-pydantic = ">=0.7,<0.9"
 rich = "<16"
 moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
-zensical = "^0.0.55"
+zensical = "^0.0.56"
 mkdocstrings-python = "^2.0.6"
 
 [[tool.mypy.overrides]]
