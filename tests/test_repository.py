@@ -106,6 +106,11 @@ def test_archive_miss(backend, tmp_path):
             pass
 
 
+def test_archive_healthz(backend):
+    store = repository.get_archive(DATASET)
+    assert store.healthz() is None
+
+
 # --- EntityStore -----------------------------------------------------------
 
 

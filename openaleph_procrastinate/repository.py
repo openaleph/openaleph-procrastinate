@@ -77,6 +77,8 @@ class Archive(Protocol):
 
     def open(self, content_hash: str) -> ContextManager[VirtualIO]: ...
 
+    def healthz(self) -> None: ...
+
 
 class EntityStore(Protocol):
     """Read and write access to the entities of one dataset."""
@@ -125,6 +127,13 @@ class ServicelayerArchive:
             content_hash, file_name, str(temp_path)
         )
         return path
+
+    def healthz(self) -> None:
+        try:
+            next(self._archive.list_files())
+            return
+        except StopIteration:  # empty
+            return
 
     @contextmanager
     def local_path(self, content_hash: str) -> Generator[Path, None, None]:
@@ -193,6 +202,9 @@ class LakehouseArchive:
         self._ensure_exists(content_hash)
         uri = self._archive.to_uri(content_hash)
         return open_virtual(uri, algorithm=LAKEHOUSE_CHECKSUM)
+
+    def healthz(self) -> None:
+        self._archive._tags.set("healthz")
 
 
 class FragmentStore:
