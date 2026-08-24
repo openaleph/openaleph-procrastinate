@@ -339,12 +339,10 @@ name = "anystore"
 version = "1.2.6"
 description = "Store and cache things anywhere"
 optional = false
-python-versions = "<4,>=3.11"
+python-versions = ">=3.11,<4"
 groups = ["main"]
-files = [
-    {file = "anystore-1.2.6-py3-none-any.whl", hash = "sha256:5ea722217fbaab916deec6d7fb0f40d3aca5f785e997a6c94d3b14be112f34ac"},
-    {file = "anystore-1.2.6.tar.gz", hash = "sha256:1683f469aef600f21e9689f21b1d669f421c62e32e19425b5931044b8326bf2f"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 banal = ">=1.1.2,<2.0.0"
@@ -352,27 +350,33 @@ cloudpickle = ">=3.1.0,<4.0.0"
 dateparser = ">=1.2.2,<2.0.0"
 fsspec = [
     {version = ">2023.10,<2027"},
-    {version = ">2023.10,<2027", extras = ["http"], optional = true, markers = "extra == \"http\""},
+    {version = ">2023.10,<2027", extras = ["http"], optional = true},
 ]
 imohash = ">=1.1.0,<2.0.0"
-orjson = ">=3.11.9,<4.0.0"
+orjson = ">=3.12.0,<4.0.0"
 pyaml = ">=26.7.0,<27.0.0"
 pydantic = ">=2.13.4,<3.0.0"
-pydantic-settings = ">=2.7.1,<3.0.0"
+pydantic-settings = ">=2.15.0,<3.0.0"
 rich = ">=10.0.0,<16.0.0"
 rigour = ">=2.3.1,<3.0.0"
-s3fs = {version = ">2023.10,<2027", optional = true, markers = "extra == \"s3\""}
+s3fs = {version = ">2023.10,<2027", optional = true}
 structlog = ">=22.0.0"
 tqdm = ">=4.70.0,<5.0.0"
 typer = ">=0.27.0"
 uuid7 = ">=0.1.0,<0.2.0"
 
 [package.extras]
-api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.141.1,<1.0.0)", "uvicorn (>=0.52.1,<1.0.0)"]
+api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.141.1,<1.0.0)", "uvicorn (>=0.52.4,<1.0.0)"]
 http = ["fsspec[http] (>2023.10,<2027)"]
 redis = ["fakeredis (>=2.37.0,<3.0.0)", "redis (>=8.1.0)"]
 s3 = ["s3fs (>2023.10,<2027)"]
-sql = ["sqlalchemy (>=2.0.51,<3.0.0)"]
+sql = ["sqlalchemy (>=2.0.52,<3.0.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/dataresearchcenter/anystore.git"
+reference = "HEAD"
+resolved_reference = "6b81f48f0ffc324712464b0dce32fb4cdc3ad856"
 
 [[package]]
 name = "arro3-core"
@@ -1761,14 +1765,14 @@ vectorset = ["jsonpath-ng (>=1.6) ; python_version >= \"3.11\"", "numpy (>=2.4.0
 
 [[package]]
 name = "filelock"
-version = "3.32.3"
+version = "3.32.4"
 description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "filelock-3.32.3-py3-none-any.whl", hash = "sha256:7f0ca4bcc0e181c60dbbd8aa9ab5b120ebb99e4e064e83636340056f833a1f09"},
-    {file = "filelock-3.32.3.tar.gz", hash = "sha256:0ffa185a3540854c95caa7fa76b76cb219d907415e2c5dc9af25fd970563487f"},
+    {file = "filelock-3.32.4-py3-none-any.whl", hash = "sha256:22e58ca3b1ae3b98993b762d7338367ae64fe50252bf78d59da3bfebcdf1cedd"},
+    {file = "filelock-3.32.4.tar.gz", hash = "sha256:2bde2e4cf732e0153406d8a7bc80620ecf5e621fe0d25e41143c4e3b4733ff30"},
 ]
 
 [[package]]
@@ -2074,7 +2078,7 @@ develop = false
 
 [package.dependencies]
 adbc-driver-postgresql = {version = ">=1.12,<2", optional = true}
-anystore = ">=1.2.6,<2.0.0"
+anystore = {git = "https://github.com/dataresearchcenter/anystore.git"}
 "backports.zstd" = {version = "*", markers = "python_version < \"3.14\""}
 followthemoney = ">=4.10.1,<5.0.0"
 ftmq = {git = "https://github.com/dataresearchcenter/ftmq.git", rev = "refactor/ql", extras = ["lake"]}
@@ -2094,7 +2098,7 @@ s3 = ["s3fs (>2024.2.0)"]
 type = "git"
 url = "https://github.com/openaleph/ftm-lakehouse.git"
 reference = "HEAD"
-resolved_reference = "f145273711f41982c3d2104caf5028bff1abe582"
+resolved_reference = "b8c6fc068be777328180a27ef27a9e7fbd8aa8d3"
 
 [[package]]
 name = "ftmq"
@@ -2111,7 +2115,7 @@ anystore = ">=1.2.6,<2.0.0"
 deltalake = {version = ">=1.6.3,<2.0.0", optional = true}
 duckdb = {version = ">=1.5.5,<2.0.0", optional = true}
 followthemoney = ">=4.10.2,<5.0.0"
-nomenklatura = ">=4.13.2,<5.0.0"
+nomenklatura = ">=4.14.0,<5.0.0"
 normality = ">=3.1.0,<4.0.0"
 orjson = ">=3.10.18,<4.0.0"
 pandas = {version = ">=3.0.5,<4.0.0", optional = true}
@@ -2127,7 +2131,6 @@ duckdb = ["duckdb (>=1.5.5,<2.0.0)", "duckdb-engine (>=0.17.0,<0.18.0)", "sqlalc
 lake = ["deltalake (>=1.6.3,<2.0.0)", "duckdb (>=1.5.5,<2.0.0)", "pandas (>=3.0.5,<4.0.0)", "pyarrow (>=25.0.1,<26.0.0)"]
 level = ["plyvel (>=1.5.1,<2.0.0)"]
 postgres = ["psycopg[pool] (>=3.2.9,<4.0.0)", "sqlalchemy (>=2.0.51,<3.0.0)"]
-redis = ["fakeredis (>=2.37.0,<3.0.0)", "redis (>=5.2.1,<6.0.0)"]
 search = ["tantivy (>=0.26.0,<0.27.0)"]
 sql = ["sqlalchemy (>=2.0.51,<3.0.0)"]
 
@@ -2135,7 +2138,7 @@ sql = ["sqlalchemy (>=2.0.51,<3.0.0)"]
 type = "git"
 url = "https://github.com/dataresearchcenter/ftmq.git"
 reference = "refactor/ql"
-resolved_reference = "99d5e7864046bef36705e39bcc4166f3a643e4b3"
+resolved_reference = "5e6cf56d3cc1c2a80592367cbdef1709e1af9df3"
 
 [[package]]
 name = "ghp-import"
@@ -3624,14 +3627,14 @@ type = ["mypy (==1.19.1)"]
 
 [[package]]
 name = "moto"
-version = "5.2.2"
+version = "5.2.3"
 description = "A library that allows you to easily mock out tests based on AWS infrastructure"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "moto-5.2.2-py3-none-any.whl", hash = "sha256:3817f1e39721ca833579b921e53e3b68547ace6a34d848c9486fbb5905808de9"},
-    {file = "moto-5.2.2.tar.gz", hash = "sha256:aac8023a429e125e91c91f8f4730a67b54f518cda587352f7e67252fe3168f75"},
+    {file = "moto-5.2.3-py3-none-any.whl", hash = "sha256:5ec31b3cdbb383a19d46030157bd82aaaa7a9cc5f564200f995663d347bd4728"},
+    {file = "moto-5.2.3.tar.gz", hash = "sha256:a9e95c3218b6eda18e74571f1ced11cb1bc3151467d562c1da6037b9d19832cb"},
 ]
 
 [package.dependencies]
@@ -4030,13 +4033,13 @@ files = [
 
 [[package]]
 name = "nomenklatura"
-version = "4.13.2"
+version = "4.14.0"
 description = "Make record linkages in followthemoney data."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "nomenklatura-4.13.2-py3-none-any.whl", hash = "sha256:a8ff2ca00694878a38965d9f86456d3169756318d177589c530bcebd4cce9c55"},
+    {file = "nomenklatura-4.14.0-py3-none-any.whl", hash = "sha256:bbd6bcab58c3878c65d65b6f52f99a7bb6d05979f537383b75bd2528bf8e6a51"},
 ]
 
 [package.dependencies]
@@ -4054,10 +4057,9 @@ sqlalchemy = ">=2.0.0"
 textual = ">=3.0.0,<9.0.0"
 
 [package.extras]
-dev = ["build", "bump2version", "coverage (>=4.1)", "fakeredis", "flake8 (>=2.6.0)", "lxml-stubs", "mypy", "plyvel (<2.0.0)", "prek", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "redis (>5.0.0,<9.0.0)", "requests-mock", "twine", "types-pyyaml", "types-redis", "types-requests", "types-setuptools", "wheel (>=0.29.0)"]
+dev = ["build", "bump2version", "coverage (>=4.1)", "flake8 (>=2.6.0)", "lxml-stubs", "mypy", "plyvel (<2.0.0)", "prek", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "requests-mock", "twine", "types-pyyaml", "types-requests", "types-setuptools", "wheel (>=0.29.0)"]
 docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
 leveldb = ["plyvel (<2.0.0)"]
-redis = ["redis (>5.0.0,<9.0.0)"]
 
 [[package]]
 name = "normality"
@@ -5335,14 +5337,14 @@ files = [
 
 [[package]]
 name = "pymdown-extensions"
-version = "11.0.1"
+version = "11.0.2"
 description = "Extension pack for Python Markdown."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "pymdown_extensions-11.0.1-py3-none-any.whl", hash = "sha256:db3943a62bab7e03af1364f0c4083e64b91fb097675a4b6cceccfbe9a77e5eb2"},
-    {file = "pymdown_extensions-11.0.1.tar.gz", hash = "sha256:dd2905ae6fc5b75582fafb139a1266ffc754705efa902aa50067fa7ff4f94ec0"},
+    {file = "pymdown_extensions-11.0.2-py3-none-any.whl", hash = "sha256:259910762019732caa1dfd76f3faa62c59f191d46573e80bcb1d13c0f675bbe5"},
+    {file = "pymdown_extensions-11.0.2.tar.gz", hash = "sha256:9506fcbe66fa355a775b768084334238dd6805020ac4b92bea0c0dda6f8f223d"},
 ]
 
 [package.dependencies]
