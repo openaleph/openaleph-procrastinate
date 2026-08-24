@@ -154,6 +154,23 @@ def test_entities_read_back_own_writes(backend):
     assert store.get("unflushed") is not None
 
 
+def test_entities_flush_keeps_the_writer(backend):
+    """A flush inserts the buffer and nothing more: dropping the writer would
+    reconnect on the next put, which is ~50ms against a postgres journal"""
+    store = repository.get_entity_store(DATASET)
+    store.put(make_entity("first"))
+    store.flush()
+    writer = store._writer
+    assert writer is not None
+
+    store.put(make_entity("second"))
+    store.flush()
+    assert store._writer is writer
+
+    store.close()
+    assert {e.id for e in store.iterate(["first", "second"])} == {"first", "second"}
+
+
 def test_entity_store_is_not_shared(backend):
     """Stores buffer writes and tasks run in threads, so they must not be
     handed out from a cache"""

@@ -57,10 +57,12 @@ def entity_writer(
 ) -> Generator[EntityStore, None, None]:
     """
     Get the [`EntityStore`][openaleph_procrastinate.repository.EntityStore] for
-    the given `dataset` to write to. It is flushed when leaving the context.
+    the given `dataset` to write to. It is flushed and closed when leaving the
+    context – a store that buffers writes holds a database connection until
+    then, so callers that build one themselves have to close it.
     """
     store = get_entity_store(dataset, origin)
     try:
         yield store
     finally:
-        store.flush()
+        store.close()

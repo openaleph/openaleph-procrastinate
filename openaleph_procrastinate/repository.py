@@ -90,6 +90,8 @@ class EntityStore(Protocol):
 
     def flush(self) -> None: ...
 
+    def close(self) -> None: ...
+
     def iterate(self, entity_ids: EntityIds = None) -> EntityProxies: ...
 
     def get(self, entity_id: str) -> EntityProxy | None: ...
@@ -215,6 +217,12 @@ class FragmentStore:
     def flush(self) -> None:
         self._writer.flush()
 
+    def close(self) -> None:
+        """Flush. There is nothing else to release – the engine underneath
+        belongs to the (cached) `ftmq` store and is shared with every other
+        user of this dataset."""
+        self.flush()
+
     def iterate(self, entity_ids: EntityIds = None) -> EntityProxies:
         ids = ensure_ids(entity_ids)
         if ids is not None and not ids:
@@ -238,9 +246,11 @@ class LakehouseStore:
         self._writer: Any = None
 
     def _get_writer(self) -> Any:
-        """Open the journal writer on first use and keep it open across puts –
-        it buffers and upserts in batches itself, so staging entities in front
-        of it would only duplicate that buffer."""
+        """Open the journal writer on first use and keep it open across puts
+        and flushes – it buffers and upserts in batches itself, so staging
+        entities in front of it would only duplicate that buffer, and every
+        drop costs the writer context: a journal checkout and, on the way
+        out, the `journal/last_updated` tag."""
         if self._writer is None:
             self._stack = ExitStack()
             self._writer = self._stack.enter_context(
@@ -257,9 +267,15 @@ class LakehouseStore:
         self._get_writer().add_entity(entity, origin=origin, fragment=fragment)
 
     def flush(self) -> None:
-        """Flush the writer to the journal. Flushes the journal to parquet if
-        it's full, but the final flush to parquet needs to be invoked manually
-        by callers."""
+        """Insert the buffered statements into the journal, keeping the writer
+        open. Flushes the journal to parquet if it's full, but the final flush
+        to parquet needs to be invoked manually by callers."""
+        if self._writer is not None:
+            self._writer.flush()
+
+    def close(self) -> None:
+        """Flush and hand the writer's connection back to the journal. Only
+        here, not on every `flush`, for better performance."""
         if self._stack is not None:
             self._stack.close()  # flushes and closes the writer
             self._stack = None
@@ -281,7 +297,7 @@ class LakehouseStore:
         return entity
 
     def delete(self) -> None:
-        self.flush()
+        self.close()
         self._entities.flush()
         self._entities._statements.destroy()
 
