@@ -51,11 +51,11 @@ class ServiceSettings(BaseSettings):
         max_priority = max(min_priority, self.max_priority)
         return random.randint(min_priority, max_priority)
 
-    def get_tracer(self, uri: Uri | None = None) -> "Tracer":
+    def get_tracer(self, dataset: str, uri: Uri | None = None) -> "Tracer":
         """Get task status tracer."""
         from openaleph_procrastinate.tracer import get_tracer
 
-        return get_tracer(self.queue, self.task, uri)
+        return get_tracer(dataset, self.queue, self.task, uri)
 
 
 class DeferSettings(BaseSettings):
