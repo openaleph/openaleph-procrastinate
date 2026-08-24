@@ -147,6 +147,7 @@ class ServicelayerArchive:
 class LakehouseArchive:
     def __init__(self, dataset: str) -> None:
         self._archive = get_lakehouse_archive(dataset)
+        self._is_local = self._archive._store.is_local
 
     def archive_file(
         self, file_path: Path, mime_type: str | None = None, origin: str | None = None
@@ -158,6 +159,10 @@ class LakehouseArchive:
     def load_file(
         self, content_hash: str, temp_path: Path, file_name: str | None = None
     ) -> Path | None:
+        if self._is_local:
+            if self._archive.exists(content_hash):
+                return uri_to_path(self._archive.to_uri(content_hash))
+            return None
         try:
             with self._archive.open(content_hash) as handler:
                 # mirror the layout servicelayer uses, so callers managing
