@@ -23,12 +23,12 @@ dependencies = [
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
     "followthemoney (>=4.10.1,<5.0.0)",
-    "ftmq (>=4.10.1,<5.0.0)",
-    "anystore[http,s3] (>=1.2.6,<2.0.0)",
+    "ftmq (>=5.0.0,<6.0.0)",
+    "anystore[http,s3] (>=1.2.7,<2.0.0)",
     "cachetools (<6)",
     "psycopg (>=3.3.4,<4.0.0)",
     "psycopg-pool (>=3.3.1,<4.0.0)",
-    "ftm-lakehouse[postgres] @ git+https://github.com/openaleph/ftm-lakehouse.git",
+    "ftm-lakehouse[postgres] (>=0.5.0,<0.6.0)",
     "openaleph-servicelayer (>=1.24.0,<2.0.0)",
 ]
 
