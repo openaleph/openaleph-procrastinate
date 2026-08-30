@@ -38,6 +38,7 @@ def make_file_entity(
     if stub is not None:
         stub.add("contentHash", e.get("contentHash", quiet=q), quiet=q)
         stub.add("fileName", e.get("fileName", quiet=q), quiet=q)
+        stub.add("mimeType", e.get("mimeType", quiet=q), quiet=q)
         stub.add("parent", e.get("parent", quiet=q), quiet=q)
         stub.add("ancestors", e.get("ancestors", quiet=q), quiet=q)
         return stub
