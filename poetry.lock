@@ -336,14 +336,14 @@ trio = ["trio (>=0.32.0)"]
 
 [[package]]
 name = "anystore"
-version = "1.2.7"
+version = "1.3.0"
 description = "Store and cache things anywhere"
 optional = false
-python-versions = "<4,>=3.11"
+python-versions = "<3.15,>=3.11"
 groups = ["main"]
 files = [
-    {file = "anystore-1.2.7-py3-none-any.whl", hash = "sha256:5ae746054178c94f4f910d49165099dcdd46ab83a4f283b00129081e53a7676b"},
-    {file = "anystore-1.2.7.tar.gz", hash = "sha256:a0b260aca816c785bcb70a09f3b6fbc48b95becd65d102800b90554c1dd3803e"},
+    {file = "anystore-1.3.0-py3-none-any.whl", hash = "sha256:5470ba2f4629bf906b520af758d7a0867c85d4602f6f8d646a8719952fdf504e"},
+    {file = "anystore-1.3.0.tar.gz", hash = "sha256:ed4ae2bf52aeedd4201efc64ef4626d2163ba90782d9a4aafda23d71e2e95349"},
 ]
 
 [package.dependencies]
@@ -368,8 +368,8 @@ typer = ">=0.27.0"
 uuid7 = ">=0.1.0,<0.2.0"
 
 [package.extras]
-api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.141.1,<1.0.0)", "uvicorn (>=0.52.4,<1.0.0)"]
 http = ["fsspec[http] (>2023.10,<2027)"]
+putfs = ["putfs (>=0.4.0,<0.5.0)"]
 redis = ["fakeredis (>=2.37.1,<3.0.0)", "redis (>=8.1.0)"]
 s3 = ["s3fs (>2023.10,<2027)"]
 sql = ["sqlalchemy (>=2.0.52,<3.0.0)"]
@@ -2543,15 +2543,22 @@ files = [
 
 [[package]]
 name = "joblib"
-version = "1.5.3"
+version = "1.6.0"
 description = "Lightweight pipelining with Python functions"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "joblib-1.5.3-py3-none-any.whl", hash = "sha256:5fc3c5039fc5ca8c0276333a188bbd59d6b7ab37fe6632daa76bc7f9ec18e713"},
-    {file = "joblib-1.5.3.tar.gz", hash = "sha256:8561a3269e6801106863fd0d6d84bb737be9e7631e33aaed3fb9ce5953688da3"},
+    {file = "joblib-1.6.0-py3-none-any.whl", hash = "sha256:3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba"},
+    {file = "joblib-1.6.0.tar.gz", hash = "sha256:2ccc96785b12046c08fd6d55839c12857831b54a3c1673ffadd2f04bfc4eda03"},
 ]
+
+[package.dependencies]
+cloudpickle = ">=3.0"
+
+[package.extras]
+docs = ["distributed", "lz4", "matplotlib", "numpy", "numpydoc", "pandas", "psutil", "pydata-sphinx-theme", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx-gallery", "tqdm"]
+test = ["distributed", "lz4", "memory_profiler", "numpy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-run-parallel", "pytest-timeout", "threadpoolctl"]
 
 [[package]]
 name = "joserfc"
@@ -7298,4 +7305,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "84bc151ca613af1524244d53d8e5d595f5221ead0276cf0a9dc19513b005afec"
+content-hash = "44ddd416a24ed41fbf5147828f77fb03e8f21a0223582caf38dde454f62336e4"
