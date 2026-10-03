@@ -225,6 +225,12 @@ BEGIN
     RETURN found_jobs;
 END;
 $$;
+
+-- Always plan with the actual parameter values: a cached generic plan can't
+-- fold `target_queue_names IS NULL OR ...` and may skip the fast path index.
+-- Must run after CREATE OR REPLACE, which resets function-level SET options.
+ALTER FUNCTION procrastinate_fetch_job_v2(character varying[], bigint)
+    SET plan_cache_mode = 'force_custom_plan';
 """
 
 
