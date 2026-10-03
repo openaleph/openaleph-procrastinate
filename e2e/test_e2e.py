@@ -5,7 +5,11 @@ from anystore.io import smart_stream_json
 from e2e.tasks import app
 from openaleph_procrastinate.app import run_sync_worker
 from openaleph_procrastinate.manage.db import Db, get_db
-from openaleph_procrastinate.manage.status import get_dataset_status, get_status
+from openaleph_procrastinate.manage.status import (
+    get_batch_status,
+    get_dataset_status,
+    get_status,
+)
 from openaleph_procrastinate.model import DatasetJob
 from openaleph_procrastinate.settings import OpenAlephSettings
 from openaleph_procrastinate.tasks import unpack_job
@@ -72,6 +76,11 @@ def test_e2e_psql_status():
     assert all(d.is_active() for d in datasets.values())
     assert not any(d.is_running() for d in datasets.values())
 
+    # every batch is active, so the default active_only finds them
+    for dataset in datasets.values():
+        for batch in dataset.batches:
+            assert get_batch_status(dataset.name, batch.name) == batch
+
     run_sync_worker(app)
 
     datasets = {d.name: d for d in get_status(active_only=False)}
@@ -95,3 +104,13 @@ def test_e2e_psql_status():
 
     assert d1.took is not None
     assert d1.took.total_seconds() > 0
+
+    # filtering for a batch aggregates only its jobs
+    for batch in d1.batches:
+        filtered = get_dataset_status("d1", batch=batch.name, active_only=False)
+        assert [b.name for b in filtered.batches] == [batch.name]
+        assert filtered.total == batch.total
+        assert get_batch_status("d1", batch.name, active_only=False) == batch
+    assert get_batch_status("d1", "nope", active_only=False).total == 0
+    # nothing left to do, so no batch is active anymore
+    assert not get_batch_status("d1", d1.batches[0].name).total

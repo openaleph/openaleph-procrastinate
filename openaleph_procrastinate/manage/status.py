@@ -14,29 +14,31 @@ DEFAULT_BACH = "default"
 
 
 def _gather_status(
-    dataset: str | None = None, active_only: bool | None = True
+    dataset: str | None = None,
+    batch: str | None = None,
+    active_only: bool | None = True,
 ) -> Generator[DatasetStatus, None, None]:
     db = get_db()
     tree = lambda: defaultdict(tree)  # noqa: E731
     data = tree()
     for (
         dataset_name,
-        batch,
+        batch_name,
         queue,
         task,
         status,
         jobs,
         min_ts,
         max_ts,
-    ) in db.iterate_status(dataset, active_only=active_only):
-        data[dataset_name][batch][queue][task]["counts"][status] = jobs
-        data[dataset_name][batch][queue][task]["min_ts"][status] = min_ts
-        data[dataset_name][batch][queue][task]["max_ts"][status] = max_ts
+    ) in db.iterate_status(dataset, batch=batch, active_only=active_only):
+        data[dataset_name][batch_name][queue][task]["counts"][status] = jobs
+        data[dataset_name][batch_name][queue][task]["min_ts"][status] = min_ts
+        data[dataset_name][batch_name][queue][task]["max_ts"][status] = max_ts
 
     for dataset_name, batches in data.items():
         dataset_status = DatasetStatus(name=dataset_name or SYSTEM_DATASET)
-        for batch, queues in batches.items():
-            batch_status = BatchStatus(name=batch or DEFAULT_BACH)
+        for batch_name, queues in batches.items():
+            batch_status = BatchStatus(name=batch_name or DEFAULT_BACH)
             for queue, tasks in queues.items():
                 queue_status = QueueStatus(name=queue)
                 for task, stats in tasks.items():
@@ -63,7 +65,20 @@ def get_status(active_only: bool | None = True) -> Generator[DatasetStatus, None
     yield from _gather_status(active_only=active_only)
 
 
-def get_dataset_status(dataset: str, active_only: bool | None = True) -> DatasetStatus:
-    for status in _gather_status(dataset, active_only):
+def get_dataset_status(
+    dataset: str, batch: str | None = None, active_only: bool | None = True
+) -> DatasetStatus:
+    """Status of a dataset, optionally only of one of its batches"""
+    for status in _gather_status(dataset, batch=batch, active_only=active_only):
         return status
     return DatasetStatus(name=dataset)
+
+
+def get_batch_status(
+    dataset: str, batch: str, active_only: bool | None = True
+) -> BatchStatus:
+    """Status of one batch of a dataset. With `active_only`, a batch without
+    jobs left in 'todo' or 'doing' is empty."""
+    for status in get_dataset_status(dataset, batch, active_only).batches:
+        return status
+    return BatchStatus(name=batch)

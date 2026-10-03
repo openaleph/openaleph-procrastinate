@@ -235,7 +235,8 @@ ALTER FUNCTION procrastinate_fetch_job_v2(character varying[], bigint)
 
 
 # QUERY JOB STATUS #
-# query status aggregation, optional filtered for dataset.
+# query status aggregation, optionally filtered for dataset, batch, queue, task
+# and status.
 # this returns result rows with these values in its order:
 # dataset,batch,queue_name,task_name,status,jobs count,first created,last updated
 STATUS_SUMMARY = f"""
@@ -244,22 +245,24 @@ SELECT {COLUMNS},
     MIN(created_at) AS min_ts,
     MAX(updated_at) AS max_ts
 FROM {JOBS}
-WHERE {F_DATASET}
+WHERE {F_ALL_ANDS}
 GROUP BY {COLUMNS}
 ORDER BY {COLUMNS}
 """
 
-# only return status aggregation for active datasets
+# only return status aggregation for active datasets, or for active batches
+# when filtering for a batch
 STATUS_SUMMARY_ACTIVE = f"""
 SELECT {COLUMNS},
     COUNT(*) AS jobs,
     MIN(created_at) AS min_ts,
     MAX(updated_at) AS max_ts
 FROM {JOBS} j1
-WHERE {F_DATASET}
+WHERE {F_ALL_ANDS}
 AND EXISTS (
     SELECT 1 FROM {JOBS} j2
     WHERE j2.dataset = j1.dataset
+    AND (%(batch)s::varchar IS NULL OR j2.batch = j1.batch)
     AND j2.status IN ('todo', 'doing')
 )
 GROUP BY {COLUMNS}
