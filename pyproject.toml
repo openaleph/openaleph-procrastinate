@@ -57,7 +57,7 @@ rich = "<16"
 moto = { extras = ["server"], version = "^5.1.4" }
 pyaml = ">=25,<=30"
 zensical = "^0.0.59"
-mkdocstrings-python = "^2.0.6"
+mkdocstrings-python = "^2.0.9"
 
 [[tool.mypy.overrides]]
 # neither ships a `py.typed` marker
