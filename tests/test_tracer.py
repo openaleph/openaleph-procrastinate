@@ -92,3 +92,31 @@ def test_tracer_flush_threshold(tmp_path, monkeypatch):
     # threshold reached: flushed once, the surplus carries over
     assert flushed == ["flush-dataset"]
     assert tracer.get(tasks.PENDING_FLUSH) == 1
+
+
+def test_tracer_no_trace_entities(tmp_path, monkeypatch):
+    """Opting out of the per-entity status still tracks the task counters."""
+    monkeypatch.setattr(tasks.settings, "trace_entities", False)
+
+    app = make_app("tests.tasks")
+    # see `test_traced_task`
+    app.connector.on_notification = None
+
+    entity = ftm_model.make_entity("Person")
+    entity.id = "untraced-entity"
+    entity.add("name", "Test Person")
+
+    # own queue: the tracer counters are keyed by queue and task
+    job = DatasetJob(
+        dataset="test-dataset",
+        queue="test-untraced",
+        task="tests.tasks.traced_task",
+        payload={"entities": [entity.to_dict()], "tmp_path": str(tmp_path)},
+    )
+    job.defer(app=app)
+
+    store = get_store(tmp_path)
+    assert store.get("traced_untraced-entity") is False
+    tracer = get_job_tracer(job, "memory://")
+    assert tracer.get("succeeded") == 1
+    assert tracer.get(tasks.PENDING_FLUSH) == 1

@@ -25,12 +25,14 @@ def unpack_job(data: dict[str, Any]) -> AnyJob:
         return Job(**data)
 
 
-def handle_trace(entity_ids: list[str], status: Status, tracer: Tracer) -> None:
+def handle_trace(
+    entity_ids: list[str], entities_count: int, status: Status, tracer: Tracer
+) -> None:
     for entity_id in entity_ids:
         tracer.mark(entity_id, status)
     if status in ("succeeded", "failed"):
         tracer.incr(status, 1)
-        tracer.incr(PENDING_FLUSH, len(entity_ids))
+        tracer.incr(PENDING_FLUSH, entities_count)
 
 
 def handle_flush(dataset: str, tracer: Tracer) -> None:
@@ -56,17 +58,21 @@ def task(app: App, **kwargs):
             job = unpack_job(job_kwargs)
             tracer = None
             entity_ids = []
+            entities_count = 0
             if tracer_uri and isinstance(job, DatasetJob):
                 tracer = get_job_tracer(job, tracer_uri)
-                entity_ids = list([cast(str, e.id) for e in job.get_entities()])
-                handle_trace(entity_ids, "doing", tracer)
+                # counting doesn't need to parse the entities
+                entities_count = len(job.payload["entities"])
+                if settings.trace_entities:
+                    entity_ids = [cast(str, e.id) for e in job.get_entities()]
+                handle_trace(entity_ids, entities_count, "doing", tracer)
             try:
                 func(*job_args, job)
                 if tracer:
-                    handle_trace(entity_ids, "succeeded", tracer)
+                    handle_trace(entity_ids, entities_count, "succeeded", tracer)
             except Exception as e:
                 if tracer:
-                    handle_trace(entity_ids, "failed", tracer)
+                    handle_trace(entity_ids, entities_count, "failed", tracer)
                 raise e
             if tracer:
                 handle_flush(job.dataset, tracer)

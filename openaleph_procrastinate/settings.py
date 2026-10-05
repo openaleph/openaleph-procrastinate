@@ -261,6 +261,12 @@ class OpenAlephSettings(BaseSettings):
     """Auto-flush the lakehouse journal to parquet after this number of
     processed entities (needs a traced task, see `tracer` module)"""
 
+    trace_entities: bool = Field(
+        default=True, validation_alias="openaleph_trace_entities"
+    )
+    """Track the per-entity status in traced tasks (see `tracer` module). The
+    task counters (e.g. for the lakehouse auto-flush) are tracked anyway."""
+
     @model_validator(mode="after")
     def enforce_lakehouse_payloads(self) -> Self:
         """The lakehouse backend takes entities fully from the job payload
