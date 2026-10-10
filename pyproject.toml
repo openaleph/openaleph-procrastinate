@@ -27,7 +27,7 @@ dependencies = [
     "cachetools (<6)",
     "psycopg (>=3.3.6,<4.0.0)",
     "psycopg-pool (>=3.3.3,<4.0.0)",
-    "ftm-lakehouse[postgres] @ git+https://github.com/openaleph/ftm-lakehouse.git@chore/aggregate-unsafe-upstream",
+    "ftm-lakehouse[postgres] @ git+https://github.com/openaleph/ftm-lakehouse.git",
     "openaleph-servicelayer (>=1.25.0,<2.0.0)",
 ]
 
