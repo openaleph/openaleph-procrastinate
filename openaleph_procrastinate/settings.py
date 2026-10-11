@@ -33,6 +33,8 @@ class ServiceSettings(BaseSettings):
     """enable deferring"""
     max_retries: int = 5
     """Max retries, set to "-1" to enable infinity"""
+    dedupe: bool = False
+    """Collapse a deferred job with an identical one still waiting in the queue"""
     min_priority: int = MIN_PRIORITY
     """Minimum priority"""
     max_priority: int = MAX_PRIORITY
@@ -86,9 +88,10 @@ class DeferSettings(BaseSettings):
     )
 
     ingest: ServiceSettings = ServiceSettings(
-        queue="ingest", task="ingestors.tasks.ingest"
+        queue="ingest", task="ingestors.tasks.ingest", dedupe=True
     )
-    """ingest-file"""
+    """ingest-file. Deduplicated: the same file is reached through several
+    parents, and a failing job replays the fan-out that queued it"""
 
     analyze: ServiceSettings = ServiceSettings(
         queue="analyze", task="ftm_analyze.tasks.analyze"

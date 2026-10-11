@@ -5,10 +5,11 @@ from typing import Any, ContextManager, Generator, Iterable, Literal, Self, Type
 
 from anystore.logging import get_logger
 from anystore.store.virtual import VirtualIO
-from anystore.util import clean_dict
+from anystore.util import clean_dict, make_data_checksum
 from banal import ensure_dict
 from followthemoney import model
 from followthemoney.proxy import EntityProxy
+from procrastinate.exceptions import AlreadyEnqueued
 from pydantic import BaseModel, ConfigDict, computed_field
 from structlog.stdlib import BoundLogger
 
@@ -23,6 +24,9 @@ from openaleph_procrastinate.settings import (
 from openaleph_procrastinate.util import make_file_entity
 
 settings = OpenAlephSettings()
+
+MAX_LOCK_KEY = 256
+"""Length up to which a queueing lock spells out the entity ids it covers"""
 
 
 def get_priority() -> int:
@@ -88,19 +92,42 @@ class Job(JobModel):
     def log(self) -> BoundLogger:
         return get_logger(name="openaleph.job", queue=self.queue, task=self.task)
 
-    def defer(self: Self, app: App, priority: int | None = None) -> None:
-        """Defer this job"""
+    def defer(
+        self: Self,
+        app: App,
+        priority: int | None = None,
+        queueing_lock: str | None = None,
+    ) -> bool:
+        """Defer this job.
+
+        Args:
+            app: The procrastinate app instance
+            priority: Job priority
+            queueing_lock: Refuse the job while one with the same lock is still
+                waiting in the queue
+
+        Returns:
+            Whether the job was deferred
+        """
         self.log.debug("Deferring ...", payload=self.payload)
         data = clean_dict(self.model_dump(mode="json"))
-        app.configure_task(
-            name=self.task, queue=self.queue, priority=priority or get_priority()
-        ).defer(**data)
+        try:
+            app.configure_task(
+                name=self.task,
+                queue=self.queue,
+                priority=priority or get_priority(),
+                queueing_lock=queueing_lock,
+            ).defer(**data)
+        except AlreadyEnqueued:
+            self.log.info("Already queued, not deferring again", lock=queueing_lock)
+            return False
         if settings.debug:
             # option to change synchronousness during test runtime
             _settings = OpenAlephSettings()
             if _settings.procrastinate_sync:
                 # run worker synchronously (for testing)
                 run_sync_worker(app)
+        return True
 
 
 class DatasetJob(Job):
@@ -131,6 +158,24 @@ class DatasetJob(Job):
     ) -> ContextManager[EntityStore]:
         """Get the writer for the dataset of the current job"""
         return helpers.entity_writer(self.dataset, origin)
+
+    def get_queueing_lock(self: Self) -> str | None:
+        """A lock that identifies this job by its task, dataset and entities, so
+        procrastinate can collapse it with an identical job that is still
+        waiting. `None` when the payload carries no entities to key on.
+
+        Returns:
+            The queueing lock
+        """
+        ids = sorted({e["id"] for e in self.payload.get("entities", [])})
+        if not ids:
+            return None
+        key = ",".join(ids)
+        if len(key) > MAX_LOCK_KEY:
+            # the unique index on `queueing_lock` is a btree, which rejects an
+            # entry beyond roughly 2700 bytes
+            key = make_data_checksum(ids)
+        return f"{self.task}:{self.dataset}:{key}"
 
     def get_entities(self) -> Generator[EntityProxy, None, None]:
         """
