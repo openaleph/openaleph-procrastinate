@@ -15,6 +15,7 @@ from structlog.stdlib import BoundLogger
 
 from openaleph_procrastinate import helpers
 from openaleph_procrastinate.app import App, run_sync_worker
+from openaleph_procrastinate.payload import pack_entities
 from openaleph_procrastinate.repository import EntityStore
 from openaleph_procrastinate.settings import (
     MAX_PRIORITY,
@@ -111,6 +112,9 @@ class Job(JobModel):
         """
         self.log.debug("Deferring ...", payload=self.payload)
         data = clean_dict(self.model_dump(mode="json"))
+        payload = data.get("payload", {})
+        if isinstance(payload.get("entities"), list):
+            payload["entities"] = pack_entities(payload["entities"])
         try:
             app.configure_task(
                 name=self.task,

@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from functools import lru_cache
+from typing import Any
+
 from banal import ensure_dict
+
+from openaleph_procrastinate.payload import unpack_entities
 
 
 def extract_job_summary(task_kwargs: dict) -> dict:
@@ -16,7 +21,23 @@ def extract_job_summary(task_kwargs: dict) -> dict:
     if not isinstance(payload, dict):
         return summary
     entities = payload.get("entities")
-    if not isinstance(entities, list) or not entities:
+    if isinstance(entities, str):
+        summary.update(summarize_packed_entities(entities))
+    elif isinstance(entities, list):
+        summary.update(summarize_entities(entities))
+    return summary
+
+
+@lru_cache(maxsize=16)
+def summarize_packed_entities(entities: str) -> dict[str, Any]:
+    """procrastinate builds the log context about ten times per job, so unpack
+    the packed entities only once"""
+    return summarize_entities(unpack_entities(entities))
+
+
+def summarize_entities(entities: list[Any]) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+    if not entities:
         return summary
     summary["entities_count"] = len(entities)
     entity_ids = [e["id"] for e in entities if isinstance(e, dict) and e.get("id")]

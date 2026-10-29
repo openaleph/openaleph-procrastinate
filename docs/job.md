@@ -49,6 +49,8 @@ A concrete Job bound to a dataset via its property `dataset` (Aleph wording: _"C
 
 Entities in the job payload are always an array in `entities` key even if it is a job only for 1 Entity.
 
+In the database, `entities` is stored as one zstd compressed (base64 encoded) json string to keep the `procrastinate_jobs` rows small. `job.defer()` packs it and the `@task` decorator unpacks it again, so a task always sees the plain array. Workers need to run a version that can unpack it before jobs are deferred with it.
+
 They have some helper methods to access file objects or entities:
 
 ### A job for processing one or more entities

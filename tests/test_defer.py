@@ -6,6 +6,7 @@ from procrastinate.testing import InMemoryConnector
 from openaleph_procrastinate import defer
 from openaleph_procrastinate.app import App, make_app
 from openaleph_procrastinate.model import DatasetJob, Job
+from openaleph_procrastinate.tasks import unpack_job
 
 INGEST_TASK = "ingestors.tasks.ingest"
 
@@ -49,6 +50,16 @@ def make_job(*entity_ids: str) -> DatasetJob:
         task=INGEST_TASK,
         entities=[make_entity(i) for i in entity_ids],
     )
+
+
+def test_defer_packs_entities(monkeypatch):
+    app = dedupe_app(monkeypatch)
+    job = make_job("a", "b")
+    job.defer(app)
+    (row,) = app.connector.jobs.values()
+    assert isinstance(row["args"]["payload"]["entities"], str)
+    assert row["args"]["dataset"] == "test"
+    assert unpack_job(row["args"]).payload["entities"] == job.payload["entities"]
 
 
 def test_queueing_lock_keys_on_task_dataset_and_entities():
