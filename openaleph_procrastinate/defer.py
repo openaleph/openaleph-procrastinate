@@ -33,7 +33,7 @@ from followthemoney.proxy import EntityProxy
 
 from openaleph_procrastinate.app import App
 from openaleph_procrastinate.model import DatasetJob, Job
-from openaleph_procrastinate.settings import DeferSettings
+from openaleph_procrastinate.settings import DeferSettings, ServiceSettings
 
 tasks = DeferSettings()
 
@@ -42,29 +42,41 @@ def get_priority(data: dict[str, Any], default: int) -> int:
     return data.get("priority") or default
 
 
+def get_queueing_lock(job: DatasetJob, stage: ServiceSettings) -> str | None:
+    """The job's queueing lock, if the stage is configured to deduplicate."""
+    return job.get_queueing_lock() if stage.dedupe else None
+
+
 def ingest(
     app: App, dataset: str, entities: Iterable[EntityProxy], **context: Any
-) -> None:
+) -> bool:
     """
     Defer a new job for `ingest-file`.
     It will only deferred if `OPENALEPH_INGEST_DEFER=1` (the default)
+
+    With `OPENALEPH_INGEST_DEDUPE=1` (the default) the job is not deferred while
+    one for the same entities is still waiting in the queue.
 
     Args:
         app: The procrastinate app instance
         dataset: The ftm dataset or collection
         entities: The file or directory entities to ingest
         context: Additional job context
+
+    Returns:
+        Whether the job was deferred
     """
-    if tasks.ingest.defer:
-        job = DatasetJob.from_entities(
-            dataset=dataset,
-            queue=tasks.ingest.queue,
-            task=tasks.ingest.task,
-            entities=entities,
-            **context,
-        )
-        priority = get_priority(context, tasks.ingest.get_priority())
-        job.defer(app, priority)
+    if not tasks.ingest.defer:
+        return False
+    job = DatasetJob.from_entities(
+        dataset=dataset,
+        queue=tasks.ingest.queue,
+        task=tasks.ingest.task,
+        entities=entities,
+        **context,
+    )
+    priority = get_priority(context, tasks.ingest.get_priority())
+    return job.defer(app, priority, get_queueing_lock(job, tasks.ingest))
 
 
 def analyze(

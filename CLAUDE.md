@@ -66,6 +66,7 @@ cd e2e && PROCRASTINATE_DB_URI=postgresql://... PYTHONPATH=../ bash ./test.sh
 - **`helpers.py`** - Thin façade over `repository.py` for archive files and entities within jobs
 - **`defer.py`** - Convenience functions to defer jobs to pipeline stages (ingest, analyze, index, etc.)
 - **`tasks.py`** - `@task` decorator that auto-unpacks JSON payloads to Job models; `Priorities` buckets
+- **`payload.py`** - `pack_entities` / `unpack_entities`: `payload.entities` is stored as a zstd compressed orjson string (base64, as `args` is jsonb), packed in `Job.defer`, unpacked in `unpack_job`; a plain list passes through
 - **`tracer.py`** - Optional per-entity status tracking in an anystore store (redis preferred), wired via `@task(..., tracer_uri=...)`
 - **`util.py`** - Entity reducers (`make_stub_entity`, `make_file_entity`) and batched Page-fragment lookup
 - **`exceptions.py`** - `InvalidJob`, `ArchiveFileNotFound`, and the `ErrorHandler` context manager (re-raises when `DEBUG`)

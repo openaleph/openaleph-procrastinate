@@ -143,7 +143,9 @@ class Db:
                 for entity in job.get_entities():
                     if entity.id:
                         has_entities = True
-                        yield EntityJob(**data, entity_id=entity.id)
+                        yield EntityJob(
+                            **{**data, "payload": job.payload}, entity_id=entity.id
+                        )
                 if not has_entities:
                     yield job
             else:

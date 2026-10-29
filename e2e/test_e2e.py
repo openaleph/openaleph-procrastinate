@@ -1,6 +1,8 @@
 import random
 
+import psycopg
 from anystore.io import smart_stream_json
+from followthemoney import model
 
 from e2e.tasks import app
 from openaleph_procrastinate.app import run_sync_worker
@@ -10,7 +12,7 @@ from openaleph_procrastinate.manage.status import (
     get_dataset_status,
     get_status,
 )
-from openaleph_procrastinate.model import DatasetJob
+from openaleph_procrastinate.model import DatasetJob, EntityJob
 from openaleph_procrastinate.settings import OpenAlephSettings
 from openaleph_procrastinate.tasks import unpack_job
 
@@ -40,6 +42,35 @@ def test_e2e_psql_cancel():
     db.cancel_jobs(task="e2e.tasks.dummy_task")
     todo = [job for job in app.job_manager.list_jobs() if job.status == "todo"]
     assert len(todo) == 0
+
+
+def test_e2e_psql_packed_entities():
+    db = _setup_db()
+
+    entity = model.make_entity("Person")
+    entity.id = "jane"
+    entity.add("name", "Jane Doe")
+    job = DatasetJob.from_entities(
+        dataset="d1", queue="q", task="e2e.tasks.next_task", entities=[entity]
+    )
+    with app.open():
+        job.defer(app)
+
+    with psycopg.connect(db.uri) as conn:
+        row = conn.execute(
+            "SELECT dataset, jsonb_typeof(args->'payload'->'entities') "
+            "FROM procrastinate_jobs"
+        ).fetchone()
+    assert row == ("d1", "string")
+
+    (stored,) = db.iterate_jobs()
+    assert isinstance(stored, DatasetJob)
+    assert [e.id for e in stored.get_entities()] == ["jane"]
+
+    (flat,) = db.iterate_jobs(flatten_entities=True)
+    assert isinstance(flat, EntityJob)
+    assert flat.entity_id == "jane"
+    assert flat.payload == stored.payload
 
 
 def test_e2e_psql_status():

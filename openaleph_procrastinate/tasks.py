@@ -8,6 +8,7 @@ from procrastinate.app import App
 
 from openaleph_procrastinate.exceptions import ErrorHandler
 from openaleph_procrastinate.model import AnyJob, DatasetJob, Job, Status
+from openaleph_procrastinate.payload import unpack_entities
 from openaleph_procrastinate.settings import OpenAlephSettings
 from openaleph_procrastinate.tracer import Tracer, get_job_tracer
 
@@ -20,6 +21,10 @@ PENDING_FLUSH = "pending_flush"
 def unpack_job(data: dict[str, Any]) -> AnyJob:
     """Unpack a payload to a job"""
     with ErrorHandler(log):
+        payload = data.get("payload")
+        if isinstance(payload, dict) and "entities" in payload:
+            entities = unpack_entities(payload["entities"])
+            data = {**data, "payload": {**payload, "entities": entities}}
         if "dataset" in data:
             return DatasetJob(**data)
         return Job(**data)

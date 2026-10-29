@@ -2,6 +2,7 @@ from openaleph_procrastinate.logging import (
     extract_job_summary,
     patch_procrastinate_logging,
 )
+from openaleph_procrastinate.payload import pack_entities
 
 
 def test_extract_job_summary_with_entities():
@@ -31,6 +32,9 @@ def test_extract_job_summary_with_entities():
     assert summary["entity_ids"] == ["doc-001", "doc-002"]
     assert summary["content_hash_min"] == "abc123"
     assert summary["content_hash_max"] == "def456"
+
+    task_kwargs["payload"] = {"entities": pack_entities(entities)}
+    assert extract_job_summary(task_kwargs) == summary
 
 
 def test_extract_job_summary_empty_payload():
