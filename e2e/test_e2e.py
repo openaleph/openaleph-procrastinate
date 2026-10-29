@@ -12,7 +12,7 @@ from openaleph_procrastinate.manage.status import (
     get_dataset_status,
     get_status,
 )
-from openaleph_procrastinate.model import DatasetJob
+from openaleph_procrastinate.model import DatasetJob, EntityJob
 from openaleph_procrastinate.settings import OpenAlephSettings
 from openaleph_procrastinate.tasks import unpack_job
 
@@ -66,6 +66,11 @@ def test_e2e_psql_packed_entities():
     (stored,) = db.iterate_jobs()
     assert isinstance(stored, DatasetJob)
     assert [e.id for e in stored.get_entities()] == ["jane"]
+
+    (flat,) = db.iterate_jobs(flatten_entities=True)
+    assert isinstance(flat, EntityJob)
+    assert flat.entity_id == "jane"
+    assert flat.payload == stored.payload
 
 
 def test_e2e_psql_status():
