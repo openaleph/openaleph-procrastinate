@@ -176,6 +176,23 @@ def test_entities_flush_keeps_the_writer(backend):
     assert {e.id for e in store.iterate(["first", "second"])} == {"first", "second"}
 
 
+def test_entities_delete(backend):
+    """`delete` drops the whole dataset: every origin, stored or still buffered"""
+    repository.get_entity_store(DATASET).delete()  # nothing stored yet
+
+    other = repository.get_entity_store(DATASET, origin="other")
+    other.put(make_entity("other"))
+    other.close()
+    store = repository.get_entity_store(DATASET)
+    store.put(make_entity("jane"))
+    assert store.get("jane") is not None
+    store.put(make_entity("buffered"))
+
+    store.delete()
+
+    assert list(repository.get_entity_store(DATASET).iterate()) == []
+
+
 def test_entity_store_is_not_shared(backend):
     """Stores buffer writes and tasks run in threads, so they must not be
     handed out from a cache"""

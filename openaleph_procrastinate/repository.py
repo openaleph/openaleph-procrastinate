@@ -65,9 +65,7 @@ def ensure_ids(entity_ids: EntityIds) -> list[str] | None:
 class Archive(Protocol):
     """Blob storage for the files being ingested."""
 
-    def archive_file(
-        self, file_path: Path, mime_type: str | None = None, origin: str | None = None
-    ) -> str: ...
+    def archive_file(self, file_path: Path, mime_type: str | None = None) -> str: ...
 
     def load_file(
         self, content_hash: str, temp_path: Path, file_name: str | None = None
@@ -114,9 +112,7 @@ class ServicelayerArchive:
             uri=sls.ARCHIVE_URI,
         )
 
-    def archive_file(
-        self, file_path: Path, mime_type: str | None = None, origin: str | None = None
-    ) -> str:
+    def archive_file(self, file_path: Path, mime_type: str | None = None) -> str:
         checksum: str = self._archive.archive_file(file_path, mime_type=mime_type)
         return checksum
 
@@ -160,12 +156,8 @@ class LakehouseArchive:
         self._archive = get_lakehouse_archive(dataset)
         self._is_local = self._archive._store.is_local
 
-    def archive_file(
-        self, file_path: Path, mime_type: str | None = None, origin: str | None = None
-    ) -> str:
-        file = self._archive.store(file_path, mimeType=mime_type, origin=origin)
-        checksum: str = file.checksum
-        return checksum
+    def archive_file(self, file_path: Path, mime_type: str | None = None) -> str:
+        return self._archive.store(file_path)
 
     def load_file(
         self, content_hash: str, temp_path: Path, file_name: str | None = None
@@ -309,15 +301,16 @@ class LakehouseStore:
         return entity
 
     def delete(self) -> None:
+        """Soft-delete the dataset. The parquet files stay on disk until the
+        next lakehouse vacuum."""
         self.close()
         self._entities.flush()
-        self._entities._statements.destroy()
+        self._entities.statements.destroy()
 
 
 @cache
 def get_archive(dataset: str) -> Archive:
-    """Get the archive for a dataset. Archives are stateless, so this is
-    cached – clear the cache to pick up changed `ARCHIVE_*` settings."""
+    """Get the archive for a dataset."""
     settings = OpenAlephSettings()
     if settings.lakehouse:
         return LakehouseArchive(dataset)
@@ -325,13 +318,7 @@ def get_archive(dataset: str) -> Archive:
 
 
 def get_entity_store(dataset: str, origin: str | None = None) -> EntityStore:
-    """Get the entity store for a dataset.
-
-    Deliberately *not* cached: the stores buffer writes, and procrastinate runs
-    sync tasks in a thread pool, so a shared instance would race on its buffer.
-    The expensive handles underneath are cached by `ftmq` and `ftm_lakehouse`
-    themselves, which makes building this wrapper cheap.
-    """
+    """Get the entity store for a dataset."""
     settings = OpenAlephSettings()
     if settings.lakehouse:
         return LakehouseStore(dataset, origin)
