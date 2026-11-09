@@ -2085,27 +2085,27 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "ftm-lakehouse"
-version = "0.10.0"
+version = "0.10.1"
 description = "Data standard, storage and retrieval for structured and unstructured FollowTheMoney data"
 optional = false
 python-versions = "<3.15,>=3.12"
 groups = ["main"]
 files = [
-    {file = "ftm_lakehouse-0.10.0-py3-none-any.whl", hash = "sha256:112e32259738442443d5866ca57d77a727b92a2edf8c477fc38f62b3348344bb"},
-    {file = "ftm_lakehouse-0.10.0.tar.gz", hash = "sha256:4e55100a1161dd1b7e109933918cb5cc9c60aeddc1b7a72ed5538d04682c28b4"},
+    {file = "ftm_lakehouse-0.10.1-py3-none-any.whl", hash = "sha256:2805355b2ec6578be43f9047ef81bd85fa06be7938356c67c5487b629c8e4f9f"},
+    {file = "ftm_lakehouse-0.10.1.tar.gz", hash = "sha256:b502c35d2a028dff590437b34825ea0e1b4ccb1a5f20956dd59044a563d2fb35"},
 ]
 
 [package.dependencies]
 adbc-driver-postgresql = {version = ">=1.12.0,<2.0.0", optional = true, markers = "extra == \"postgres\""}
-anystore = ">=1.5.6,<2.0.0"
+anystore = ">=1.5.7,<2.0.0"
 followthemoney = ">=4.11.2,<5.0.0"
-ftmq = {version = ">=5.3.1,<6.0.0", extras = ["lake"]}
+ftmq = {version = ">=5.3.2,<6.0.0", extras = ["lake"]}
 httpx = ">=0.28.1,<0.29.0"
 psycopg = {version = ">=3.2,<4", extras = ["binary"], optional = true, markers = "extra == \"postgres\""}
 zfs-agent = ">=0.0.1,<0.0.2"
 
 [package.extras]
-api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.141.1,<0.142.0)", "granian (>=2.8.3,<3.0.0)", "putfs (>=0.6.2,<0.7.0)", "uvloop (>=0.22.1,<0.23.0)"]
+api = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "fastapi (>=0.162.0,<0.163.0)", "granian (>=2.8.7,<3.0.0)", "putfs (>=0.6.3,<0.7.0)", "uvloop (>=0.23.0,<0.24.0)"]
 azure = ["adlfs"]
 gcs = ["gcsfs (>2024.2.0)"]
 http = ["aiohttp (!=4.0.0a0,!=4.0.0a1)"]
@@ -7594,4 +7594,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "8d47b36b2523e6e88f3191bf48931a792f8a6bcde0d489f90f23415a4df9bd91"
+content-hash = "d0d6807ee2e9adfac79e2ddc1bc048e3c445741529a8952647948f4ee9179bc1"
