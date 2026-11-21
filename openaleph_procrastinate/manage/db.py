@@ -3,14 +3,23 @@ This is temporary and should use the procrastinate Django models at one point in
 the future
 """
 
+import time
 from datetime import datetime
 from functools import cache
+from pathlib import Path
 from typing import Any, Generator, LiteralString, TypeAlias
 
 import psycopg
 from anystore.logging import get_logger
 from anystore.util import Took, mask_uri
-from psycopg.errors import UndefinedTable
+from procrastinate.schema import SchemaManager
+from psycopg.errors import (
+    DuplicateColumn,
+    DuplicateFunction,
+    DuplicateObject,
+    DuplicateTable,
+    UndefinedTable,
+)
 
 from openaleph_procrastinate.app import make_app
 from openaleph_procrastinate.manage import sql
@@ -34,23 +43,33 @@ class Db:
         self.log = get_logger(__name__, uri=mask_uri(self.uri))
 
     def configure(self) -> None:
-        """Create procrastinate tables and schema (if not exists) and add our
-        index optimizations (if not exists)"""
+        """Create procrastinate tables and schema (if not exists), apply pending
+        procrastinate migrations and add our index optimizations (if not exists)"""
         if self.settings.in_memory_db:
             return
         app = make_app(sync=True)
-        with app.open():
+        with psycopg.connect(self.uri, autocommit=True) as conn, app.open():
+            self._lock(conn)
+            conn.execute(sql.CREATE_MIGRATIONS_TABLE)
+            migrations = sorted(Path(SchemaManager.get_migrations_path()).glob("*.sql"))
             if not app.check_connection():
                 self.log.info("Configuring procrastinate database schema ...")
                 app.schema_manager.apply_schema()
-        self.log.info("Configuring generated fields, indices, and optimizations ...")
-        with Took() as t:
-            self._execute(sql.GENERATED_FIELDS)
-            self._execute(sql.REMOVE_FOREIGN_KEY)
-            self._execute(sql.CUSTOM_PRUNE_STALLED_WORKERS)
-            self._execute(sql.INDEXES)
-            self._execute(sql.OPTIMIZED_FETCH_FUNCTION)
-            self.log.info("Configuring done.", took=t.took)
+                # the schema contains all the migrations
+                self._add_migrations(conn, *migrations)
+            else:
+                self._migrate(conn, migrations)
+            # the migrations may replace our optimized fetch function
+            self.log.info(
+                "Configuring generated fields, indices, and optimizations ..."
+            )
+            with Took() as t:
+                self._execute(sql.GENERATED_FIELDS)
+                self._execute(sql.REMOVE_FOREIGN_KEY)
+                self._execute(sql.CUSTOM_PRUNE_STALLED_WORKERS)
+                self._execute(sql.INDEXES)
+                self._execute(sql.OPTIMIZED_FETCH_FUNCTION)
+                self.log.info("Configuring done.", took=t.took)
 
     def iterate_status(
         self,
@@ -274,6 +293,53 @@ class Db:
                         )
                     )
         self.log.info("Index ensure complete.")
+
+    def _lock(self, conn: psycopg.Connection[Any]) -> None:
+        """Hold a session advisory lock on `conn` (released when it closes).
+        Polls instead of blocking in `pg_advisory_lock()`: a session waiting in an
+        open transaction would deadlock with a `CREATE INDEX CONCURRENTLY` migration
+        run by the lock holder"""
+        while True:
+            row = conn.execute(sql.TRY_LOCK).fetchone()
+            if row and row[0]:
+                return
+            self.log.info("Waiting for another process configuring the database ...")
+            time.sleep(1)
+
+    def _migrate(self, conn: psycopg.Connection[Any], migrations: list[Path]) -> None:
+        """Apply pending pre and post migrations at once, as all services are
+        upgraded together (no older procrastinate version keeps running)"""
+        applied = {name for (name,) in conn.execute(sql.GET_MIGRATIONS)}
+        if not applied:
+            # existing schema from before the tracking
+            baseline = [m for m in migrations if m.name < sql.MIGRATIONS_BASELINE]
+            self._add_migrations(conn, *baseline)
+            applied = {m.name for m in baseline}
+        for migration in migrations:
+            if migration.name in applied:
+                continue
+            self.log.info(f"Applying procrastinate migration `{migration.name}` ...")
+            try:
+                # like procrastinate's alembic contrib: run the file as a script in
+                # autocommit mode, so that its statements run in one implicit
+                # transaction, and a CONCURRENTLY statement runs on its own
+                conn.execute(migration.read_text())
+            except (
+                DuplicateColumn,
+                DuplicateFunction,
+                DuplicateObject,
+                DuplicateTable,
+            ):
+                # applied manually, or the schema was created by a newer
+                # procrastinate before the tracking
+                self.log.warning(
+                    f"Procrastinate migration `{migration.name}` is already applied"
+                )
+            self._add_migrations(conn, migration)
+
+    def _add_migrations(self, conn: psycopg.Connection[Any], *migrations: Path) -> None:
+        with conn.cursor() as cursor:
+            cursor.executemany(sql.ADD_MIGRATION, [(m.name,) for m in migrations])
 
     def _execute_iter(self, q: LiteralString, **params: str | None) -> Rows:
         with psycopg.connect(self.settings.procrastinate_db_uri) as connection:

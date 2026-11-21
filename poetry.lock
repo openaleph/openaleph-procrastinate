@@ -4748,27 +4748,29 @@ dev = ["build", "bump2version", "mypy", "pytest", "pytest-cov", "ruff", "wheel"]
 
 [[package]]
 name = "procrastinate"
-version = "3.10.0"
+version = "3.12.0"
 description = "Postgres-based distributed task processing library"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "procrastinate-3.10.0-py3-none-any.whl", hash = "sha256:949ad25b4377c30e03a9d0e053d15dfa47ef02b3f12ae8a7f3254686183c152c"},
-    {file = "procrastinate-3.10.0.tar.gz", hash = "sha256:3668da769088682abf91b8c760de467be1203218411872f1a26ac7515d4f980d"},
+    {file = "procrastinate-3.12.0-py3-none-any.whl", hash = "sha256:14c28c3d24bf77d4a15dfcd8053c7db4a671011eefab337e666ce69290d33932"},
+    {file = "procrastinate-3.12.0.tar.gz", hash = "sha256:7dc95c31fb5fa9e6d2d5d6dd9f94b54d069d7f788f6ac14f70d95348fd0ca2dc"},
 ]
 
 [package.dependencies]
 asgiref = "*"
 attrs = "*"
-croniter = "*"
+croniter = ">=6.1"
 packaging = "*"
 psycopg = {version = "*", extras = ["pool"]}
 python-dateutil = "*"
 typing-extensions = "*"
+tzdata = "*"
 
 [package.extras]
 aiopg = ["aiopg", "psycopg2-binary"]
+alembic = ["alembic"]
 django = ["django (>=2.2)"]
 psycopg2 = ["psycopg2-binary"]
 sphinx = ["sphinx"]
@@ -6983,7 +6985,6 @@ description = "Provider of IANA time zone data"
 optional = false
 python-versions = ">=2"
 groups = ["main"]
-markers = "sys_platform == \"win32\" or sys_platform == \"emscripten\" or platform_system == \"Windows\""
 files = [
     {file = "tzdata-2026.6-py2.py3-none-any.whl", hash = "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec"},
     {file = "tzdata-2026.6.tar.gz", hash = "sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d"},
@@ -7594,4 +7595,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "8d47b36b2523e6e88f3191bf48931a792f8a6bcde0d489f90f23415a4df9bd91"
+content-hash = "d6dc65194271e1d2c453365cd18be7159a08f6ebe8ccfd664f4c28d464953131"

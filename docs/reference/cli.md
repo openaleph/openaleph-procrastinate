@@ -47,7 +47,7 @@ openaleph-procrastinate defer-jobs [OPTIONS]
 
 ### init-db
 
-Initialize procrastinate database schema
+Initialize procrastinate database schema and apply pending migrations
 
 ```
 openaleph-procrastinate init-db [OPTIONS]
