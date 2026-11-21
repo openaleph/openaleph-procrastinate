@@ -77,7 +77,7 @@ def defer_jobs(input_uri: str = OPT_INPUT_URI):
 
 @cli.command()
 def init_db():
-    """Initialize procrastinate database schema"""
+    """Initialize procrastinate database schema and apply pending migrations"""
     with ErrorHandler(log):
         if settings.in_memory_db:
             return
