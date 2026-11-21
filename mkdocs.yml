@@ -1,5 +1,5 @@
 site_name: OpenAleph Procrastinate
-site_url: https://openaleph.org/docs/lib/openaleph-procrastinate
+site_url: https://darc.li/docs/openaleph-procrastinate
 repo_url: https://github.com/openaleph/openaleph-procrastinate
 nav:
   - Intro: index.md
@@ -19,8 +19,8 @@ nav:
     - manage: reference/manage.md
 theme:
   name: material
-  logo: https://openaleph.org/assets/Logo/RGB/Open-Aleph-Logo-RGB-Square-Neg.svg
-  favicon: https://openaleph.org/favicon.ico
+  logo: https://darcdn.et/openaleph/Logo/RGB/Open-Aleph-Logo-RGB-Square-Neg.svg
+  favicon: https://darcdn.et/style/logos/darc/favicon.ico
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -41,9 +41,9 @@ theme:
     - toc.follow
     - content.code.copy
 extra_css:
-  - https://dataresearchcenter.github.io/zensical-theme-darc/stylesheets/darc-zensical.css
+  - https://darcdn.et/style/darc-zensical.css
 extra:
-  logo_light: https://openaleph.org/assets/Logo/RGB/Open-Aleph-Logo-RGB-Square-Pos.svg
+  logo_light: https://darcdn.et/openaleph/Logo/RGB/Open-Aleph-Logo-RGB-Square-Pos.svg
   social:
     - icon: lucide/mail
       link: mailto:hi@dataresearchcenter.org
