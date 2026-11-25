@@ -1,12 +1,12 @@
 import threading
 from functools import cache
+from typing import Any
 
 import procrastinate
 from anystore.logging import configure_logging, get_logger
 from anystore.util import mask_uri
 from cachetools import TTLCache, cached
-from cachetools.keys import hashkey
-from procrastinate import connector, testing, utils
+from procrastinate import connector, testing
 from psycopg_pool import AsyncConnectionPool, ConnectionPool
 
 from openaleph_procrastinate.logging import patch_procrastinate_logging
@@ -14,15 +14,14 @@ from openaleph_procrastinate.settings import OpenAlephSettings
 
 log = get_logger(__name__)
 
-# Thread-safe cache for get_pool function
+# Thread-safe cache for get_sync_pool function
 _pool_cache = TTLCache(maxsize=10, ttl=3600)  # 1 hour TTL
 _pool_cache_lock = threading.RLock()
 
 
-@cached(cache=_pool_cache, lock=_pool_cache_lock, key=lambda sync=False: hashkey(sync))
-def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool | None:
+def get_pool_config() -> dict[str, Any]:
     """
-    Create a psycopg connection pool with proper configuration for long-running workers.
+    Get the psycopg connection pool configuration for long-running workers.
 
     CRITICAL: psycopg3 does NOT check connection health by default!
     From the docs: "The pool doesn't actively check the state of the connections
@@ -40,35 +39,65 @@ def get_pool(sync: bool | None = False) -> ConnectionPool | AsyncConnectionPool 
       Pool proactively closes connections before PostgreSQL kills them
     - check=ConnectionPool.check_connection is ESSENTIAL
       Even with max_idle, connections can die from network issues, restarts, etc.
-      Without this, workers get broken connections and hang
+      Without this, workers get broken connections and hang. It is not part of
+      this config as procrastinate already sets it for the pools it creates.
     - timeout=30s prevents infinite hangs if pool can't get a connection
     - max_lifetime=3600s forces periodic connection refresh
 
     See: https://www.psycopg.org/psycopg3/docs/advanced/pool.html
     """
     settings = OpenAlephSettings()
-    if settings.in_memory_db:
-        return
+    return {
+        "min_size": 1,
+        "max_size": settings.db_pool_size,
+        "max_idle": 300,
+        "max_lifetime": 3600,
+        "timeout": 30,
+    }
 
-    if sync:
-        return ConnectionPool(
-            settings.procrastinate_db_uri,
-            min_size=1,
-            max_size=settings.db_pool_size,
-            check=ConnectionPool.check_connection,
-            max_idle=300,
-            max_lifetime=3600,
-            timeout=30,
-        )
-    return AsyncConnectionPool(
+
+@cached(cache=_pool_cache, lock=_pool_cache_lock)
+def get_sync_pool() -> ConnectionPool | None:
+    """Get the shared pool for sync connections"""
+    settings = OpenAlephSettings()
+    if settings.in_memory_db:
+        return None
+    return ConnectionPool(
         settings.procrastinate_db_uri,
-        min_size=1,
-        max_size=settings.db_pool_size,
-        check=AsyncConnectionPool.check_connection,
-        max_idle=300,
-        max_lifetime=3600,
-        timeout=30,
+        check=ConnectionPool.check_connection,
+        **get_pool_config(),
     )
+
+
+class SharedPoolConnector(procrastinate.PsycopgConnector):
+    """
+    Close the async pool when its last user is done.
+
+    This connector is shared by all apps within a process, so closing one app
+    must not close the pool others still use. But the pool can't be left open
+    either: its maintenance tasks swallow the cancellation `asyncio.run()` sends
+    them on shutdown, which would then wait for them forever.
+
+    Pools passed in by the caller are never closed.
+    """
+
+    _users: int = 0
+
+    async def open_async(self, pool: AsyncConnectionPool | None = None) -> None:
+        self._users += 1
+        try:
+            await super().open_async(pool)
+        except BaseException:  # including cancellation
+            await self.close_async()
+            raise
+
+    async def close_async(self) -> None:
+        self._users = max(self._users - 1, 0)
+        if self._users or self._async_pool is None or self._pool_externally_set:
+            return
+        # detach first: opening again while this closes needs a new pool
+        pool, self._async_pool = self._async_pool, None
+        await pool.close()
 
 
 class App(procrastinate.App):
@@ -77,14 +106,8 @@ class App(procrastinate.App):
     ) -> procrastinate.App:
         """Use a shared connection pool by default if not provided"""
         if pool_or_engine is None:
-            pool_or_engine = get_pool(sync=True)
+            pool_or_engine = get_sync_pool()
         return super().open(pool_or_engine)
-
-    def open_async(self, pool: connector.Pool | None = None) -> utils.AwaitableContext:
-        """Use a shared connection pool by default if not provided"""
-        if pool is None:
-            pool = get_pool()
-        return super().open_async(pool)
 
 
 @cache
@@ -102,7 +125,7 @@ def get_connector(sync: bool | None = False) -> connector.BaseConnector:
     db_uri = settings.procrastinate_db_uri
     if sync:
         return procrastinate.SyncPsycopgConnector(conninfo=db_uri)
-    return procrastinate.PsycopgConnector(conninfo=db_uri)
+    return SharedPoolConnector(conninfo=db_uri, **get_pool_config())
 
 
 @cache
