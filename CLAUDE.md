@@ -59,7 +59,7 @@ cd e2e && PROCRASTINATE_DB_URI=postgresql://... PYTHONPATH=../ bash ./test.sh
 
 ### Core Components
 
-- **`app.py`** - `App` subclass + `make_app()`; PostgreSQL connection pooling (TTL-cached psycopg pools with health checks, `max_idle`/`max_lifetime`), in-memory connector when the db uri is `memory:`
+- **`app.py`** - `App` subclass + `make_app()`; PostgreSQL connection pooling (psycopg pools with health checks, `max_idle`/`max_lifetime`; the sync pool is TTL-cached, the async pool is owned by `SharedPoolConnector` and closed with its last user), in-memory connector when the db uri is `memory:`
 - **`repository.py`** - `Archive` / `EntityStore` protocols over the legacy stores (servicelayer archive + ftm fragments) and ftm-lakehouse; opt in with `OPENALEPH_LAKEHOUSE=1`. Backends are imported lazily
 - **`model.py`** - Pydantic models: `Job`, `DatasetJob`, `EntityJob`, `EntityFileReference`, plus the status aggregates (`StatusCounts`, `TaskStatus`, `QueueStatus`, `BatchStatus`, `DatasetStatus`)
 - **`settings.py`** - Configuration via `OPENALEPH_*` environment variables
