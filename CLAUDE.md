@@ -72,7 +72,7 @@ cd e2e && PROCRASTINATE_DB_URI=postgresql://... PYTHONPATH=../ bash ./test.sh
 - **`exceptions.py`** - `InvalidJob`, `ArchiveFileNotFound`, and the `ErrorHandler` context manager (re-raises when `DEBUG`)
 - **`logging.py`** - Patches procrastinate's job logging to drop full payload reprs and promote dataset/entity summaries to structlog fields
 - **`cli.py`** - typer CLI, exposed as the `openaleph-procrastinate` entrypoint
-- **`manage/`** - `db.py` (`Db` schema manager: generated `dataset`/`batch`/`created_at`/`updated_at` columns, dropped worker FK, custom prune-stalled-workers function, indexes, optimized fetch function), `sql.py` (SQL constants), `status.py` (job status aggregation)
+- **`manage/`** - `db.py` (`Db` schema manager: procrastinate migrations tracked in `openaleph_procrastinate_migrations`, generated `dataset`/`batch`/`created_at`/`updated_at` columns, dropped worker FK, custom prune-stalled-workers function, indexes, optimized fetch function), `sql.py` (SQL constants), `status.py` (job status aggregation)
 
 ### Task Conventions
 
@@ -119,7 +119,7 @@ procrastinate worker -q <queue-name>
 ### CLI
 
 ```bash
-openaleph-procrastinate init-db          # Apply procrastinate schema + our optimizations
+openaleph-procrastinate init-db          # Apply procrastinate schema / pending migrations + our optimizations
 openaleph-procrastinate ensure-indexes   # Reconcile custom indexes (--force to recreate)
 openaleph-procrastinate defer-jobs -i jobs.json
 openaleph-procrastinate defer-entities -i entities.json -d <dataset> -q <queue> -t <task>

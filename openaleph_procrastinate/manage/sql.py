@@ -17,6 +17,25 @@ F_TASK = "(%(task)s::varchar IS NULL OR task_name = %(task)s)"
 F_STATUS = "(%(status)s::procrastinate_job_status IS NULL OR status = %(status)s)"
 F_ALL_ANDS = " AND ".join((F_DATASET, F_BATCH, F_QUEUE, F_TASK, F_STATUS))
 
+# PROCRASTINATE MIGRATIONS #
+# procrastinate only tracks applied migrations via its django / alembic contribs,
+# so we track them ourselves
+MIGRATIONS = "openaleph_procrastinate_migrations"
+# Before the tracking, openaleph-procrastinate required procrastinate >= 3.10,
+# whose schema contains every migration up to this (excluded) version
+MIGRATIONS_BASELINE = "03.11.00"
+# Serializes concurrent configure() runs (e.g. services starting at once)
+TRY_LOCK = "SELECT pg_try_advisory_lock(8467320815)"
+
+CREATE_MIGRATIONS_TABLE = f"""
+CREATE TABLE IF NOT EXISTS {MIGRATIONS} (
+    name TEXT PRIMARY KEY,
+    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+)
+"""
+GET_MIGRATIONS = f"SELECT name FROM {MIGRATIONS}"
+ADD_MIGRATION = f"INSERT INTO {MIGRATIONS} (name) VALUES (%s) ON CONFLICT DO NOTHING"
+
 # FOR INITIAL SETUP #
 GENERATED_FIELDS = f"""
 ALTER TABLE {JOBS}
@@ -126,7 +145,7 @@ ON {JOBS} (status);
 BUILTIN_INDEXES: set[str] = {
     "procrastinate_jobs_pkey",
     "procrastinate_jobs_priority_idx_v1",
-    "procrastinate_jobs_id_lock_idx_v1",
+    "procrastinate_jobs_todo_doing_lock_idx_v1",
     "procrastinate_jobs_queueing_lock_idx_v1",
     "procrastinate_jobs_lock_idx_v1",
     "procrastinate_jobs_queue_name_idx_v1",
@@ -154,6 +173,19 @@ WHERE schemaname = 'public' AND tablename = '{JOBS}'
 # Most jobs have lock IS NULL, so check them first with simple index lookup
 # Only fall back to complex NOT EXISTS logic for jobs with locks
 # See: procrastinate-performance-optimization.md (Solution: Fast Path / Slow Path Optimization)
+
+# Workers usually fetch a single queue: compare it with `=` (folded to a
+# constant, see plan_cache_mode below) so the planner can serve the ORDER BY
+# from idx_procrastinate_jobs_no_lock_fast_path. With `= ANY(array)` it can't,
+# and scans procrastinate_jobs_priority_idx_v1 past all other queues' jobs.
+F_FETCH_QUEUES = """(
+            target_queue_names IS NULL
+            OR (cardinality(target_queue_names) = 1
+                AND jobs.queue_name = target_queue_names[1])
+            OR (cardinality(target_queue_names) > 1
+                AND jobs.queue_name = ANY(target_queue_names))
+          )"""
+
 OPTIMIZED_FETCH_FUNCTION = f"""
 CREATE OR REPLACE FUNCTION procrastinate_fetch_job_v2(
     target_queue_names character varying[],
@@ -172,7 +204,7 @@ BEGIN
         FROM {JOBS} AS jobs
         WHERE jobs.status = 'todo'
           AND jobs.lock IS NULL
-          AND (target_queue_names IS NULL OR jobs.queue_name = ANY(target_queue_names))
+          AND {F_FETCH_QUEUES}
           AND (jobs.scheduled_at IS NULL OR jobs.scheduled_at <= now())
         ORDER BY jobs.priority DESC, jobs.id ASC
         LIMIT 1
@@ -190,12 +222,14 @@ BEGIN
 
     -- SLOW PATH: jobs with locks (requires NOT EXISTS check for lock conflicts)
     -- Only executed if fast path returns nothing
+    -- A waiting 'mutex' job only blocks its lock once it is due, an 'ordered'
+    -- one always does (procrastinate >= 3.12 lock_mode semantics)
     WITH candidate AS (
         SELECT jobs.id
         FROM {JOBS} AS jobs
         WHERE jobs.status = 'todo'
           AND jobs.lock IS NOT NULL
-          AND (target_queue_names IS NULL OR jobs.queue_name = ANY(target_queue_names))
+          AND {F_FETCH_QUEUES}
           AND (jobs.scheduled_at IS NULL OR jobs.scheduled_at <= now())
           AND NOT EXISTS (
               SELECT 1
@@ -205,6 +239,11 @@ BEGIN
                     other_jobs.status = 'doing'
                     OR (
                         other_jobs.status = 'todo'
+                        AND (
+                            other_jobs.lock_mode = 'ordered'
+                            OR other_jobs.scheduled_at IS NULL
+                            OR other_jobs.scheduled_at <= now()
+                        )
                         AND (
                             other_jobs.priority > jobs.priority
                             OR (other_jobs.priority = jobs.priority AND other_jobs.id < jobs.id)
